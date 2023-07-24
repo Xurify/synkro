@@ -15,6 +15,8 @@ body {
   background-color: #f1f6f9;
   color: #212a3e;
   height: 100%;
+  font-family: "Noto Sans", sans-serif;
+  font-family: "Nunito", sans-serif;
 }
 
 .player-wrapper {
