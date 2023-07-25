@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import {
-  validateName,
-  validateUserId,
-  validateRoomId,
-} from "@/libs/api-utils/utils";
+import { validateName, validateUserId, validateRoomId } from "@/libs/api-utils/utils";
 
 const prisma = new PrismaClient();
 
@@ -25,10 +21,7 @@ export const POST = async (request: Request) => {
     where: { id: res.roomId },
   });
   if (!room) {
-    return NextResponse.json(
-      { message: `Room with id '${res.roomId}' was not found` },
-      { status: 404 }
-    );
+    return NextResponse.json({ message: `Room with id '${res.roomId}' was not found` }, { status: 404 });
   }
 
   await prisma.users.create({
@@ -54,7 +47,7 @@ export const PATCH = async (request: Request) => {
   }
   const id = validatedId.value;
 
-  const user = await prisma.users.update({
+  await prisma.users.update({
     where: { id: id },
     data: {
       name: res.name,
