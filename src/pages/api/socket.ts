@@ -61,7 +61,10 @@ export const handler = (_req: NextApiRequest, res: NextApiResponseWithSocket) =>
   if (!res.socket.server.io) {
     console.log("Starting Socket.io server");
 
-    const io = new Server<ClientToServerEvents, ServerToClientEvents>(res.socket.server);
+    const io = new Server<ClientToServerEvents, ServerToClientEvents>(res.socket.server, {
+      path: "/api/socket_io",
+      addTrailingSlash: false,
+    });
 
     io.on("connection", (socket) => {
       activeConnections++;

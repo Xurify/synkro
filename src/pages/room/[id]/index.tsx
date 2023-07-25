@@ -26,24 +26,31 @@ export default function RoomPage() {
   const searchParams = useSearchParams();
   const roomId = searchParams.get("id") as string;
 
+  const socketMethods = () => {
+    socket = io({
+      path: "/api/socket_io",
+    });
+
+    socket.on("connect", () => {
+      console.log("Connected");
+    });
+
+    socket.on(SERVER_MESSAGE, (newMessage) => {
+      console.log("SERVER_MESSAGE", newMessage);
+      setServerMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
+
+    socket.on(USER_MESSAGE, (newMessage) => {
+      setChatMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
+  };
+
   useEffect(() => {
     if (!socket) {
       void fetch("/api/socket");
-      socket = io();
-
-      socket.on("connect", () => {
-        console.log("Connected");
-      });
-
-      socket.on(SERVER_MESSAGE, (newMessage) => {
-        console.log("SERVER_MESSAGE", newMessage);
-        setServerMessages((prevMessages) => [...prevMessages, newMessage]);
-      });
-
-      socket.on(USER_MESSAGE, (newMessage) => {
-        setChatMessages((prevMessages) => [...prevMessages, newMessage]);
-      });
+      socketMethods();
     }
+
     return () => {
       if (socket) {
         socket.disconnect();
@@ -61,15 +68,13 @@ export default function RoomPage() {
   }, [roomId]);
 
   const onReady = (player: ReactPlayerType) => {
-    //socket = io();
     setPlayer(player);
 
     console.log(player.getDuration());
 
     setLoading(false);
-    //this.setState({ player: e.target, socket });
     //this.onSocketMethods(socket);
-    //this.setState({ loading: false });
+    //setLoading(false);
   };
 
   const handleLeaveRoom = (): void => {
