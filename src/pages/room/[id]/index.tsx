@@ -27,14 +27,7 @@ export default function RoomPage() {
   const roomId = searchParams.get("id") as string;
 
   const socketMethods = () => {
-    socket = io(undefined as any, {
-      path: "/api/socket_io",
-      transports: ["websocket"],
-    });
-
-    socket.on("connect_error", (err) => {
-      console.log(`Connect error due to ${err.message}`);
-    });
+    socket = io();
 
     socket.on("connect", () => {
       console.log("Connected");
