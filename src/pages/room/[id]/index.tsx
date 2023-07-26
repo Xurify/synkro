@@ -29,6 +29,7 @@ export default function RoomPage() {
   const socketMethods = () => {
     socket = io(undefined as any, {
       path: "/api/socket_io",
+      rejectUnauthorized: false,
     });
 
     socket.on("connect", () => {
