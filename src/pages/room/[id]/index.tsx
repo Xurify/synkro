@@ -32,6 +32,10 @@ export default function RoomPage() {
       rejectUnauthorized: false,
     });
 
+    socket.on("connect_error", (err) => {
+      console.log(`Connect error due to ${err.message}`);
+    });
+
     socket.on("connect", () => {
       console.log("Connected");
     });
