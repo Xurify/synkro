@@ -27,7 +27,7 @@ export default function RoomPage() {
   const roomId = searchParams.get("id") as string;
 
   const socketMethods = () => {
-    socket = io({
+    socket = io(undefined, {
       path: "/api/socket_io",
     });
 
