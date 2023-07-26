@@ -30,6 +30,7 @@ export default function RoomPage() {
     socket = io(undefined as any, {
       path: "/api/socket_io",
       rejectUnauthorized: false,
+      transports: ["websocket"],
     });
 
     socket.on("connect_error", (err) => {
