@@ -2,18 +2,27 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import RoomToolbar, { ButtonActions } from "@/components/RoomToolbar";
 
-import { io, type Socket } from "socket.io-client";
+//import { io, type Socket } from "socket.io-client";
+import io, { type Socket } from "socket.io-client";
+import { parse } from "cookie";
 import type { ServerToClientEvents, ClientToServerEvents, ServerMessage } from "@/types/socketCustomTypes";
 import { useRouter, useSearchParams } from "next/navigation";
+
+//import { useRouter, useSearchParams } from "next/navigation";
 //import { socketURL } from "@/constants/constants";
 import { LEAVE_ROOM, USER_MESSAGE, SERVER_MESSAGE, JOIN_ROOM, SEND_USER_MESSAGE } from "@/constants/socketActions";
 import type ReactPlayerType from "react-player";
+import { GetServerSideProps } from "next";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), { ssr: false });
 
 let socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
 
-export default function RoomPage() {
+export interface RoomPageProps {
+  sessionToken: string;
+}
+
+export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [activeButton, setActiveButton] = useState<ButtonActions>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
   const [chatMessages, setChatMessages] = useState<{ username: string; message: string; id: string; userId: string }[]>([]);
@@ -26,8 +35,23 @@ export default function RoomPage() {
   const searchParams = useSearchParams();
   const roomId = searchParams.get("id") as string;
 
-  const socketMethods = () => {
-    socket = io();
+  const socketMethods = React.useCallback(() => {
+    console.log("roomId", roomId);
+    socket = io(`ws://localhost:8000`, {
+      transports: ["websocket"],
+      query: {
+        roomId,
+        username: "Tester",
+        userId: sessionToken,
+      },
+    });
+
+    //http://localhost:5000/?EIO=4&transport=polling&t=OcKxdlW
+    //ws://localhost:5000/socket.io/?EIO=3&transport=websocket
+
+    //ws://localhost:5000/?EIO=4&transport=websocket
+    //ws://localhost:5000/socket.io?EIO=4&transport=websocket
+    //ws://localhost:5000/socket.io?EIO=4&transport=websocket
 
     socket.on("connect", () => {
       console.log("Connected");
@@ -39,13 +63,13 @@ export default function RoomPage() {
     });
 
     socket.on(USER_MESSAGE, (newMessage) => {
+      console.log("TESDAD", newMessage);
       setChatMessages((prevMessages) => [...prevMessages, newMessage]);
     });
-  };
+  }, [roomId]);
 
   useEffect(() => {
-    if (!socket) {
-      void fetch("/api/socket");
+    if (!socket && roomId) {
       socketMethods();
     }
 
@@ -55,13 +79,11 @@ export default function RoomPage() {
         socket = null;
       }
     };
-  }, []);
+  }, [roomId, socketMethods]);
 
   useEffect(() => {
     if (socket && roomId) {
-      const username = "Tester";
-      const roomName = "TestRoom";
-      socket.emit(JOIN_ROOM, { roomId, roomName, username });
+      socket.emit(JOIN_ROOM, roomId);
     }
   }, [roomId]);
 
@@ -139,4 +161,16 @@ export default function RoomPage() {
       </div>
     </main>
   );
-}
+};
+
+export default RoomPage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const cookies = parse(context.req.headers.cookie || "");
+  const sessionToken = cookies["session_token"] || null;
+  return {
+    props: {
+      sessionToken,
+    },
+  };
+};

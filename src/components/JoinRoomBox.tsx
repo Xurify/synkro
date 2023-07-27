@@ -7,11 +7,9 @@ export interface JoinRoomBoxProps {
   toggle: () => void;
 }
 
-export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({
-  toggle: toggleShowCreate,
-}) => {
+export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCreate }) => {
   const [username, setUsername] = useState("");
-  const [roomID, setRoomID] = useState("");
+  const [roomId, setRoomID] = useState("");
 
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -34,7 +32,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({
           className="bg-gray-100 py-1.5 px-2 w-full rounded-sm outline-none"
           placeholder="Room ID"
           onChange={handleChangeRoomID}
-          value={roomID}
+          value={roomId}
         />
       </div>
       <div className="flex mt-3">

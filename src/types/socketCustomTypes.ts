@@ -34,7 +34,7 @@ export interface ServerMessage {
 }
 
 export interface ServerToClientEvents {
-  [JOIN_ROOM]: ({ roomId, roomName, username }: { roomId: string; roomName: string; username: string }) => void;
+  [JOIN_ROOM]: (roomId: string) => void;
   [LEAVE_ROOM]: (roomId: string) => void;
   [USER_MESSAGE]: (data: { username: string; userId: string; message: string; id: string }) => void;
   [SERVER_MESSAGE]: ({ message, type }: ServerMessage) => void;
@@ -43,7 +43,7 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-  [JOIN_ROOM]: ({ roomId, roomName, username }: { roomId: string; roomName: string; username: string }) => void;
+  [JOIN_ROOM]: (roomId: string) => void;
   [LEAVE_ROOM]: (roomId: string) => void;
   [SEND_USER_MESSAGE]: (message: string, roomId: string) => void;
   [CHECK_IF_ROOM_IS_FULL]: (roomId: string, callback: any) => void;
