@@ -36,13 +36,12 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
     if (!username.trim() || !roomId.trim()) return;
 
     socket?.emit(CHECK_IF_ROOM_EXISTS, roomId, (value) => {
-      console.log("DADADADAS", roomId, value);
-
       if (value === null) {
+        alert("Sorry, this room doesn't exist 😥");
+      } else {
         router.push(`/room/${roomId}`);
       }
     });
-    console.log("SOCKET", roomId, username, socket);
   }, [roomId, router, socket, username]);
 
   console.log("JOINROOMBOX", socket);

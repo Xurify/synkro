@@ -50,7 +50,7 @@ export interface ClientToServerEvents {
   [LEAVE_ROOM]: (roomId: string) => void;
   [USER_MESSAGE]: (message: string, roomId: string) => void;
   [CHECK_IF_ROOM_IS_FULL]: (roomId: string, callback: any) => void;
-  [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room) => void) => void;
+  [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room | null) => void) => void;
   [CREATE_ROOM]: (callback: (value: { result?: Room; error?: string }) => void) => void;
   [GET_ROOM_INFO]: (room: Room) => void;
 }
