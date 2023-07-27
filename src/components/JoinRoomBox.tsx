@@ -2,14 +2,21 @@ import React, { useState } from "react";
 
 import { generateName } from "../libs/utils/names";
 import DiceIcon from "./DiceIcon";
+import { ClientToServerEvents, ServerToClientEvents } from "@/types/socketCustomTypes";
+import { Socket } from "socket.io-client";
+import { CHECK_IF_ROOM_EXISTS } from "@/constants/socketActions";
+import { useRouter } from "next/router";
 
 export interface JoinRoomBoxProps {
   toggle: () => void;
+  socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
 }
 
-export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCreate }) => {
+export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCreate, socket }) => {
   const [username, setUsername] = useState("");
   const [roomId, setRoomID] = useState("");
+
+  const router = useRouter();
 
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -24,6 +31,21 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
   const handleGenerateRandomUsername = () => {
     setUsername(generateName());
   };
+
+  const handleJoinRoom = React.useCallback(() => {
+    if (!username.trim() || !roomId.trim()) return;
+
+    socket?.emit(CHECK_IF_ROOM_EXISTS, roomId, (value) => {
+      console.log("DADADADAS", roomId, value);
+
+      if (value === null) {
+        router.push(`/room/${roomId}`);
+      }
+    });
+    console.log("SOCKET", roomId, username, socket);
+  }, [roomId, router, socket, username]);
+
+  console.log("JOINROOMBOX", socket);
 
   return (
     <div className="max-w-[30rem] w-full bg-white shadow-lg p-4 rounded">
@@ -50,7 +72,10 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
         </button>
       </div>
       <div className="mt-4 flex flex-col items-center justify-end">
-        <button className="w-full h-9 py-1 px-2 bg-brand-purple-200 hover:bg-brand-purple-100 text-brand-blue-800 rounded">
+        <button
+          className="w-full h-9 py-1 px-2 bg-brand-purple-200 hover:bg-brand-purple-100 text-brand-blue-800 rounded"
+          onClick={handleJoinRoom}
+        >
           Join Room
         </button>
         <div className="flex items-center justify-center my-4 max-w-[10rem] w-full">

@@ -7,7 +7,16 @@ import { Server, Socket } from 'socket.io';
 import { Room, User } from '../../src/types/interfaces';
 import { CustomSocket } from '../../src/types/socketCustomTypes';
 import { addRoom, addUser, getRoomById, getUser, updateRoom } from './utils/socket';
-import { LEAVE_ROOM, USER_MESSAGE, SERVER_MESSAGE, JOIN_ROOM, GET_ROOM_INFO, SET_HOST } from '../../src/constants/socketActions';
+import {
+  LEAVE_ROOM,
+  USER_MESSAGE,
+  SERVER_MESSAGE,
+  JOIN_ROOM,
+  GET_ROOM_INFO,
+  SET_HOST,
+  CHECK_IF_ROOM_EXISTS,
+  CREATE_ROOM,
+} from '../../src/constants/socketActions';
 
 const PORT = 8000;
 const app: Application = express();
@@ -30,6 +39,31 @@ io.on('connection', (socket: CustomSocket) => {
 
   console.log(`⚡️ New user connected in Room: ${roomId} - User Id: ${userId} - Username: ${username}`);
 
+  socket.on(CHECK_IF_ROOM_EXISTS, (roomId: string, callback: (value: Room) => void) => {
+    const room = getRoomById(roomId, rooms);
+    console.log(CHECK_IF_ROOM_EXISTS, roomId, room);
+
+    typeof callback === 'function' && callback(room);
+  });
+
+  socket.on(CREATE_ROOM, (callback: (value: { result?: Room; error?: string }) => void) => {
+    console.log('CREATE_ROOM', roomId, userId, username, roomName);
+    if (roomId && userId && username && roomName) {
+      socket.join(roomId);
+      const user = addUser(socket.id, users, username, roomId);
+      const room: Room = getRoomById(roomId, rooms);
+      if (room) {
+        typeof callback === 'function' && callback({ error: 'Room already exists' });
+      } else {
+        const newRoom = addRoom(roomId, roomName, user);
+        rooms[roomId] = newRoom;
+        typeof callback === 'function' && callback({ result: newRoom });
+      }
+    } else {
+      typeof callback === 'function' && callback({ error: 'Failed to create room' });
+    }
+  });
+
   socket.on(JOIN_ROOM, (roomId: string, callback: (value: boolean) => void) => {
     console.log('JOIN_ROOM', roomId, userId, username, roomName);
     if (roomId && userId && username && roomName) {
@@ -40,20 +74,8 @@ io.on('connection', (socket: CustomSocket) => {
         const newMembers = [...room.members, user];
         const updatedRoom = updateRoom(roomId, rooms, { ...room, members: newMembers });
         rooms[roomId] = updatedRoom;
-      } else {
-        const newRoom = addRoom(roomId, roomName, user);
-        rooms[roomId] = newRoom;
-
-        console.log('HELLO');
-        //io.to(roomId).emit(SET_HOST, socket.id);
-        // await prisma.rooms.create({
-        //   data: {
-        //     name: res.name,
-        //     id: code,
-        //   },
-        // });
+        socket.emit(GET_ROOM_INFO, room);
       }
-      socket.emit(GET_ROOM_INFO, room);
     } else {
       typeof callback === 'function' && callback(false);
     }

@@ -8,10 +8,11 @@ import {
   SERVER_MESSAGE,
   JOIN_ROOM,
   CHECK_IF_ROOM_IS_FULL,
-  CHECK_IF_ROOM_ID_EXISTS,
+  CHECK_IF_ROOM_EXISTS,
   SET_HOST,
   GET_USERS,
   GET_ROOM_INFO,
+  CREATE_ROOM,
 } from "../constants/socketActions";
 import { ChatMessage, Room, User } from "./interfaces";
 
@@ -49,11 +50,13 @@ export interface ClientToServerEvents {
   [LEAVE_ROOM]: (roomId: string) => void;
   [USER_MESSAGE]: (message: string, roomId: string) => void;
   [CHECK_IF_ROOM_IS_FULL]: (roomId: string, callback: any) => void;
-  [CHECK_IF_ROOM_ID_EXISTS]: (roomId: string, callback: any) => void;
+  [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room) => void) => void;
+  [CREATE_ROOM]: (callback: (value: { result?: Room; error?: string }) => void) => void;
   [GET_ROOM_INFO]: (room: Room) => void;
 }
 
 export type CustomSocket = Socket<ClientToServerEvents, ServerToClientEvents> & CustomSocketProperties;
+
 type CustomSocketProperties = {
   userId?: string;
 };

@@ -3,10 +3,14 @@ import React, { useState } from "react";
 import { generateName } from "../libs/utils/names";
 import DiceIcon from "./DiceIcon";
 import { JoinRoomBoxProps } from "./JoinRoomBox";
+import { CREATE_ROOM } from "@/constants/socketActions";
+import { useRouter } from "next/router";
 
-export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJoin }) => {
+export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJoin, socket }) => {
   const [username, setUsername] = useState("");
   //const [roomName, setRoomName] = useState("");
+
+  const router = useRouter();
 
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -20,6 +24,20 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
 
   const handleGenerateRandomUsername = () => {
     setUsername(generateName());
+  };
+
+  const handleCreateRoom = () => {
+    if (!username.trim()) return;
+
+    socket?.emit(CREATE_ROOM, ({ result, error }) => {
+      console.log("DADADADAS", result, error);
+
+      if (result && result.id) {
+        router.push(`/room/${result.id}`);
+      } else {
+        alert(error);
+      }
+    });
   };
 
   return (
@@ -50,7 +68,10 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
         </button>
       </div>
       <div className="mt-4 flex flex-col items-center justify-end">
-        <button className="w-full h-9 py-1 px-2 bg-brand-purple-200 hover:bg-brand-purple-100 text-brand-blue-800 rounded">
+        <button
+          className="w-full h-9 py-1 px-2 bg-brand-purple-200 hover:bg-brand-purple-100 text-brand-blue-800 rounded"
+          onClick={handleCreateRoom}
+        >
           Create Room
         </button>
         <div className="flex items-center justify-center my-4 max-w-[10rem] w-full">
