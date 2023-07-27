@@ -49,12 +49,12 @@ io.on('connection', (socket: CustomSocket) => {
   socket.on(CREATE_ROOM, (callback: (value: { result?: Room; error?: string }) => void) => {
     console.log('CREATE_ROOM', roomId, userId, username, roomName);
     if (roomId && userId && username && roomName) {
-      socket.join(roomId);
       const user = addUser(socket.id, users, username, roomId);
       const room: Room = getRoomById(roomId, rooms);
       if (room) {
         typeof callback === 'function' && callback({ error: 'Room already exists' });
       } else {
+        socket.join(roomId);
         const newRoom = addRoom(roomId, roomName, user);
         rooms[roomId] = newRoom;
         typeof callback === 'function' && callback({ result: newRoom });
