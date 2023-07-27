@@ -58,7 +58,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
     socket.on(USER_MESSAGE, (newMessage: ChatMessage) => {
       console.log("TESDAD", newMessage);
-      //setChatMessages((prevMessages) => [...prevMessages, newMessage]);
+      setChatMessages((prevMessages) => [...prevMessages, newMessage]);
     });
   }, [roomId, sessionToken]);
 
