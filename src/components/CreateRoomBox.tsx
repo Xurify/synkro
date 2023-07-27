@@ -4,9 +4,7 @@ import { generateName } from "../libs/utils/names";
 import DiceIcon from "./DiceIcon";
 import { JoinRoomBoxProps } from "./JoinRoomBox";
 
-export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({
-  toggle: toggleShowJoin,
-}) => {
+export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJoin }) => {
   const [username, setUsername] = useState("");
   //const [roomName, setRoomName] = useState("");
 

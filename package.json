@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently \"nodemon ./server/src/app.ts\" \"next dev\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -39,8 +39,10 @@
     "tailwindcss": "3.3.3",
     "typescript": "5.1.6",
     "uuid": "^9.0.0",
-    "yarn": "^1.22.19",
-    "ytdl-core": "^4.11.5"
+    "yarn": "^1.22.19"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "ts-node": "^10.9.1"
+  }
 }

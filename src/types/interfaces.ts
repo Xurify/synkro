@@ -13,4 +13,13 @@ export interface Room {
   maxRoomSize: number;
 }
 
+export type Rooms = { [roomId: string]: Room };
+
 interface Queue {}
+
+export interface ChatMessage {
+  username: string;
+  message: string;
+  id: string;
+  userId: string;
+}

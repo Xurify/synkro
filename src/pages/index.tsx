@@ -1,6 +1,6 @@
 import { useState } from "react";
 import CreateRoomBox from "@/components/CreateRoomBox";
-import JoinBox from "@/components/JoinRoomBox";
+import JoinRoomBox from "@/components/JoinRoomBox";
 
 export default function Home() {
   const [isJoin, setIsJoin] = useState(true);
@@ -10,11 +10,7 @@ export default function Home() {
   return (
     <main className="flex flex-col mt-4">
       <div className="w-full h-full flex flex-col items-center justify-center px-2">
-        {isJoin ? (
-          <JoinBox toggle={handleToggle} />
-        ) : (
-          <CreateRoomBox toggle={handleToggle} />
-        )}
+        {isJoin ? <JoinRoomBox toggle={handleToggle} /> : <CreateRoomBox toggle={handleToggle} />}
       </div>
     </main>
   );
