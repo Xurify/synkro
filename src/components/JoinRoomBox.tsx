@@ -4,7 +4,7 @@ import { generateName } from "../libs/utils/names";
 import DiceIcon from "./DiceIcon";
 import { ClientToServerEvents, ServerToClientEvents } from "@/types/socketCustomTypes";
 import { Socket } from "socket.io-client";
-import { CHECK_IF_ROOM_EXISTS } from "@/constants/socketActions";
+import { CHECK_IF_ROOM_EXISTS, JOIN_ROOM } from "@/constants/socketActions";
 import { useRouter } from "next/router";
 
 export interface JoinRoomBoxProps {
@@ -23,7 +23,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
     setUsername(value);
   };
 
-  const handleChangeRoomID = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRoomId = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setRoomId(value);
   };
@@ -39,20 +39,22 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
       if (value === null) {
         alert("Sorry, this room doesn't exist 😥");
       } else {
-        router.push(`/room/${roomId}`);
+        console.log("HELLO", value);
+        socket.emit(JOIN_ROOM, roomId, username, (value) => {
+          console.log("JOIN_ROOM", value);
+          router.push(`/room/${roomId}`);
+        });
       }
     });
   }, [roomId, router, socket, username]);
-
-  console.log("JOINROOMBOX", socket);
 
   return (
     <div className="max-w-[30rem] w-full bg-white shadow-lg p-4 rounded">
       <div className="flex">
         <input
           className="bg-gray-100 py-1.5 px-2 w-full rounded-sm outline-none"
-          placeholder="Room ID"
-          onChange={handleChangeRoomID}
+          placeholder="Room Id"
+          onChange={handleChangeRoomId}
           value={roomId}
         />
       </div>

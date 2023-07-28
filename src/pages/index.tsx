@@ -11,10 +11,10 @@ export interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ sessionToken }) => {
-  const [isJoin, setIsJoin] = useState(true);
+  const [isCreateBoxShown, setIsCreateBoxShown] = useState(true);
   const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
 
-  const handleToggle = () => setIsJoin(!isJoin);
+  const handleToggle = () => setIsCreateBoxShown(!isCreateBoxShown);
 
   useEffect(() => {
     const newSocket = io(`ws://localhost:8000`, {
@@ -34,7 +34,7 @@ export const HomePage: React.FC<HomePageProps> = ({ sessionToken }) => {
   return (
     <main className="flex flex-col mt-4">
       <div className="w-full h-full flex flex-col items-center justify-center px-2">
-        {isJoin ? <JoinRoomBox toggle={handleToggle} socket={socket} /> : <CreateRoomBox toggle={handleToggle} socket={socket} />}
+        {isCreateBoxShown ? <CreateRoomBox toggle={handleToggle} socket={socket} /> : <JoinRoomBox toggle={handleToggle} socket={socket} />}
       </div>
     </main>
   );

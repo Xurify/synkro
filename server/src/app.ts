@@ -27,15 +27,32 @@ const server: HttpServer = createServer(app);
 const io: Server = new Server(server);
 
 let users: User[] = [];
-const rooms: { [roomId: string]: Room } = {};
+const rooms: { [roomId: string]: Room } = {
+  'SK93eL-vf': {
+    host: '798f0692-5633-43ef-aea7-eb73fb638d41',
+    name: 'Dearest Room',
+    id: 'SK93eL-vf',
+    queue: [],
+    maxRoomSize: 20,
+    members: [
+      {
+        id: '798f0692-5633-43ef-aea7-eb73fb638d41',
+        username: 'Reckless Anxiety',
+        roomId: 'SK93eL-vf',
+        created: '2023-07-28T03:57:04.572Z',
+      },
+    ],
+    created: '2023-07-28T03:57:04.572Z',
+  },
+};
 let activeConnections = 0;
 
 io.on('connection', (socket: CustomSocket) => {
   activeConnections++;
 
-  const roomId = socket.handshake.query.roomId as string | undefined;
+  //const roomId = socket.handshake.query.roomId as string | undefined;
   const userId = socket.handshake.query.userId as string | undefined;
-  const username = socket.handshake.query.username as string | undefined;
+  //const username = socket.handshake.query.username as string | undefined;
   //const roomName = socket.handshake.query.roomName as string | undefined;
 
   socket.userId = userId ?? socket.id;
@@ -55,29 +72,32 @@ io.on('connection', (socket: CustomSocket) => {
         typeof callback === 'function' && callback({ error: 'Room already exists' });
       } else {
         if (!socket.userId) return;
-        const user = addUser(socket.userId, users, username, newRoomId);
+        const user = addUser({ id: socket.userId, username, roomId: newRoomId }, users);
         socket.join(newRoomId);
         socket.roomId = newRoomId;
         const newRoom = addRoom(newRoomId, roomName, user);
-        rooms[newRoomId] = newRoom;
-        typeof callback === 'function' && callback({ result: newRoom });
-        console.log(`👀 New user joined in room: ${roomId} - User Id: ${userId}`);
+        if (newRoom) {
+          rooms[newRoomId] = newRoom;
+          typeof callback === 'function' && callback({ result: newRoom });
+          console.log(`👀 New user joined in room: ${user.roomId} - User Id: ${userId}`);
+        }
       }
     } else {
       typeof callback === 'function' && callback({ error: 'Failed to create room' });
     }
   });
 
-  socket.on(JOIN_ROOM, (roomId: string, callback: (value: boolean) => void) => {
-    if (roomId && userId && username && socket.userId) {
+  socket.on(JOIN_ROOM, (roomId: string, username: string, callback: (value: boolean) => void) => {
+    if (roomId && username && socket.userId) {
       socket.join(roomId);
-      const user = addUser(socket.userId, users, username, roomId);
+      const user = addUser({ id: socket.userId, username, roomId }, users);
       const room: Room = getRoomById(roomId, rooms);
       if (room) {
         const newMembers = [...room.members, user];
         const updatedRoom = updateRoom(roomId, rooms, { ...room, members: newMembers });
         rooms[roomId] = updatedRoom;
         socket.roomId = roomId;
+        typeof callback === 'function' && callback(false);
         socket.emit(GET_ROOM_INFO, room);
         console.log(`👀 New user joined in room: ${roomId} - User Id: ${userId}`);
       }
@@ -89,13 +109,17 @@ io.on('connection', (socket: CustomSocket) => {
   socket.on(USER_MESSAGE, (message: string, roomId: string) => {
     console.log(`📩 Received message: ${message} in ${roomId}`);
     const user = socket.userId && getUser(socket.userId, users);
+    console.log('USER_MESSAGE', socket?.userId, roomId);
     if (user) {
       const messageId = uuidv4();
+      const timestamp = new Date().toISOString();
+      console.log('roomId', roomId, messageId);
       io.to(roomId).emit(USER_MESSAGE, {
         username: user.username,
         message,
         userId: socket.userId,
         id: messageId,
+        timestamp,
       });
     }
   });
@@ -104,7 +128,8 @@ io.on('connection', (socket: CustomSocket) => {
     if (requestIsNotFromHost(socket, rooms)) return;
 
     const user = socket.userId && getUser(socket.userId, users);
-    if (user && roomId) {
+    if (user && user.roomId) {
+      console.log(PLAY_VIDEO, socket.userId, user.roomId);
       socket.to(user.roomId).emit(PLAY_VIDEO);
     }
   });
@@ -113,7 +138,8 @@ io.on('connection', (socket: CustomSocket) => {
     if (requestIsNotFromHost(socket, rooms)) return;
 
     const user = socket?.userId && getUser(socket.userId, users);
-    if (user && roomId) {
+    if (user && user.roomId) {
+      console.log(PAUSE_VIDEO, socket.userId, user.roomId);
       socket.to(user.roomId).emit(PAUSE_VIDEO);
     }
   });
@@ -147,6 +173,10 @@ const handleUserLeaveRoom = async (socket: CustomSocket) => {
       const updatedRoom = updateRoom(user.roomId, rooms, { members: newMembers });
       rooms[user.roomId] = updatedRoom;
 
+      if (newMembers.length === 0) {
+        delete rooms[user.roomId];
+      }
+
       const updatedUsers = users.filter((user) => user.id !== socket.userId);
       users = updatedUsers;
 
@@ -160,7 +190,7 @@ const handleUserLeaveRoom = async (socket: CustomSocket) => {
     }
 
     const roomInfo = getRoomById(user.roomId, rooms);
-    console.log('LEAVE_ROOM', user.roomId, roomInfo.members.length, users.length, activeConnections);
+    console.log('LEAVE_ROOM', user.roomId, roomInfo?.members?.length, users.length, activeConnections);
   }
 };
 

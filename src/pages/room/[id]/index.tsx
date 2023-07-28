@@ -10,7 +10,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 //import { useRouter, useSearchParams } from "next/navigation";
 //import { socketURL } from "@/constants/constants";
-import { JOIN_ROOM, LEAVE_ROOM, USER_MESSAGE, SERVER_MESSAGE } from "../../../constants/socketActions";
+import {
+  JOIN_ROOM,
+  LEAVE_ROOM,
+  USER_MESSAGE,
+  SERVER_MESSAGE,
+  PLAY_VIDEO,
+  PAUSE_VIDEO,
+  GET_ROOM_INFO,
+} from "../../../constants/socketActions";
 import type ReactPlayerType from "react-player";
 import { GetServerSideProps } from "next";
 import { ChatMessage } from "@/types/interfaces";
@@ -41,7 +49,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     socket = io(`ws://localhost:8000`, {
       transports: ["websocket"],
       query: {
-        roomId,
         userId: sessionToken,
       },
     });
@@ -59,6 +66,16 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       console.log("TESDAD", newMessage);
       setChatMessages((prevMessages) => [...prevMessages, newMessage]);
     });
+
+    socket.on(PLAY_VIDEO, () => {
+      console.log(PLAY_VIDEO);
+      setIsPlaying(true);
+    });
+
+    socket.on(PAUSE_VIDEO, () => {
+      console.log(PAUSE_VIDEO);
+      setIsPlaying(false);
+    });
   }, [roomId, sessionToken]);
 
   useEffect(() => {
@@ -72,12 +89,12 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
         socket = null;
       }
     };
-  }, [roomId, socketMethods]);
+  }, []);
 
   useEffect(() => {
     if (socket && roomId) {
-      socket.emit(JOIN_ROOM, roomId, (value) => {
-        console.log("JOIN_ROOM_USE_EFFECT", value);
+      socket.emit(GET_ROOM_INFO, roomId, (room) => {
+        console.log(GET_ROOM_INFO, room);
       });
     }
   }, [roomId]);
@@ -88,7 +105,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     console.log(player.getDuration());
 
     setLoading(false);
-    //this.onSocketMethods(socket);
+    //onSocketMethods(socket);
     //setLoading(false);
   };
 
@@ -105,9 +122,11 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     switch (buttonAction) {
       case "play":
         setIsPlaying(true);
+        socket?.emit(PLAY_VIDEO);
         return;
       case "pause":
         setIsPlaying(false);
+        socket?.emit(PAUSE_VIDEO);
         return;
       default:
         break;

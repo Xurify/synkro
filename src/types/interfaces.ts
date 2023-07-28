@@ -2,6 +2,7 @@ export interface User {
   id: string;
   username: string;
   roomId: string;
+  created: string;
 }
 
 export interface Room {
@@ -11,6 +12,7 @@ export interface Room {
   queue: Queue[];
   members: User[];
   maxRoomSize: number;
+  created: string;
 }
 
 export type Rooms = { [roomId: string]: Room };
@@ -22,4 +24,5 @@ export interface ChatMessage {
   message: string;
   id: string;
   userId: string;
+  timestamp: string;
 }

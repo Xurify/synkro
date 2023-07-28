@@ -34,8 +34,6 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
     if (!username.trim()) return;
 
     socket?.emit(CREATE_ROOM, username, roomName, ({ result, error }) => {
-      console.log("DADADADAS", result);
-
       if (result && result.id) {
         router.push(`/room/${result.id}`);
       } else {
