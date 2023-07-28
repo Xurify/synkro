@@ -39,7 +39,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
       if (value === null) {
         alert("Sorry, this room doesn't exist 😥");
       } else {
-        socket.emit(JOIN_ROOM, roomId, username, (value) => {
+        socket.emit(JOIN_ROOM, roomId, username, () => {
           router.push(`/room/${roomId}`);
         });
       }
