@@ -1,42 +1,26 @@
-# Use an official Node.js runtime as the base image
-FROM node:14-alpine
+FROM node:18.16.0-alpine as base
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
+# Add package file
+COPY package.json ./
+COPY yarn.lock ./
 
-# Copy package.json and package-lock.json to the working directory
-COPY server/package*.json ./
+# Install deps
+RUN yarn install
 
-# Install the dependencies, ignoring scripts for now
-RUN npm install --ignore-scripts
+# Copy source
+COPY src ./src
+COPY tsconfig.json ./tsconfig.json
 
-# Print the contents of the working directory to debug
-RUN ls -la
+# Build dist
+RUN yarn build
 
-# Print the contents of the 'server' directory to debug
-RUN ls -la ./server
+# Start production image build
+FROM node:18.16.0-alpine
 
-# Print the contents of the 'shared' directory to debug
-RUN ls -la ./shared
+# Copy node modules and build directory
+COPY --from=base ./node_modules ./node_modules
+COPY --from=base /dist /dist
 
-# Copy the server code to the working directory
-COPY tsconfig.json ./
-COPY server ./server
-
-# Copy the shared code to the working directory
-COPY shared ./shared
-
-# Expose the port on which the server will run
-EXPOSE 3000
-
-# Print a message during the build process
-RUN echo "Building the server..."
-
-# Build the TypeScript code using tsc with diagnostics
-RUN npx tsc --diagnostics
-
-# Print a message after the build process
-RUN echo "Build completed."
-
-# Start the application
-CMD ["node", "./dist/app.js"]
+# Expose port 8000
+EXPOSE 8000
+CMD ["node", "dist/app.js"]
