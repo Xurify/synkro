@@ -109,14 +109,13 @@ io.on('connection', (socket: CustomSocketServer) => {
     const user = socket.userId && getUser(socket.userId, users);
     console.log('USER_MESSAGE', socket?.userId, roomId);
     if (user) {
-      const messageId = uuidv4();
       const timestamp = new Date().toISOString();
-      console.log('roomId', roomId, messageId);
-      io.to(roomId).emit(USER_MESSAGE, {
+      console.log('roomId', roomId);
+      io.in(roomId).emit(USER_MESSAGE, {
         username: user.username,
         message,
         userId: socket.userId,
-        id: messageId,
+        id: uuidv4(),
         timestamp,
       });
     }

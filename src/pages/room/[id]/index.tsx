@@ -34,8 +34,6 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
   const roomId = searchParams.get("id") as string;
 
   const socketMethods = React.useCallback(() => {
-    console.log("roomId", roomId);
-
     if (!socket) return;
 
     socket.on("connect", () => {
@@ -61,11 +59,7 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
       console.log(PAUSE_VIDEO);
       setIsPlaying(false);
     });
-  }, [roomId, socket]);
-
-  useEffect(() => {
-    socketMethods();
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     if (socket && roomId) {
@@ -78,10 +72,10 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
   const onReady = (player: ReactPlayerType) => {
     setPlayer(player);
 
-    console.log(player.getDuration());
+    console.log(player.getDuration(), loading);
 
     setLoading(false);
-    //onSocketMethods(socket);
+    socketMethods();
     //setLoading(false);
   };
 
@@ -112,8 +106,7 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
   const handleSendMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    console.log("emitted", socket, roomId);
-    console.log("TEST", serverMessages, loading, player);
+    console.log("handleSendMessage", serverMessages, chatMessages, player);
     player && console.log(player.getCurrentTime());
 
     if (socket) {
@@ -129,7 +122,6 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
         <div className="player-wrapper mb-2">
           <ReactPlayer
             className="react-player"
-            //url="https://stream.mux.com/01nkUiLRyVE82K7fM3UgMickgF01qIdZQhyZS7DHc1bVo.m3u8?redundant_streams=true"
             url="https://youtu.be/4yKsIdr_PNU"
             width="100%"
             height="100%"
