@@ -1,5 +1,5 @@
-import { Room, Rooms, User } from '../../../src/types/interfaces';
-import { CustomSocket } from '../../../src/types/socketCustomTypes';
+import { Room, Rooms, User } from '@shared/interfaces';
+import { CustomSocket } from '@shared/socketCustomTypes';
 
 export const getUser = (id: string, users: User[]) => users.find((user) => user.id === id);
 

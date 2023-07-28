@@ -47,7 +47,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     typeof callback === 'function' && callback(room);
   });
 
-  socket.on(CREATE_ROOM, (username, roomName, callback: (value: { result?: Room; error?: string }) => void) => {
+  socket.on(CREATE_ROOM, (username: string, roomName: string, callback: (value: { result?: Room; error?: string }) => void) => {
     const newRoomId = shortid.generate();
     if (userId) {
       const room: Room = getRoomById(newRoomId, rooms);
