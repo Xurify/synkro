@@ -11,6 +11,7 @@ COPY server/package*.json ./
 RUN npm install --production
 
 # Copy the server code to the working directory
+COPY server/tsconfig.json ./
 COPY server/src ./src
 
 # Expose the port on which the server will run
