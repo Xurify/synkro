@@ -7,12 +7,22 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
-# Install the dependencies
-RUN npm install
+# Install the dependencies, ignoring scripts for now
+RUN npm install --ignore-scripts
+RUN prisma generate
+
+# Print the contents of the working directory to debug
+RUN ls -la
+
+# Print the contents of the 'server/src' directory to debug
+RUN ls -la ./server/src
+
+# Print the contents of the 'shared' directory to debug
+RUN ls -la ./shared
 
 # Copy the server code to the working directory
 COPY tsconfig.json ./
-COPY server/src ./src
+COPY server/src ./server/src
 
 # Copy the shared code to the working directory
 COPY shared ./shared
@@ -20,18 +30,14 @@ COPY shared ./shared
 # Expose the port on which the server will run
 EXPOSE 3000
 
-RUN echo "FIRST_CHECK"
+# Print a message during the build process
+RUN echo "Building the server..."
 
-# Check the contents of the working directory
-RUN ls -la
+# Build the TypeScript code using tsc with diagnostics
+RUN npx tsc --diagnostics
 
-# Build the server
-RUN npm run build
-
-RUN echo "SECOND_CHECK"
-
-# Check the contents of the 'dist' directory (assuming that's where the build output goes)
-RUN ls -la ./dist
+# Print a message after the build process
+RUN echo "Build completed."
 
 # Start the application
 CMD ["node", "./dist/app.js"]
