@@ -18,6 +18,9 @@ import {
   PLAY_VIDEO,
   PAUSE_VIDEO,
 } from '@shared/socketActions';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
 const app: Application = express();
@@ -47,7 +50,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     typeof callback === 'function' && callback(room);
   });
 
-  socket.on(CREATE_ROOM, (username: string, roomName: string, callback: (value: { result?: Room; error?: string }) => void) => {
+  socket.on(CREATE_ROOM, async (username, roomName, callback: (value: { result?: Room; error?: string }) => void) => {
     const newRoomId = shortid.generate();
     if (userId) {
       const room: Room = getRoomById(newRoomId, rooms);
@@ -59,6 +62,17 @@ io.on('connection', (socket: CustomSocketServer) => {
         socket.join(newRoomId);
         socket.roomId = newRoomId;
         const newRoom = addRoom(newRoomId, roomName, user);
+        await prisma.rooms.create({ data: { id: newRoomId, name: roomName } }).catch((err) => console.log(`failed to create room: ${err}`));
+        console.log(newRoom?.id);
+        await prisma.users
+          .create({
+            data: {
+              id: user.id,
+              name: user.username,
+              roomId: user.roomId,
+            },
+          })
+          .catch((err) => console.log(`failed to create user: ${err}`));
         if (newRoom) {
           rooms[newRoomId] = newRoom;
           typeof callback === 'function' && callback({ result: newRoom });
@@ -70,10 +84,19 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
   });
 
-  socket.on(JOIN_ROOM, (roomId: string, username: string, callback: (value: boolean) => void) => {
+  socket.on(JOIN_ROOM, async (roomId: string, username: string, callback: (value: boolean) => void) => {
     if (roomId && username && socket.userId) {
       socket.join(roomId);
       const user = addUser({ id: socket.userId, username, roomId }, users);
+      await prisma.users
+        .create({
+          data: {
+            id: user.id,
+            name: user.username,
+            roomId: user.roomId,
+          },
+        })
+        .catch((err) => console.log(`failed to create user: ${err}`));
       const room: Room = getRoomById(roomId, rooms);
       if (room) {
         const newMembers = [...room.members, user];
@@ -93,20 +116,33 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
   });
 
-  socket.on(USER_MESSAGE, (message: string, roomId: string) => {
+  socket.on(USER_MESSAGE, async (message: string, roomId: string) => {
     console.log(`📩 Received message: ${message} in ${roomId}`);
     const user = socket.userId && getUser(socket.userId, users);
     if (user) {
       const timestamp = new Date().toISOString();
       console.log('roomId', roomId);
+      const messageID = uuidv4();
       io.in(roomId).emit(USER_MESSAGE, {
         username: user.username,
         message,
         userId: socket.userId,
-        id: uuidv4(),
+        id: messageID,
         timestamp,
         type: 'USER',
       });
+      console.log(user.id);
+      console.log(socket.userId);
+      await prisma.messages
+        .create({
+          data: {
+            id: messageID,
+            message: message,
+            userId: user.id,
+            roomId: roomId,
+          },
+        })
+        .catch((err) => console.log(`failed to add message to database: ${err}`));
     }
   });
 
@@ -162,9 +198,11 @@ const handleUserLeaveRoom = async (socket: CustomSocketServer) => {
       const TWO_MINUTES = 2 * 60 * 1000;
 
       if (newMembers.length === 0) {
-        roomTimeouts[user.roomId] = setTimeout(() => {
+        roomTimeouts[user.roomId] = setTimeout(async () => {
           if (updatedRoom.members.length === 0) {
             delete rooms[user.roomId];
+            await prisma.rooms.delete({ where: { id: user.roomId } }).catch((err) => console.log(`failed to delete room: ${err}`));
+            await prisma.messages.deleteMany({ where: { roomId: user.roomId } }).catch((err) => console.log(`failed to delete messsages: ${err}`));
             console.log(`🚀 Room ${user.roomId} has been deleted.`);
           }
         }, TWO_MINUTES);
@@ -173,6 +211,7 @@ const handleUserLeaveRoom = async (socket: CustomSocketServer) => {
         roomTimeouts[user.roomId] && clearTimeout(roomTimeouts[user.roomId]);
       }
 
+      await prisma.users.delete({ where: { id: socket.userId } }).catch((err) => console.log(`failed to delete room messages: ${err}`));
       const updatedUsers = users.filter((user) => user.id !== socket.userId);
       users = updatedUsers;
 
