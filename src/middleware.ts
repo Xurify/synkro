@@ -21,7 +21,6 @@ export const middleware = async (req: NextRequest): Promise<NextResponse> => {
         path: "/",
       })
     );
-    console.log("TOKEN", sessionToken);
     return res;
   }
 

@@ -46,17 +46,14 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
     });
 
     socket.on(USER_MESSAGE, (newMessage: ChatMessage) => {
-      console.log("TESDAD", newMessage);
       setChatMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
     socket.on(PLAY_VIDEO, () => {
-      console.log(PLAY_VIDEO);
       setIsPlaying(true);
     });
 
     socket.on(PAUSE_VIDEO, () => {
-      console.log(PAUSE_VIDEO);
       setIsPlaying(false);
     });
   }, [socket]);
@@ -71,12 +68,8 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
 
   const onReady = (player: ReactPlayerType) => {
     setPlayer(player);
-
-    console.log(player.getDuration(), loading);
-
     setLoading(false);
     socketMethods();
-    //setLoading(false);
   };
 
   const handleLeaveRoom = (): void => {
@@ -106,7 +99,7 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
   const handleSendMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    console.log("handleSendMessage", serverMessages, chatMessages, player);
+    console.log("handleSendMessage", serverMessages, chatMessages, player, loading);
     player && console.log(player.getCurrentTime());
 
     if (socket) {

@@ -30,8 +30,6 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
     };
   }, [sessionToken]);
 
-  console.log("SOCKETPROVIDER", socket);
-
   return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 };
 
