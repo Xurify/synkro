@@ -7,14 +7,16 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json to the working directory
 COPY server/package*.json ./
 
-# Install the dependencies and TypeScript compiler
+# Install the dependencies
 RUN apk add --no-cache bash git openssh && \
-    npm install --production && \
-    npm install -g typescript
+    npm install
 
 # Copy the server code to the working directory
 COPY server/tsconfig.json ./
 COPY server/src ./src
+
+# Copy the shared code to the working directory
+COPY shared ./shared
 
 # Expose the port on which the server will run
 EXPOSE 3000
