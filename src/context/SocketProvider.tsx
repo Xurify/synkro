@@ -2,6 +2,7 @@ import React from "react";
 import io from "socket.io-client";
 import { SocketContext, SocketContextType } from "./SocketContext";
 import { CustomSocket } from "@/types/socketCustomTypes";
+import { socketURL } from "@/constants/constants";
 
 interface SocketProviderProps {
   sessionToken: string | null;
@@ -11,7 +12,8 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
   const [socket, setSocket] = React.useState<SocketContextType>(null);
 
   React.useEffect(() => {
-    const newSocket = io(`ws://localhost:8000`, {
+    console.log("socketURL", socketURL);
+    const newSocket = io(socketURL, {
       transports: ["websocket"],
       query: {
         userId: sessionToken,

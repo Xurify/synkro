@@ -3,8 +3,8 @@ import { createServer, Server as HttpServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
 import shortid from 'shortid';
 import { Server } from 'socket.io';
-import { Room, User } from '@shared/interfaces';
-import { CustomSocketServer } from '@shared/socketCustomTypes';
+import { Room, User } from '../../src/types/interfaces';
+import { CustomSocketServer } from '../../src/types/socketCustomTypes';
 import { addRoom, addUser, getRoomById, getUser, requestIsNotFromHost, updateRoom } from './utils/socket';
 import {
   LEAVE_ROOM,
@@ -17,7 +17,7 @@ import {
   CREATE_ROOM,
   PLAY_VIDEO,
   PAUSE_VIDEO,
-} from '@shared/socketActions';
+} from '../../src/constants/socketActions';
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
 const app: Application = express();
