@@ -7,8 +7,10 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json to the working directory
 COPY server/package*.json ./
 
-# Install the dependencies
-RUN npm install --production
+# Install the dependencies and TypeScript compiler
+RUN apk add --no-cache bash git openssh && \
+    npm install --production && \
+    npm install -g typescript
 
 # Copy the server code to the working directory
 COPY server/tsconfig.json ./
