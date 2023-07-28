@@ -1,4 +1,3 @@
-//import { CustomSocket } from "@/types/socketCustomTypes";
 import React from "react";
 import io from "socket.io-client";
 import { SocketContext, SocketContextType } from "./SocketContext";

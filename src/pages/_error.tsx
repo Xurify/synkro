@@ -17,7 +17,7 @@ const Error: NextPage<ErrorPageProps> = ({ statusCode, errorMessage }) => {
         {/* <Tv className="h-[30rem] w-[30rem] mb-2" /> */}
         <h2 className="text-7xl font-bold mb-3">{statusCode}</h2>
         <p className="mb-3">Um. You shouldn&apos;t be here 😅</p>
-        <Image alt="" src={TVStandBy} width={400} height={300} loading="lazy" />
+        <Image alt="" src={TVStandBy} width={400} height={300} />
         {errorMessage && <span>{errorMessage}</span>}
         <Link
           className="max-w-[12rem] w-full h-10 mt-4 border border-brand-blue-800 bg-white text-brand-blue-800 rounded flex items-center justify-center"
