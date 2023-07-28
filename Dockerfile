@@ -15,6 +15,7 @@ RUN apk add --no-cache bash git openssh && \
 # Copy the server code to the working directory
 COPY server/tsconfig.json ./
 COPY server/src ./src
+COPY shared/ ./
 
 # Expose the port on which the server will run
 EXPOSE 3000
