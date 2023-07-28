@@ -1,12 +1,10 @@
-// src/index.ts
-
 import express, { Application } from 'express';
 import { createServer, Server as HttpServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
 import shortid from 'shortid';
 import { Server } from 'socket.io';
 import { Room, User } from '../../src/types/interfaces';
-import { CustomSocket } from '../../src/types/socketCustomTypes';
+import { CustomSocketServer } from '../../src/types/socketCustomTypes';
 import { addRoom, addUser, getRoomById, getUser, requestIsNotFromHost, updateRoom } from './utils/socket';
 import {
   LEAVE_ROOM,
@@ -47,7 +45,7 @@ const rooms: { [roomId: string]: Room } = {
 };
 let activeConnections = 0;
 
-io.on('connection', (socket: CustomSocket) => {
+io.on('connection', (socket: CustomSocketServer) => {
   activeConnections++;
 
   //const roomId = socket.handshake.query.roomId as string | undefined;
@@ -154,7 +152,7 @@ io.on('connection', (socket: CustomSocket) => {
   });
 });
 
-const handleUserLeaveRoom = async (socket: CustomSocket) => {
+const handleUserLeaveRoom = async (socket: CustomSocketServer) => {
   activeConnections--;
   console.log(`👻 User disconnected - User Id: ${socket.userId}`);
   const user = socket?.userId && getUser(socket.userId, users);

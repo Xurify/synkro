@@ -5,12 +5,14 @@ import DiceIcon from "./DiceIcon";
 import { JoinRoomBoxProps } from "./JoinRoomBox";
 import { CREATE_ROOM } from "@/constants/socketActions";
 import { useRouter } from "next/router";
+import { useSocket } from "@/context/SocketContext";
 
-export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJoin, socket }) => {
+export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJoin }) => {
   const [username, setUsername] = useState("");
   const [roomName, setRoomName] = useState("");
 
   const router = useRouter();
+  const socket = useSocket();
 
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -32,6 +34,8 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
 
   const handleCreateRoom = () => {
     if (!username.trim()) return;
+
+    console.log(socket);
 
     socket?.emit(CREATE_ROOM, username, roomName, ({ result, error }) => {
       if (result && result.id) {

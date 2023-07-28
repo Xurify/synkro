@@ -2,36 +2,23 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import RoomToolbar, { ButtonActions } from "@/components/RoomToolbar";
 
-//import { io, type Socket } from "socket.io-client";
-import io, { type Socket } from "socket.io-client";
 import { parse } from "cookie";
-import type { ServerToClientEvents, ClientToServerEvents, ServerMessage } from "../../../types/socketCustomTypes";
+import type { ServerMessage } from "../../../types/socketCustomTypes";
 import { useRouter, useSearchParams } from "next/navigation";
 
-//import { useRouter, useSearchParams } from "next/navigation";
-//import { socketURL } from "@/constants/constants";
-import {
-  JOIN_ROOM,
-  LEAVE_ROOM,
-  USER_MESSAGE,
-  SERVER_MESSAGE,
-  PLAY_VIDEO,
-  PAUSE_VIDEO,
-  GET_ROOM_INFO,
-} from "../../../constants/socketActions";
+import { LEAVE_ROOM, USER_MESSAGE, SERVER_MESSAGE, PLAY_VIDEO, PAUSE_VIDEO, GET_ROOM_INFO } from "../../../constants/socketActions";
 import type ReactPlayerType from "react-player";
 import { GetServerSideProps } from "next";
 import { ChatMessage } from "@/types/interfaces";
+import { useSocket } from "@/context/SocketContext";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), { ssr: false });
-
-let socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
 
 export interface RoomPageProps {
   sessionToken: string;
 }
 
-export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
+export const RoomPage: React.FC<RoomPageProps> = () => {
   const [activeButton, setActiveButton] = useState<ButtonActions>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -40,18 +27,16 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [loading, setLoading] = useState(false);
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
 
+  const socket = useSocket();
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const roomId = searchParams.get("id") as string;
 
   const socketMethods = React.useCallback(() => {
     console.log("roomId", roomId);
-    socket = io(`ws://localhost:8000`, {
-      transports: ["websocket"],
-      query: {
-        userId: sessionToken,
-      },
-    });
+
+    if (!socket) return;
 
     socket.on("connect", () => {
       console.log("Connected");
@@ -76,19 +61,10 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       console.log(PAUSE_VIDEO);
       setIsPlaying(false);
     });
-  }, [roomId, sessionToken]);
+  }, [roomId, socket]);
 
   useEffect(() => {
-    if (!socket && roomId) {
-      socketMethods();
-    }
-
-    return () => {
-      if (socket) {
-        socket.disconnect();
-        socket = null;
-      }
-    };
+    socketMethods();
   }, []);
 
   useEffect(() => {
@@ -97,7 +73,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
         console.log(GET_ROOM_INFO, room);
       });
     }
-  }, [roomId]);
+  }, [roomId, socket]);
 
   const onReady = (player: ReactPlayerType) => {
     setPlayer(player);

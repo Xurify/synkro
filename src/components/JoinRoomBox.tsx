@@ -2,19 +2,19 @@ import React, { useState } from "react";
 
 import { generateName } from "../libs/utils/names";
 import DiceIcon from "./DiceIcon";
-import { ClientToServerEvents, ServerToClientEvents } from "@/types/socketCustomTypes";
-import { Socket } from "socket.io-client";
 import { CHECK_IF_ROOM_EXISTS, JOIN_ROOM } from "@/constants/socketActions";
 import { useRouter } from "next/router";
+import { useSocket } from "@/context/SocketContext";
 
 export interface JoinRoomBoxProps {
   toggle: () => void;
-  socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
 }
 
-export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCreate, socket }) => {
+export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCreate }) => {
   const [username, setUsername] = useState("");
   const [roomId, setRoomId] = useState("");
+
+  const socket = useSocket();
 
   const router = useRouter();
 
