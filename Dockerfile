@@ -5,11 +5,10 @@ FROM node:14-alpine
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+COPY server/package*.json ./
 
 # Install the dependencies, ignoring scripts for now
 RUN npm install --ignore-scripts
-RUN prisma generate
 
 # Print the contents of the working directory to debug
 RUN ls -la
@@ -22,7 +21,7 @@ RUN ls -la ./shared
 
 # Copy the server code to the working directory
 COPY tsconfig.json ./
-COPY server/src ./server/src
+COPY server/src ./src
 
 # Copy the shared code to the working directory
 COPY shared ./shared
