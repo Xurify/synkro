@@ -12,7 +12,6 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
   const [socket, setSocket] = React.useState<SocketContextType>(null);
 
   React.useEffect(() => {
-    console.log("socketURL", socketURL);
     const newSocket = io(socketURL, {
       transports: ["websocket"],
       query: {
