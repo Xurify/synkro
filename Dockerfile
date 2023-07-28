@@ -9,6 +9,7 @@ COPY package*.json ./
 
 # Install the dependencies
 RUN npm install --production
+RUN prisma generate
 
 # Copy the server code to the working directory
 COPY server/src ./src
