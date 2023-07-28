@@ -5,11 +5,10 @@ FROM node:14-alpine
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+COPY package*.json ./server
 
 # Install the dependencies
 RUN npm install --production
-RUN prisma generate
 
 # Copy the server code to the working directory
 COPY server/src ./src
