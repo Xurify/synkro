@@ -13,15 +13,15 @@ RUN npm install --ignore-scripts
 # Print the contents of the working directory to debug
 RUN ls -la
 
-# Print the contents of the 'server/src' directory to debug
-RUN ls -la ./server/src
+# Print the contents of the 'server' directory to debug
+RUN ls -la ./server
 
 # Print the contents of the 'shared' directory to debug
 RUN ls -la ./shared
 
 # Copy the server code to the working directory
 COPY tsconfig.json ./
-COPY server/src ./src
+COPY server ./server
 
 # Copy the shared code to the working directory
 COPY shared ./shared
