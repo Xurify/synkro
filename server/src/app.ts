@@ -19,7 +19,7 @@ import {
   PAUSE_VIDEO,
 } from '../../src/constants/socketActions';
 
-const PORT = 8000;
+const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
 const app: Application = express();
 const server: HttpServer = createServer(app);
 const io: Server = new Server(server);
