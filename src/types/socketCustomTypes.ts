@@ -15,6 +15,7 @@ import {
   CREATE_ROOM,
   PLAY_VIDEO,
   PAUSE_VIDEO,
+  BUFFERING_VIDEO,
 } from "../constants/socketActions";
 import { ChatMessage, Room, ServerMessage, User } from "./interfaces";
 
@@ -44,6 +45,7 @@ export interface ServerToClientEvents {
   [GET_ROOM_INFO]: (roomId: string, callback: (room: Room) => void) => void;
   [PLAY_VIDEO]: () => void;
   [PAUSE_VIDEO]: () => void;
+  [BUFFERING_VIDEO]: (userId: string) => void;
 }
 
 export interface ClientToServerEvents {

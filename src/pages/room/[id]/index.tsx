@@ -5,7 +5,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type ReactPlayerType from "react-player";
 import { parse } from "cookie";
 
-import { LEAVE_ROOM, USER_MESSAGE, SERVER_MESSAGE, PLAY_VIDEO, PAUSE_VIDEO, GET_ROOM_INFO } from "../../../constants/socketActions";
+import {
+  LEAVE_ROOM,
+  USER_MESSAGE,
+  SERVER_MESSAGE,
+  PLAY_VIDEO,
+  PAUSE_VIDEO,
+  GET_ROOM_INFO,
+  BUFFERING_VIDEO,
+} from "../../../constants/socketActions";
 import type { ChatMessage, Room, Messages, ServerMessage } from "@/types/interfaces";
 import { useSocket } from "@/context/SocketContext";
 import RoomToolbar, { ButtonActions, SidebarViews } from "@/components/RoomToolbar";
@@ -100,7 +108,11 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
     runIfAuthorized(() => socket?.emit(PAUSE_VIDEO));
   };
 
-  const handleBuffer = () => {};
+  const handleBuffer = () => {
+    if (socket?.userId) {
+      socket.emit(BUFFERING_VIDEO, socket.userId);
+    }
+  };
 
   const handleClickPlayerButton = (buttonAction: ButtonActions) => {
     if (["chat", "queue", "settings"].includes(buttonAction)) {
@@ -131,6 +143,8 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
     settings: <div className="flex-grow overflow-y-auto p-4">SETTINGS</div>,
   };
 
+  console.log("isPlaying", isPlaying);
+
   return (
     <main className="mx-auto flex justify-center mt-4">
       <div className="flex flex-col max-w-[80rem] w-full">
@@ -145,6 +159,8 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
               onReady={onReady}
               onBuffer={handleBuffer}
               onPlay={handlePlay}
+              onPause={handlePause}
+              controls={true}
             />
           </div>
         </div>

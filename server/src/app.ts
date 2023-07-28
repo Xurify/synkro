@@ -25,24 +25,9 @@ const server: HttpServer = createServer(app);
 const io: Server = new Server(server);
 
 let users: User[] = [];
-const rooms: { [roomId: string]: Room } = {
-  'SK93eL-vf': {
-    host: '798f0692-5633-43ef-aea7-eb73fb638d41',
-    name: 'Dearest Room',
-    id: 'SK93eL-vf',
-    queue: [],
-    maxRoomSize: 20,
-    members: [
-      {
-        id: '798f0692-5633-43ef-aea7-eb73fb638d41',
-        username: 'Reckless Anxiety',
-        roomId: 'SK93eL-vf',
-        created: '2023-07-28T03:57:04.572Z',
-      },
-    ],
-    created: '2023-07-28T03:57:04.572Z',
-  },
-};
+const rooms: { [roomId: string]: Room } = {};
+const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
+
 let activeConnections = 0;
 
 io.on('connection', (socket: CustomSocketServer) => {
@@ -95,6 +80,10 @@ io.on('connection', (socket: CustomSocketServer) => {
         const updatedRoom = updateRoom(roomId, rooms, { ...room, members: newMembers });
         rooms[roomId] = updatedRoom;
         socket.roomId = roomId;
+        if (roomTimeouts[roomId]) {
+          clearTimeout(roomTimeouts[roomId]);
+          roomTimeouts[roomId] = undefined;
+        }
         typeof callback === 'function' && callback(false);
         socket.emit(GET_ROOM_INFO, room);
         console.log(`👀 New user joined in room: ${roomId} - User Id: ${userId}`);
@@ -107,7 +96,6 @@ io.on('connection', (socket: CustomSocketServer) => {
   socket.on(USER_MESSAGE, (message: string, roomId: string) => {
     console.log(`📩 Received message: ${message} in ${roomId}`);
     const user = socket.userId && getUser(socket.userId, users);
-    console.log('USER_MESSAGE', socket?.userId, roomId);
     if (user) {
       const timestamp = new Date().toISOString();
       console.log('roomId', roomId);
@@ -171,8 +159,18 @@ const handleUserLeaveRoom = async (socket: CustomSocketServer) => {
       const updatedRoom = updateRoom(user.roomId, rooms, { members: newMembers });
       rooms[user.roomId] = updatedRoom;
 
+      const TWO_MINUTES = 2 * 60 * 1000;
+
       if (newMembers.length === 0) {
-        delete rooms[user.roomId];
+        roomTimeouts[user.roomId] = setTimeout(() => {
+          if (updatedRoom.members.length === 0) {
+            delete rooms[user.roomId];
+            console.log(`🚀 Room ${user.roomId} has been deleted.`);
+          }
+        }, TWO_MINUTES);
+        rooms[user.roomId] = updatedRoom;
+      } else {
+        roomTimeouts[user.roomId] && clearTimeout(roomTimeouts[user.roomId]);
       }
 
       const updatedUsers = users.filter((user) => user.id !== socket.userId);
