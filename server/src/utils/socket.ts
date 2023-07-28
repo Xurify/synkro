@@ -1,4 +1,5 @@
 import { Room, Rooms, User } from '../../../src/types/interfaces';
+import { CustomSocket } from '../../../src/types/socketCustomTypes';
 
 export const getUser = (id: string, users: User[]) => users.find((user) => user.id === id);
 
@@ -37,4 +38,9 @@ export const updateRoom = (id: string, rooms: Rooms, newRoom: Partial<Room>) => 
 export const getRoomById = (roomId: string, rooms: Rooms) => {
   const room = rooms[roomId];
   return room;
+};
+
+export const requestIsNotFromHost = (socket: CustomSocket, rooms: Rooms) => {
+  const room = !!socket?.roomId && getRoomById(socket.roomId, rooms);
+  return room && socket.userId !== room.host;
 };

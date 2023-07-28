@@ -42,7 +42,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       transports: ["websocket"],
       query: {
         roomId,
-        username: "Tester",
         userId: sessionToken,
       },
     });

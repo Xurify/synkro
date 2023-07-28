@@ -14,7 +14,7 @@ export interface JoinRoomBoxProps {
 
 export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCreate, socket }) => {
   const [username, setUsername] = useState("");
-  const [roomId, setRoomID] = useState("");
+  const [roomId, setRoomId] = useState("");
 
   const router = useRouter();
 
@@ -25,7 +25,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
 
   const handleChangeRoomID = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setRoomID(value);
+    setRoomId(value);
   };
 
   const handleGenerateRandomUsername = () => {

@@ -13,6 +13,8 @@ import {
   GET_USERS,
   GET_ROOM_INFO,
   CREATE_ROOM,
+  PLAY_VIDEO,
+  PAUSE_VIDEO,
 } from "../constants/socketActions";
 import { ChatMessage, Room, User } from "./interfaces";
 
@@ -43,6 +45,8 @@ export interface ServerToClientEvents {
   [SET_HOST]: (host: string) => void;
   [GET_USERS]: (users: User[]) => void;
   [GET_ROOM_INFO]: (room: Room) => void;
+  [PLAY_VIDEO]: () => void;
+  [PAUSE_VIDEO]: () => void;
 }
 
 export interface ClientToServerEvents {
@@ -51,12 +55,15 @@ export interface ClientToServerEvents {
   [USER_MESSAGE]: (message: string, roomId: string) => void;
   [CHECK_IF_ROOM_IS_FULL]: (roomId: string, callback: any) => void;
   [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room | null) => void) => void;
-  [CREATE_ROOM]: (callback: (value: { result?: Room; error?: string }) => void) => void;
+  [CREATE_ROOM]: (username: string, roomName: string, callback: (value: { result?: Room; error?: string }) => void) => void;
   [GET_ROOM_INFO]: (room: Room) => void;
+  [PLAY_VIDEO]: () => void;
+  [PAUSE_VIDEO]: () => void;
 }
 
 export type CustomSocket = Socket<ClientToServerEvents, ServerToClientEvents> & CustomSocketProperties;
 
 type CustomSocketProperties = {
   userId?: string;
+  roomId?: string;
 };

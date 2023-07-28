@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 
 export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJoin, socket }) => {
   const [username, setUsername] = useState("");
-  //const [roomName, setRoomName] = useState("");
+  const [roomName, setRoomName] = useState("");
 
   const router = useRouter();
 
@@ -17,20 +17,24 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
     setUsername(value);
   };
 
-  // const handleChangeRoomName = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const value = e.target.value;
-  //   setRoomName(value);
-  // };
+  const handleChangeRoomName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setRoomName(value);
+  };
 
   const handleGenerateRandomUsername = () => {
     setUsername(generateName());
   };
 
+  const handleGenerateRandomRoomName = () => {
+    setRoomName(`${generateName().split(" ")[0]} Room`);
+  };
+
   const handleCreateRoom = () => {
     if (!username.trim()) return;
 
-    socket?.emit(CREATE_ROOM, ({ result, error }) => {
-      console.log("DADADADAS", result, error);
+    socket?.emit(CREATE_ROOM, username, roomName, ({ result, error }) => {
+      console.log("DADADADAS", result);
 
       if (result && result.id) {
         router.push(`/room/${result.id}`);
@@ -42,17 +46,20 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
 
   return (
     <div className="max-w-[30rem] w-full bg-white shadow-lg p-4 rounded">
-      {/* <div className="flex mb-3">
+      <div className="flex mb-3">
         <input
           className="bg-gray-100 py-1.5 px-2 w-full rounded-sm outline-none"
           placeholder="Room Name"
           onChange={handleChangeRoomName}
           value={roomName}
         />
-        <button className="w-9 h-9 min-w-[2.25rem] border border-brand-blue-800 text-brand-blue-800 hover:bg-brand-blue-800 hover:text-white rounded ml-2 flex items-center justify-center">
+        <button
+          className="w-9 h-9 min-w-[2.25rem] border border-brand-blue-800 text-brand-blue-800 hover:bg-brand-blue-800 hover:text-white rounded ml-2 flex items-center justify-center"
+          onClick={handleGenerateRandomRoomName}
+        >
           <DiceIcon />
         </button>
-      </div> */}
+      </div>
       <div className="flex">
         <input
           className="bg-gray-100 py-1.5 px-2 w-full rounded-sm outline-none"
