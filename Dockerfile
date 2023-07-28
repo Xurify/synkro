@@ -5,7 +5,7 @@ FROM node:14-alpine
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json to the working directory
-COPY package*.json ./server
+COPY server/package*.json ./
 
 # Install the dependencies
 RUN npm install --production
