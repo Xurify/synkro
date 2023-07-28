@@ -16,7 +16,7 @@ import {
   PLAY_VIDEO,
   PAUSE_VIDEO,
 } from "../constants/socketActions";
-import { ChatMessage, Room, User } from "./interfaces";
+import { ChatMessage, Room, ServerMessage, User } from "./interfaces";
 
 export interface SocketServer extends HTTPServer {
   io?: IOServer | undefined;
@@ -28,12 +28,6 @@ export interface SocketWithIO extends NetSocket {
 
 export interface NextApiResponseWithSocket extends NextApiResponse {
   socket: SocketWithIO;
-}
-
-export type ServerMessageType = "ALERT" | "DEFAULT" | "UPDATE" | "NEW_HOST" | "ERROR" | "USER_JOINED" | "USER_DISCONNECTED";
-export interface ServerMessage {
-  message: string;
-  type: ServerMessageType;
 }
 
 export interface ServerToClientEvents {

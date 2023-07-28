@@ -9,7 +9,7 @@ export default function NavigationHeader() {
           <div className="h-[2.5rem] w-[2.5rem] mr-2">
             <Icon />
           </div>
-          <span className="mt-[6px]">Synkro</span>
+          <span className="mt-[6px] font-bold">Synkro</span>
         </Link>
       </div>
     </nav>
@@ -30,13 +30,7 @@ function Icon() {
         d="M401 117.252c0-1.02-.817-1.832-1.843-1.832H22.843A1.827 1.827 0 0021 117.252v279.597c0 1.02.817 1.832 1.843 1.832h376.314a1.827 1.827 0 001.843-1.832V117.252z"
         clipRule="evenodd"
       ></path>
-      <path
-        stroke="#3B4866"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="41.336"
-        d="M306 21l-95 94.42L116 21"
-      ></path>
+      <path stroke="#3B4866" strokeLinecap="round" strokeLinejoin="round" strokeWidth="41.336" d="M306 21l-95 94.42L116 21"></path>
     </svg>
   );
 }

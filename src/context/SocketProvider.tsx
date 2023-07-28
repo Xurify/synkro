@@ -18,6 +18,10 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
       },
     }) as unknown as CustomSocket;
 
+    if (sessionToken) {
+      newSocket.userId = sessionToken;
+    }
+
     setSocket(newSocket);
 
     newSocket.on("connect", () => {

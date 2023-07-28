@@ -117,6 +117,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         userId: socket.userId,
         id: uuidv4(),
         timestamp,
+        type: 'USER',
       });
     }
   });

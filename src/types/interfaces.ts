@@ -25,4 +25,24 @@ export interface ChatMessage {
   id: string;
   userId: string;
   timestamp: string;
+  type: "USER";
 }
+
+export enum ServerMessageType {
+  ALERT = "ALERT",
+  DEFAULT = "DEFAULT",
+  UPDATE = "UPDATE",
+  NEW_HOST = "NEW_HOST",
+  ERROR = "ERROR",
+  USER_JOINED = "USER_JOINED",
+  USER_DISCONNECTED = "USER_DISCONNECTED",
+}
+
+export interface ServerMessage {
+  message: string;
+  type: ServerMessageType;
+  timestamp: string;
+}
+
+export type Message = ChatMessage | ServerMessage;
+export type Messages = Message[];

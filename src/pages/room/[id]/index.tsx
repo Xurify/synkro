@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
-import RoomToolbar, { ButtonActions } from "@/components/RoomToolbar";
-
-import { parse } from "cookie";
-import type { ServerMessage } from "../../../types/socketCustomTypes";
 import { useRouter, useSearchParams } from "next/navigation";
+import type ReactPlayerType from "react-player";
+import { parse } from "cookie";
 
 import { LEAVE_ROOM, USER_MESSAGE, SERVER_MESSAGE, PLAY_VIDEO, PAUSE_VIDEO, GET_ROOM_INFO } from "../../../constants/socketActions";
-import type ReactPlayerType from "react-player";
-import { GetServerSideProps } from "next";
-import { ChatMessage } from "@/types/interfaces";
+import type { ChatMessage, Room, Messages, ServerMessage } from "@/types/interfaces";
 import { useSocket } from "@/context/SocketContext";
+import RoomToolbar, { ButtonActions, SidebarViews } from "@/components/RoomToolbar";
+import Chat from "@/components/Chat";
+import Sidebar from "@/components/Sidebar";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), { ssr: false });
 
@@ -19,13 +19,13 @@ export interface RoomPageProps {
 }
 
 export const RoomPage: React.FC<RoomPageProps> = () => {
-  const [activeButton, setActiveButton] = useState<ButtonActions>("chat");
+  const [activeView, setActiveView] = useState<SidebarViews>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<Messages>([]);
   const [serverMessages, setServerMessages] = useState<ServerMessage[]>([]);
-  const [chatMessage, setChatMessage] = useState<string>("TEST");
   const [loading, setLoading] = useState(false);
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
+  const [room, setRoom] = useState<Room | null>(null);
 
   const socket = useSocket();
 
@@ -46,7 +46,7 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
     });
 
     socket.on(USER_MESSAGE, (newMessage: ChatMessage) => {
-      setChatMessages((prevMessages) => [...prevMessages, newMessage]);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
     socket.on(PLAY_VIDEO, () => {
@@ -56,12 +56,17 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
     socket.on(PAUSE_VIDEO, () => {
       setIsPlaying(false);
     });
+
+    return () => {
+      socket.offAnyOutgoing();
+    };
   }, [socket]);
 
   useEffect(() => {
     if (socket && roomId) {
       socket.emit(GET_ROOM_INFO, roomId, (room) => {
         console.log(GET_ROOM_INFO, room);
+        setRoom(room);
       });
     }
   }, [roomId, socket]);
@@ -79,61 +84,75 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
     }
   };
 
+  const runIfAuthorized = (callback?: () => void) => {
+    if (room?.host === socket?.userId) {
+      typeof callback === "function" && callback();
+    }
+  };
+
+  const handlePlay = () => {
+    !isPlaying && setIsPlaying(true);
+    runIfAuthorized(() => socket?.emit(PLAY_VIDEO));
+  };
+
+  const handlePause = () => {
+    isPlaying && setIsPlaying(false);
+    runIfAuthorized(() => socket?.emit(PAUSE_VIDEO));
+  };
+
+  const handleBuffer = () => {};
+
   const handleClickPlayerButton = (buttonAction: ButtonActions) => {
-    setActiveButton(buttonAction);
+    if (["chat", "queue", "settings"].includes(buttonAction)) {
+      setActiveView(buttonAction as SidebarViews);
+    }
+
+    console.log("handleSendMessage", serverMessages, messages, player, loading);
+    player && console.log(player.getCurrentTime());
 
     switch (buttonAction) {
       case "play":
-        setIsPlaying(true);
-        socket?.emit(PLAY_VIDEO);
+        handlePlay();
         return;
       case "pause":
-        setIsPlaying(false);
-        socket?.emit(PAUSE_VIDEO);
+        handlePause();
+        return;
+      case "leave_room":
+        handleLeaveRoom();
         return;
       default:
         break;
     }
   };
 
-  const handleSendMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    console.log("handleSendMessage", serverMessages, chatMessages, player, loading);
-    player && console.log(player.getCurrentTime());
-
-    if (socket) {
-      socket.emit(USER_MESSAGE, chatMessage, roomId);
-    }
+  const views: { [key in SidebarViews]: JSX.Element } = {
+    chat: <Chat messages={messages} socket={socket} roomId={roomId} />,
+    queue: <div className="flex-grow overflow-y-auto p-4">QUEUE</div>,
+    settings: <div className="flex-grow overflow-y-auto p-4">SETTINGS</div>,
   };
 
-  const handleChangeChatMessage = (e: React.ChangeEvent<HTMLInputElement>) => setChatMessage(e.target.value);
-
   return (
-    <main className="flex flex-col items-center p-4">
-      <div className="max-w-[80rem] w-full">
-        <div className="player-wrapper mb-2">
-          <ReactPlayer
-            className="react-player"
-            url="https://youtu.be/4yKsIdr_PNU"
-            width="100%"
-            height="100%"
-            playing={isPlaying}
-            onReady={onReady}
-          />
+    <main className="mx-auto flex justify-center mt-4">
+      <div className="flex flex-col max-w-[80rem] w-full">
+        <div className="max-w-[80rem] w-full">
+          <div className="player-wrapper mb-2">
+            <ReactPlayer
+              className="react-player"
+              url="https://youtu.be/4yKsIdr_PNU"
+              width="100%"
+              height="100%"
+              playing={isPlaying}
+              onReady={onReady}
+              onBuffer={handleBuffer}
+              onPlay={handlePlay}
+            />
+          </div>
+        </div>
+        <div className="w-full flex items-center justify-center">
+          <RoomToolbar activeView={activeView} onClickPlayerButton={handleClickPlayerButton} isPlaying={isPlaying} roomId={roomId} />
         </div>
       </div>
-      <div className="w-full flex items-center justify-center mb-2">
-        <RoomToolbar activeButton={activeButton} onClickPlayerButton={handleClickPlayerButton} isPlaying={isPlaying} />
-      </div>
-      <button onClick={handleLeaveRoom}>Leave</button>
-      <button onClick={handleSendMessage}>Send message</button>
-      <input onChange={handleChangeChatMessage} value={chatMessage} type="text" />
-      <div>
-        {chatMessages.map((chatMessage) => (
-          <div key={chatMessage.id}>{chatMessage.message}</div>
-        ))}
-      </div>
+      <Sidebar activeView={activeView} views={views} />
     </main>
   );
 };
