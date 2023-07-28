@@ -33,14 +33,14 @@ const PlayPauseButton: React.FC<PlayPauseButtonProps> = ({ onClick, isPlaying })
   if (isPlaying) {
     return (
       <button className={`${defaultButtonClassName}`} onClick={() => onClick("pause")}>
-        <PauseIcon color="#ffffff" size="1.25rem" />
+        <PauseIcon color="#FFFFFF" size="1.25rem" />
       </button>
     );
   }
 
   return (
     <button className={`${defaultButtonClassName}`} onClick={() => onClick("play")}>
-      <PlayIcon color="#ffffff" size="1.25rem" />
+      <PlayIcon color="#FFFFFF" size="1.25rem" />
     </button>
   );
 };
@@ -63,28 +63,28 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
           data-active={activeView}
           onClick={() => onClickPlayerButton("chat")}
         >
-          <MessageSquareIcon color="#ffffff" size="1.25rem" />
+          <MessageSquareIcon color="#FFFFFF" size="1.25rem" />
         </button>
         <button
           className={`${defaultButtonClassName} data-[active=queue]:bg-brand-indigo-400`}
           data-active={activeView}
           onClick={() => onClickPlayerButton("queue")}
         >
-          <ListOrderedIcon color="#ffffff" size="1.25rem" />
+          <ListOrderedIcon color="#FFFFFF" size="1.25rem" />
         </button>
         <button
           className={`${defaultButtonClassName} data-[active=expand]:bg-brand-indigo-400`}
           onClick={() => onClickPlayerButton("expand")}
         >
-          <ExpandIcon color="#ffffff" size="1.25rem" />
+          <ExpandIcon color="#FFFFFF" size="1.25rem" />
         </button>
         <Separator />
         <PlayPauseButton onClick={onClickPlayerButton} isPlaying={isPlaying} />
         <button className={`${defaultButtonClassName}`} onClick={() => onClickPlayerButton("rewind")}>
-          <RewindIcon color="#ffffff" size="1.25rem" />
+          <RewindIcon color="#FFFFFF" size="1.25rem" />
         </button>
         <button className={`${defaultButtonClassName}`} onClick={() => onClickPlayerButton("fast-forward")}>
-          <FastForwardIcon color="#ffffff" size="1.25rem" />
+          <FastForwardIcon color="#FFFFFF" size="1.25rem" />
         </button>
         <Separator />
         <div className="w-full flex items-center">
@@ -94,20 +94,20 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
             onChange={handleChangeNewVideoUrl}
             value={newVideoUrl}
           />
-          <button className="w-9 h-9 min-w-[2.25rem] flex items-center justify-center hover:bg-brand-purple-100 rounded bg-brand-indigo-200 ml-2">
-            <ArrowRightIcon color="#ffffff" size="1.25rem" />
+          <button className={`${defaultButtonClassName} ml-2`}>
+            <ArrowRightIcon color="#FFFFFF" size="1.25rem" />
           </button>
         </div>
         <Separator />
         <button className={`${defaultButtonClassName} bg-red-500 hover:bg-red-400`} onClick={() => onClickPlayerButton("leave_room")}>
-          <DoorOpenIcon color="#000000" size="1.25rem" />
+          <DoorOpenIcon color="#FFFFFF" size="1.25rem" />
         </button>
         <button
           className={`${defaultButtonClassName} data-[active=settings]:bg-brand-indigo-400`}
           data-active={activeView}
           onClick={() => onClickPlayerButton("settings")}
         >
-          <SettingsIcon color="#ffffff" size="1.25rem" />
+          <SettingsIcon color="#FFFFFF" size="1.25rem" />
         </button>
       </div>
     </div>
