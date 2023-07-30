@@ -12,7 +12,7 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
   const [roomName, setRoomName] = useState("");
 
   const router = useRouter();
-  const socket = useSocket();
+  const { socket } = useSocket();
 
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

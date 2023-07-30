@@ -13,43 +13,63 @@ import {
   PAUSE_VIDEO,
   GET_ROOM_INFO,
   BUFFERING_VIDEO,
+  JOIN_ROOM,
+  RECONNECT_USER,
 } from "../../../constants/socketActions";
 import type { ChatMessage, Room, Messages, ServerMessage } from "@/types/interfaces";
 import { useSocket } from "@/context/SocketContext";
 import RoomToolbar, { ButtonActions, SidebarViews } from "@/components/RoomToolbar";
 import Chat from "@/components/Chat";
 import Sidebar from "@/components/Sidebar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useUpdateEffect } from "@/hooks/useUpdateEffect";
 
-const ReactPlayer = dynamic(() => import("react-player/lazy"), { ssr: false });
+const ReactPlayer = dynamic(() => import("react-player/lazy"), {
+  loading: () => {
+    return <div className="w-full h-full bg-red-600">LOADING</div>;
+  },
+  ssr: false,
+});
 
 export interface RoomPageProps {
   sessionToken: string;
 }
 
-export const RoomPage: React.FC<RoomPageProps> = () => {
+export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [activeView, setActiveView] = useState<SidebarViews>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
   const [messages, setMessages] = useState<Messages>([]);
   const [serverMessages, setServerMessages] = useState<ServerMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
-  const [room, setRoom] = useState<Room | null>(null);
+  const { socket, room } = useSocket();
+  const isSocketAvailable = !!socket;
 
-  const socket = useSocket();
+  const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
 
   const router = useRouter();
   const searchParams = useSearchParams();
   const roomId = searchParams.get("id") as string;
 
+  useEffect(() => {
+    room && setStoredRoom(room);
+  }, [room]);
+
+  useEffect(() => {
+    if (!room && storedRoom && socket) {
+      socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
+        if (!canReconnect) {
+          router.push("/");
+        }
+      });
+    }
+  }, [isSocketAvailable]);
+
   const socketMethods = React.useCallback(() => {
     if (!socket) return;
 
-    socket.on("connect", () => {
-      console.log("Connected");
-    });
-
     socket.on(SERVER_MESSAGE, (newMessage) => {
-      console.log("SERVER_MESSAGE", newMessage);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
       setServerMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
@@ -67,17 +87,9 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
 
     return () => {
       socket.offAnyOutgoing();
+      socket.disconnect();
     };
   }, [socket]);
-
-  useEffect(() => {
-    if (socket && roomId) {
-      socket.emit(GET_ROOM_INFO, roomId, (room) => {
-        console.log(GET_ROOM_INFO, room);
-        setRoom(room);
-      });
-    }
-  }, [roomId, socket]);
 
   const onReady = (player: ReactPlayerType) => {
     setPlayer(player);
@@ -119,8 +131,7 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
       setActiveView(buttonAction as SidebarViews);
     }
 
-    console.log("handleSendMessage", serverMessages, messages, player, loading);
-    player && console.log(player.getCurrentTime());
+    console.log("handleSendMessage", serverMessages, messages, player, loading, room, player?.getCurrentTime());
 
     switch (buttonAction) {
       case "play":
@@ -142,8 +153,6 @@ export const RoomPage: React.FC<RoomPageProps> = () => {
     queue: <div className="flex-grow overflow-y-auto p-4">QUEUE</div>,
     settings: <div className="flex-grow overflow-y-auto p-4">SETTINGS</div>,
   };
-
-  console.log("isPlaying", isPlaying);
 
   return (
     <main className="mx-auto flex justify-center mt-4">

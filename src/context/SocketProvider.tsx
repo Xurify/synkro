@@ -1,18 +1,21 @@
 import React from "react";
 import io from "socket.io-client";
-import { SocketContext, SocketContextType } from "./SocketContext";
+import { SocketContext } from "./SocketContext";
 import { CustomSocket } from "@/types/socketCustomTypes";
 import { socketURL } from "@/constants/constants";
+import { GET_ROOM_INFO, GET_USER_INFO } from "@/constants/socketActions";
+import { Room, User } from "@/types/interfaces";
 
 interface SocketProviderProps {
   sessionToken: string | null;
 }
 
 export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProps>> = ({ children, sessionToken }) => {
-  const [socket, setSocket] = React.useState<SocketContextType>(null);
+  const [socket, setSocket] = React.useState<CustomSocket | null>(null);
+  const [room, setRoom] = React.useState<Room | null>(null);
+  const [user, setUser] = React.useState<User | null>(null);
 
   React.useEffect(() => {
-    console.log("socketURL", socketURL, process.env.NODE_ENV);
     const newSocket = io(socketURL, {
       transports: ["websocket"],
       query: {
@@ -22,6 +25,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
 
     if (sessionToken) {
       newSocket.userId = sessionToken;
+      newSocket.roomId = room?.id;
     }
 
     setSocket(newSocket);
@@ -30,12 +34,20 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
       console.log("Connected");
     });
 
+    newSocket.on(GET_ROOM_INFO, (newRoom) => {
+      setRoom(newRoom);
+    });
+
+    newSocket.on(GET_USER_INFO, (newUser) => {
+      setUser(newUser);
+    });
+
     return () => {
       newSocket.disconnect();
     };
   }, [sessionToken]);
 
-  return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
+  return <SocketContext.Provider value={{ socket, room, user }}>{children}</SocketContext.Provider>;
 };
 
 export default SocketContext;

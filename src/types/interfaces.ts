@@ -1,7 +1,10 @@
+export type UserId = string;
+export type RoomId = string;
+
 export interface User {
-  id: string;
+  id: UserId;
   username: string;
-  roomId: string;
+  roomId: RoomId;
   created: string;
 }
 
@@ -11,11 +14,12 @@ export interface Room {
   host: string;
   queue: Queue[];
   members: User[];
+  previouslyConnectedMembers: { userId: UserId; username: string }[];
   maxRoomSize: number;
   created: string;
 }
 
-export type Rooms = { [roomId: string]: Room };
+export type Rooms = { [roomId: RoomId]: Room };
 
 interface Queue {}
 
@@ -23,7 +27,7 @@ export interface ChatMessage {
   username: string;
   message: string;
   id: string;
-  userId: string;
+  userId: UserId;
   timestamp: string;
   type: "USER";
 }

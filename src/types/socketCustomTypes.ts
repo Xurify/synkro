@@ -13,6 +13,8 @@ import {
   PLAY_VIDEO,
   PAUSE_VIDEO,
   BUFFERING_VIDEO,
+  RECONNECT_USER,
+  GET_USER_INFO,
 } from "../constants/socketActions";
 import { ChatMessage, Room, ServerMessage, User } from "./interfaces";
 
@@ -21,6 +23,7 @@ export interface ServerToClientEvents {
   disconnect: () => void;
   [JOIN_ROOM]: (roomId: string, username: string, callback: (value: boolean) => void) => void;
   [LEAVE_ROOM]: (roomId: string) => void;
+  [RECONNECT_USER]: (roomId: string, userId: string, callback: (canReconnect: boolean) => void) => void;
   [USER_MESSAGE]: (message: string, roomId: string) => void;
   [SERVER_MESSAGE]: ({ message, type }: ServerMessage) => void;
   [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room | null) => void) => void;
@@ -44,6 +47,7 @@ export interface ClientToServerEvents {
   [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room | null) => void) => void;
   [CREATE_ROOM]: (username: string, roomName: string, callback: (value: { result?: Room; error?: string }) => void) => void;
   [GET_ROOM_INFO]: (room: Room) => void;
+  [GET_USER_INFO]: (user: User) => void;
   [PLAY_VIDEO]: () => void;
   [PAUSE_VIDEO]: () => void;
 }

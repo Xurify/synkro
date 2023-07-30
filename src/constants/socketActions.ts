@@ -1,8 +1,12 @@
 export const JOIN_ROOM = "JOIN_ROOM";
 export const LEAVE_ROOM = "LEAVE_ROOM";
+export const RECONNECT_USER = "RECONNECT_USER";
+export const USER_RECONNECTED = "USER_RECONNECTED";
+export const USER_DISCONNECTED = "USER_DISCONNECTED";
 export const GET_ROOM_ID = "GET_ROOM_ID";
 export const CHANGE_ROOM_ID = "CHANGE_ROOM_ID";
 export const GET_ROOM_INFO = "GET_ROOM_INFO";
+export const GET_USER_INFO = "GET_USER_INFO";
 export const GET_ROOM_CODE = "GET_ROOM_CODE";
 export const SET_ROOM_PASSCODE = "SET_ROOM_PASSCODE";
 export const VERIFY_ROOM_PASSCODE = "VERIFY_ROOM_PASSCODE";

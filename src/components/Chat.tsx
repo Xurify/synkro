@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Messages, ServerMessageType } from "@/types/interfaces";
 import { USER_MESSAGE } from "@/constants/socketActions";
-import { SocketContextType } from "@/context/SocketContext";
 import { ArrowBigDown, SendIcon } from "lucide-react";
+import { CustomSocket } from "@/types/socketCustomTypes";
 
 interface ChatProps {
   messages: Messages;
-  socket: SocketContextType;
+  socket: CustomSocket | null;
   roomId: string;
 }
 
@@ -76,7 +76,6 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
 
   const handleOnChangeMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChatMessage(e.target.value);
-    console.log("DASDADA");
   };
   const handleOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") handleSendMessage();
@@ -114,7 +113,7 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
           <NewMessage />
         </div>
       )}
-      <div className="flex items-center">
+      <div className="flex items-center p-2">
         <input
           className="bg-gray-100 py-1.5 px-2 w-full outline-none h-10"
           type="text"

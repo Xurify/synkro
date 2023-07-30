@@ -14,7 +14,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
   const [username, setUsername] = useState("");
   const [roomId, setRoomId] = useState("");
 
-  const socket = useSocket();
+  const { socket } = useSocket();
 
   const router = useRouter();
 

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   ArrowRightIcon,
-  DoorOpenIcon,
   ExpandIcon,
   FastForwardIcon,
   ListOrderedIcon,
@@ -10,6 +9,7 @@ import {
   PlayIcon,
   RewindIcon,
   SettingsIcon,
+  DoorOpenIcon,
 } from "lucide-react";
 import { Separator } from "./Separator";
 

@@ -6,8 +6,7 @@
     "dev": "concurrently \"nodemon ./server/src/app.ts\" \"next dev\"",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "prisma generate"
+    "lint": "next lint"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",
@@ -26,7 +25,7 @@
     "cors": "^2.8.5",
     "eslint": "8.45.0",
     "eslint-config-next": "13.4.12",
-    "lucide-react": "^0.263.0",
+    "lucide-react": "0.226.0",
     "mysql": "^2.18.1",
     "next": "13.4.12",
     "postcss": "8.4.26",
