@@ -15,6 +15,13 @@ import {
   BUFFERING_VIDEO,
   JOIN_ROOM,
   RECONNECT_USER,
+  FASTFORWARD_VIDEO,
+  REWIND_VIDEO,
+  CHANGE_VIDEO,
+  SYNC_TIME,
+  SYNC_VIDEO_INFORMATION,
+  GET_VIDEO_INFORMATION,
+  GET_HOST_VIDEO_INFORMATION,
 } from "../../../constants/socketActions";
 import type { ChatMessage, Room, Messages, ServerMessage } from "@/types/interfaces";
 import { useSocket } from "@/context/SocketContext";
@@ -23,6 +30,7 @@ import Chat from "@/components/Chat";
 import Sidebar from "@/components/Sidebar";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useUpdateEffect } from "@/hooks/useUpdateEffect";
+import { OnProgressProps } from "react-player/base";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   loading: () => {
@@ -40,7 +48,17 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [messages, setMessages] = useState<Messages>([]);
   const [serverMessages, setServerMessages] = useState<ServerMessage[]>([]);
+  // const [videoUrl, setVideoUrl] = useState<string[] | string>([
+  //   "https://youtu.be/ECsqSli1DpY",
+  //   "https://youtu.be/4yKsIdr_PNU",
+  //   "https://youtu.be/jKcBZlPHC3o",
+  //   "https://youtu.be/KTK5CTDy0Yk",
+  // ]);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://youtu.be/ECsqSli1DpY");
   const [loading, setLoading] = useState(false);
+  // const [isSeeking, setIsSeeking] = useState(false);
+  // const [duration, setDuration] = useState(0);
+  //const [played, setPlayed] = useState(0);
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
   const { socket, room } = useSocket();
   const isSocketAvailable = !!socket;
@@ -52,6 +70,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const roomId = searchParams.get("id") as string;
 
   useEffect(() => {
+    console.log("ROOM", room);
     room && setStoredRoom(room);
   }, [room]);
 
@@ -59,6 +78,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     if (!room && storedRoom && socket) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
         if (!canReconnect) {
+          setStoredRoom(null);
           router.push("/");
         }
       });
@@ -77,6 +97,20 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
+    socket.on(GET_HOST_VIDEO_INFORMATION, (callback: (playing: boolean, videoUrl: string, time: number) => void) => {
+      const currentTime = player?.getCurrentTime();
+      const currentVideoUrl = player?.props?.url as string;
+      const isCurrentlyPlaying = player?.props?.playing as boolean;
+      typeof callback === "function" && callback(isCurrentlyPlaying, currentVideoUrl, currentTime ?? 0);
+    });
+
+    socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, time) => {
+      console.log(SYNC_VIDEO_INFORMATION, playing, hostVideoUrl, time);
+      setCurrentVideoUrl(hostVideoUrl);
+      setIsPlaying(playing);
+      player?.seekTo(time);
+    });
+
     socket.on(PLAY_VIDEO, () => {
       setIsPlaying(true);
     });
@@ -85,28 +119,60 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       setIsPlaying(false);
     });
 
+    socket.on(REWIND_VIDEO, (newTime: number) => {
+      player?.seekTo(newTime);
+    });
+
+    socket.on(FASTFORWARD_VIDEO, (newTime: number) => {
+      player?.seekTo(newTime);
+    });
+
+    socket.on(CHANGE_VIDEO, (newVideoUrl: string) => {
+      setCurrentVideoUrl(newVideoUrl);
+    });
+
+    socket.on(SYNC_TIME, (currentTime: number) => {
+      console.log(SYNC_TIME, currentTime);
+      handleSyncTime(currentTime);
+    });
+
     return () => {
       socket.offAnyOutgoing();
       socket.disconnect();
     };
-  }, [socket]);
+  }, [socket, player]);
 
   const onReady = (player: ReactPlayerType) => {
     setPlayer(player);
     setLoading(false);
-    socketMethods();
+    socket?.emit(GET_VIDEO_INFORMATION);
   };
 
-  const handleLeaveRoom = (): void => {
-    if (socket) {
-      socket.emit(LEAVE_ROOM, roomId);
-      void router.push("/");
-    }
-  };
+  useEffect(() => {
+    if (!player) return;
+    socketMethods();
+    console.log("USEFFECTMETHODS", isPlaying, currentVideoUrl);
+  }, [player]);
 
   const runIfAuthorized = (callback?: () => void) => {
     if (room?.host === socket?.userId) {
       typeof callback === "function" && callback();
+    }
+  };
+
+  const handleLeaveRoom = () => {
+    if (!socket) return;
+    socket.emit(LEAVE_ROOM, roomId);
+    void router.push("/");
+  };
+
+  const handleSyncTime = (time: number) => {
+    console.log("handleSyncTime", player);
+    if (!player) return;
+    const currentTime = player?.getCurrentTime();
+    if ((currentTime && currentTime < time - 0.5) || currentTime > time + 0.5) {
+      player.seekTo(time);
+      !isPlaying && setIsPlaying(true);
     }
   };
 
@@ -120,18 +186,44 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     runIfAuthorized(() => socket?.emit(PAUSE_VIDEO));
   };
 
+  const handleRewind = () => {
+    if (!player) return null;
+    const currentTime = player.getCurrentTime();
+    const newTime = currentTime - 5 < 0 ? 0 : currentTime - 5;
+    player.seekTo(newTime);
+
+    runIfAuthorized(() => socket?.emit(REWIND_VIDEO, newTime));
+  };
+
+  const handleFastforward = () => {
+    if (!player) return null;
+    const currentTime = player.getCurrentTime();
+    const endTime = player.getDuration();
+    const newTime = currentTime + 5 > endTime ? endTime : currentTime + 5;
+    player.seekTo(newTime);
+
+    runIfAuthorized(() => socket?.emit(FASTFORWARD_VIDEO, newTime));
+  };
+
   const handleBuffer = () => {
+    console.log("HANDLEBUFFER");
+    if (!player) return null;
+    const currentTime = player.getCurrentTime();
     if (socket?.userId) {
-      socket.emit(BUFFERING_VIDEO, socket.userId);
+      socket.emit(BUFFERING_VIDEO, socket.userId, currentTime);
     }
   };
 
-  const handleClickPlayerButton = (buttonAction: ButtonActions) => {
+  const handleEnded = () => {
+    console.log("onEnded");
+  };
+
+  const handleClickPlayerButton = (buttonAction: ButtonActions, payload?: string | number) => {
     if (["chat", "queue", "settings"].includes(buttonAction)) {
       setActiveView(buttonAction as SidebarViews);
     }
 
-    console.log("handleSendMessage", serverMessages, messages, player, loading, room, player?.getCurrentTime());
+    console.log("handleSendMessage", messages, player, loading, room);
 
     switch (buttonAction) {
       case "play":
@@ -140,9 +232,17 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       case "pause":
         handlePause();
         return;
-      case "leave_room":
+      case "rewind":
+        handleRewind();
+        return;
+      case "fast-forward":
+        handleFastforward();
+        return;
+      case "leave-room":
         handleLeaveRoom();
         return;
+      case "change-video":
+        typeof payload === "string" && setCurrentVideoUrl(payload);
       default:
         break;
     }
@@ -161,7 +261,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
           <div className="player-wrapper mb-2">
             <ReactPlayer
               className="react-player"
-              url="https://youtu.be/4yKsIdr_PNU"
+              url={currentVideoUrl}
               width="100%"
               height="100%"
               playing={isPlaying}
@@ -170,6 +270,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
               onPlay={handlePlay}
               onPause={handlePause}
               controls={true}
+              onEnded={handleEnded}
             />
           </div>
         </div>

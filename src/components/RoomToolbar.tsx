@@ -5,55 +5,44 @@ import {
   FastForwardIcon,
   ListOrderedIcon,
   MessageSquareIcon,
-  PauseIcon,
-  PlayIcon,
   RewindIcon,
   SettingsIcon,
   DoorOpenIcon,
 } from "lucide-react";
 import { Separator } from "./Separator";
+import { runIfAuthorized } from "@/libs/utils/socket";
+import { useSocket } from "@/context/SocketContext";
+import { CHANGE_VIDEO } from "@/constants/socketActions";
+import { PlayPauseButton } from "./PlayPauseButton";
 
-export type ButtonActions = SidebarViews | "expand" | "play" | "pause" | "fast-forward" | "rewind" | "leave_room";
+export type ButtonActions = SidebarViews | "expand" | "play" | "pause" | "fast-forward" | "rewind" | "change-video" | "leave-room";
 export type SidebarViews = "chat" | "queue" | "settings";
 
 interface RoomToolbarProps {
   activeView: ButtonActions;
-  onClickPlayerButton: (newActiveButton: ButtonActions) => void;
+  onClickPlayerButton: (newActiveButton: ButtonActions, payload?: string | number) => void;
   isPlaying: boolean;
   roomId: string;
 }
 
-interface PlayPauseButtonProps {
-  onClick: (newActiveButton: ButtonActions) => void;
-  isPlaying: boolean;
-}
-
-const PlayPauseButton: React.FC<PlayPauseButtonProps> = ({ onClick, isPlaying }) => {
-  const defaultButtonClassName = `w-9 h-9 min-w-[2.25rem] flex items-center justify-center bg-brand-indigo-200 hover:bg-brand-purple-100 rounded`;
-  if (isPlaying) {
-    return (
-      <button className={`${defaultButtonClassName}`} onClick={() => onClick("pause")}>
-        <PauseIcon color="#FFFFFF" size="1.25rem" />
-      </button>
-    );
-  }
-
-  return (
-    <button className={`${defaultButtonClassName}`} onClick={() => onClick("play")}>
-      <PlayIcon color="#FFFFFF" size="1.25rem" />
-    </button>
-  );
-};
-
 export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPlayerButton, isPlaying }) => {
   const [newVideoUrl, setNewVideoUrl] = useState<string>("");
+
+  const { socket, room } = useSocket();
 
   const handleChangeNewVideoUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setNewVideoUrl(value);
   };
 
-  const defaultButtonClassName = `w-9 h-9 min-w-[2.25rem] flex items-center justify-center bg-brand-indigo-200 hover:bg-brand-purple-100 rounded`;
+  const handleChangeVideo = () => {
+    onClickPlayerButton("change-video", newVideoUrl);
+    if (socket?.userId && room) {
+      runIfAuthorized(room.host, socket.userId, () => socket?.emit(CHANGE_VIDEO, newVideoUrl));
+    }
+  };
+
+  const defaultButtonClassName = `w-9 h-9 min-w-[2.25rem] flex items-center justify-center bg-brand-indigo-200 hover:bg-brand-indigo-400 rounded`;
 
   return (
     <div className="max-w-[80rem] w-full bg-white shadow-md p-2.5 rounded flex">
@@ -94,12 +83,12 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
             onChange={handleChangeNewVideoUrl}
             value={newVideoUrl}
           />
-          <button className={`${defaultButtonClassName} ml-2`}>
+          <button className={`${defaultButtonClassName} ml-2`} onClick={handleChangeVideo}>
             <ArrowRightIcon color="#FFFFFF" size="1.25rem" />
           </button>
         </div>
         <Separator />
-        <button className={`${defaultButtonClassName} bg-red-500 hover:bg-red-400`} onClick={() => onClickPlayerButton("leave_room")}>
+        <button className={`${defaultButtonClassName} bg-red-500 hover:bg-red-400`} onClick={() => onClickPlayerButton("leave-room")}>
           <DoorOpenIcon color="#FFFFFF" size="1.25rem" />
         </button>
         <button

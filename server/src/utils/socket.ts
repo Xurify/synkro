@@ -3,9 +3,12 @@ import { CustomSocket } from '../../../src/types/socketCustomTypes';
 
 export const getUser = (id: string, users: User[]): User | undefined => users.find((user) => user.id === id);
 
-export const addUser = ({ id, username, roomId }: { id: string; username: string; roomId: string }, users: User[]): User => {
+export const addUser = (
+  { id, username, roomId, socketId }: { id: string; username: string; roomId: string; socketId: string },
+  users: User[],
+): User => {
   const created = new Date().toISOString();
-  const user: User = { id, username, roomId, created };
+  const user: User = { id, username, roomId, created, socketId };
   users.push(user);
   return user;
 };

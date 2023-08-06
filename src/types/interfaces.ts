@@ -3,6 +3,7 @@ export type RoomId = string;
 
 export interface User {
   id: UserId;
+  socketId: string;
   username: string;
   roomId: RoomId;
   created: string;

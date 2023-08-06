@@ -115,14 +115,14 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
       )}
       <div className="flex items-center p-2">
         <input
-          className="bg-gray-100 py-1.5 px-2 w-full outline-none h-10"
+          className="bg-gray-100 py-1.5 px-2 w-full outline-none h-10 rounded-l"
           type="text"
           value={chatMessage}
           onChange={handleOnChangeMessage}
           onKeyDown={handleOnKeyDown}
           placeholder="Say something"
         />
-        <button onClick={handleSendMessage} className="bg-brand-indigo-300 w-12 h-10 flex items-center justify-center">
+        <button onClick={handleSendMessage} className="bg-brand-indigo-300 w-12 h-10 flex items-center justify-center rounded-r">
           <SendIcon color="#ffffff" size="1.25rem" />
         </button>
       </div>
@@ -132,7 +132,7 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
 
 const NewMessage = () => {
   return (
-    <div className="group bg-indigo-700 hover:bg-indigo-600 text-center py-2 lg:px-4">
+    <div className="group bg-indigo-700 hover:bg-indigo-600 text-center py-2 lg:px-4 relative top-[-1rem]">
       <div
         className="p-1 bg-indigo-600 group-hover:bg-indigo-500 items-center text-indigo-100 leading-none lg:rounded-full flex lg:inline-flex w-full"
         role="alert"
