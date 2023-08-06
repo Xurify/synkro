@@ -34,19 +34,7 @@ const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
 const app: Application = express();
 const server: HttpServer = createServer(app);
 
-import { instrument } from '@socket.io/admin-ui';
-
-const io: Server = new Server(server, {
-  cors: {
-    origin: ['https://admin.socket.io'],
-    credentials: true,
-  },
-});
-
-instrument(io, {
-  auth: false,
-  mode: 'development',
-});
+const io: Server = new Server(server);
 
 let users: User[] = [];
 const rooms: { [roomId: string]: Room } = {};
