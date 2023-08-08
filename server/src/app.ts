@@ -172,7 +172,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(USER_MESSAGE, (message: string, roomId: string) => {
-    console.log(`📩 Received message: ${message} in ${roomId}`);
+    console.log(`📩 Received message: ${message} in ${roomId} by ${socket.userId}`);
     const user = socket.userId && getUser(socket.userId, users);
     if (user) {
       const timestamp = new Date().toISOString();

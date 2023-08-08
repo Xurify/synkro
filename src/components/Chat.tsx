@@ -77,6 +77,7 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
   const handleOnChangeMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChatMessage(e.target.value);
   };
+
   const handleOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") handleSendMessage();
   };

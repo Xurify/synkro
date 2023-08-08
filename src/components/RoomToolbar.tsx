@@ -38,8 +38,13 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
   const handleChangeVideo = () => {
     onClickPlayerButton("change-video", newVideoUrl);
     if (socket?.userId && room) {
+      setNewVideoUrl("");
       runIfAuthorized(room.host, socket.userId, () => socket?.emit(CHANGE_VIDEO, newVideoUrl));
     }
+  };
+
+  const handleChangeVideoOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") handleChangeVideo();
   };
 
   const defaultButtonClassName = `w-9 h-9 min-w-[2.25rem] flex items-center justify-center bg-brand-indigo-200 hover:bg-brand-indigo-400 rounded`;
@@ -81,6 +86,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
             className="bg-gray-100 py-1.5 px-2 w-full rounded-sm outline-none"
             placeholder="New Video URL"
             onChange={handleChangeNewVideoUrl}
+            onKeyDown={handleChangeVideoOnKeyDown}
             value={newVideoUrl}
           />
           <button className={`${defaultButtonClassName} ml-2`} onClick={handleChangeVideo}>

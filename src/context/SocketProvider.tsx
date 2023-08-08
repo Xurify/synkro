@@ -14,6 +14,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
   const [socket, setSocket] = React.useState<CustomSocket | null>(null);
   const [room, setRoom] = React.useState<Room | null>(null);
   const [user, setUser] = React.useState<User | null>(null);
+  const [isConnecting, setIsConnecting] = React.useState<boolean>(true);
 
   React.useEffect(() => {
     const newSocket = io(socketURL, {
@@ -32,6 +33,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
 
     newSocket.on("connect", () => {
       console.log("Connected");
+      setIsConnecting(false);
     });
 
     newSocket.on(GET_ROOM_INFO, (newRoom) => {
@@ -47,7 +49,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
     };
   }, [sessionToken]);
 
-  return <SocketContext.Provider value={{ socket, room, user }}>{children}</SocketContext.Provider>;
+  return <SocketContext.Provider value={{ socket, room, user, isConnecting }}>{children}</SocketContext.Provider>;
 };
 
 export default SocketContext;

@@ -9,7 +9,8 @@ export const addUser = (
 ): User => {
   const created = new Date().toISOString();
   const user: User = { id, username, roomId, created, socketId };
-  users.push(user);
+  const existingUser = getUser(id, users);
+  if (!existingUser) users.push(user);
   return user;
 };
 

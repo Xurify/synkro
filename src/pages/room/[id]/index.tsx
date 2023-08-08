@@ -60,7 +60,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   // const [duration, setDuration] = useState(0);
   //const [played, setPlayed] = useState(0);
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
-  const { socket, room } = useSocket();
+  const { socket, room, isConnecting } = useSocket();
   const isSocketAvailable = !!socket;
 
   const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
@@ -70,12 +70,21 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const roomId = searchParams.get("id") as string;
 
   useEffect(() => {
-    console.log("ROOM", room);
     room && setStoredRoom(room);
   }, [room]);
 
   useEffect(() => {
-    if (!room && storedRoom && socket) {
+    console.log(room, storedRoom, socket, socket?.connected, isConnecting);
+
+    if (!isConnecting && socket?.connected && !room) {
+      socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
+        console.log(RECONNECT_USER, canReconnect);
+        if (!canReconnect) {
+          setStoredRoom(null);
+          router.push("/");
+        }
+      });
+    } else if (!room && storedRoom && socket) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
         if (!canReconnect) {
           setStoredRoom(null);
@@ -83,7 +92,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
         }
       });
     }
-  }, [isSocketAvailable]);
+  }, [isSocketAvailable, isConnecting, room]);
 
   const socketMethods = React.useCallback(() => {
     if (!socket) return;
@@ -129,10 +138,10 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
     socket.on(CHANGE_VIDEO, (newVideoUrl: string) => {
       setCurrentVideoUrl(newVideoUrl);
+      setIsPlaying(true);
     });
 
     socket.on(SYNC_TIME, (currentTime: number) => {
-      console.log(SYNC_TIME, currentTime);
       handleSyncTime(currentTime);
     });
 
@@ -151,7 +160,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   useEffect(() => {
     if (!player) return;
     socketMethods();
-    console.log("USEFFECTMETHODS", isPlaying, currentVideoUrl);
   }, [player]);
 
   const runIfAuthorized = (callback?: () => void) => {
@@ -167,10 +175,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   };
 
   const handleSyncTime = (time: number) => {
-    console.log("handleSyncTime", player);
     if (!player) return;
     const currentTime = player?.getCurrentTime();
-    if ((currentTime && currentTime < time - 0.5) || currentTime > time + 0.5) {
+    if ((currentTime && currentTime < time - 0.3) || currentTime > time + 0.3) {
       player.seekTo(time);
       !isPlaying && setIsPlaying(true);
     }
@@ -214,16 +221,12 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     }
   };
 
-  const handleEnded = () => {
-    console.log("onEnded");
-  };
+  const handleEnded = () => {};
 
   const handleClickPlayerButton = (buttonAction: ButtonActions, payload?: string | number) => {
     if (["chat", "queue", "settings"].includes(buttonAction)) {
       setActiveView(buttonAction as SidebarViews);
     }
-
-    console.log("handleSendMessage", messages, player, loading, room);
 
     switch (buttonAction) {
       case "play":
@@ -242,7 +245,10 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
         handleLeaveRoom();
         return;
       case "change-video":
-        typeof payload === "string" && setCurrentVideoUrl(payload);
+        if (typeof payload === "string") {
+          setCurrentVideoUrl(payload);
+          setIsPlaying(true);
+        }
       default:
         break;
     }
