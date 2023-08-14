@@ -3,6 +3,7 @@ import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import type ReactPlayerType from "react-player";
+import screenfull from "screenfull";
 import { parse } from "cookie";
 
 import {
@@ -11,9 +12,7 @@ import {
   SERVER_MESSAGE,
   PLAY_VIDEO,
   PAUSE_VIDEO,
-  GET_ROOM_INFO,
   BUFFERING_VIDEO,
-  JOIN_ROOM,
   RECONNECT_USER,
   FASTFORWARD_VIDEO,
   REWIND_VIDEO,
@@ -23,14 +22,13 @@ import {
   GET_VIDEO_INFORMATION,
   GET_HOST_VIDEO_INFORMATION,
 } from "../../../constants/socketActions";
-import type { ChatMessage, Room, Messages, ServerMessage } from "@/types/interfaces";
+import type { ChatMessage, Messages, ServerMessage } from "@/types/interfaces";
 import { useSocket } from "@/context/SocketContext";
 import RoomToolbar, { ButtonActions, SidebarViews } from "@/components/RoomToolbar";
 import Chat from "@/components/Chat";
 import Sidebar from "@/components/Sidebar";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { useUpdateEffect } from "@/hooks/useUpdateEffect";
-import { OnProgressProps } from "react-player/base";
+import { findDOMNode } from "react-dom";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   loading: () => {
@@ -168,6 +166,12 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     }
   };
 
+  const runIfPlayerIsReady = (callback?: () => void) => {
+    if (player) {
+      typeof callback === "function" && callback();
+    }
+  };
+
   const handleLeaveRoom = () => {
     if (!socket) return;
     socket.emit(LEAVE_ROOM, roomId);
@@ -223,6 +227,12 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
   const handleEnded = () => {};
 
+  const handleToggleFullscreen = () =>
+    runIfPlayerIsReady(() => {
+      console.log("TOGGLEFULLSCREEN", player);
+      screenfull.request(findDOMNode(player as unknown as Element | null));
+    });
+
   const handleClickPlayerButton = (buttonAction: ButtonActions, payload?: string | number) => {
     if (["chat", "queue", "settings"].includes(buttonAction)) {
       setActiveView(buttonAction as SidebarViews);
@@ -249,6 +259,10 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
           setCurrentVideoUrl(payload);
           setIsPlaying(true);
         }
+        return;
+      case "expand":
+        handleToggleFullscreen();
+        return;
       default:
         break;
     }
@@ -261,10 +275,10 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   };
 
   return (
-    <main className="mx-auto flex justify-center mt-4">
+    <main className="mx-auto flex justify-center">
       <div className="flex flex-col max-w-[80rem] w-full">
         <div className="max-w-[80rem] w-full">
-          <div className="player-wrapper mb-2">
+          <div className="player-wrapper bg-card mb-2">
             <ReactPlayer
               className="react-player"
               url={currentVideoUrl}

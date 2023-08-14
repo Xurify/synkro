@@ -2,14 +2,14 @@ import Link from "next/link";
 
 export default function NavigationHeader() {
   return (
-    <nav className="w-full flex p-4 shadow bg-white">
+    <nav className="bg-card w-full flex p-4 mb-4 shadow">
       <div className="text-2xl font-bold text-brand-blue-600">
         <Link className="flex items-center" href="/">
           {/* <Tv className="h-[2rem] w-[2rem] mr-2" /> */}
           <div className="h-[2.5rem] w-[2.5rem] mr-2">
             <Icon />
           </div>
-          <span className="mt-[6px] font-bold">Synkro</span>
+          <span className="mt-[6px] font-bold text-primary">Synkro</span>
         </Link>
       </div>
     </nav>

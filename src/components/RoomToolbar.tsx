@@ -9,10 +9,15 @@ import {
   SettingsIcon,
   DoorOpenIcon,
 } from "lucide-react";
-import { Separator } from "./Separator";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
 import { runIfAuthorized } from "@/libs/utils/socket";
 import { useSocket } from "@/context/SocketContext";
 import { CHANGE_VIDEO } from "@/constants/socketActions";
+
+import { Separator } from "./Separator";
 import { PlayPauseButton } from "./PlayPauseButton";
 
 export type ButtonActions = SidebarViews | "expand" | "play" | "pause" | "fast-forward" | "rewind" | "change-video" | "leave-room";
@@ -47,63 +52,87 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
     if (e.key === "Enter") handleChangeVideo();
   };
 
-  const defaultButtonClassName = `w-9 h-9 min-w-[2.25rem] flex items-center justify-center bg-brand-indigo-200 hover:bg-brand-indigo-400 rounded`;
+  const defaultButtonClassName = `w-9 h-9 min-w-[2.25rem]`;
 
   return (
-    <div className="max-w-[80rem] w-full bg-white shadow-md p-2.5 rounded flex">
+    <div className="max-w-[80rem] w-full bg-card shadow-md p-2.5 rounded flex">
       <div className="w-full flex gap-2">
-        <button
-          className={`${defaultButtonClassName} data-[active=chat]:bg-brand-indigo-400`}
+        <Button
+          className={`${defaultButtonClassName}`}
           data-active={activeView}
           onClick={() => onClickPlayerButton("chat")}
+          variant={activeView === "chat" ? "default" : "secondary"}
         >
-          <MessageSquareIcon color="#FFFFFF" size="1.25rem" />
-        </button>
-        <button
-          className={`${defaultButtonClassName} data-[active=queue]:bg-brand-indigo-400`}
+          <span>
+            <MessageSquareIcon color="#FFFFFF" size="1.25rem" />
+          </span>
+        </Button>
+        <Button
+          className={`${defaultButtonClassName}`}
           data-active={activeView}
           onClick={() => onClickPlayerButton("queue")}
+          variant={activeView === "queue" ? "default" : "secondary"}
         >
-          <ListOrderedIcon color="#FFFFFF" size="1.25rem" />
-        </button>
-        <button
-          className={`${defaultButtonClassName} data-[active=expand]:bg-brand-indigo-400`}
+          <span>
+            <ListOrderedIcon color="#FFFFFF" size="1.25rem" />
+          </span>
+        </Button>
+        <Button
+          className={`${defaultButtonClassName} data-[active=settings]:bg-brand-indigo-400`}
+          data-active={activeView}
           onClick={() => onClickPlayerButton("expand")}
+          variant={activeView === "expand" ? "default" : "secondary"}
         >
-          <ExpandIcon color="#FFFFFF" size="1.25rem" />
-        </button>
+          <span>
+            <ExpandIcon color="#FFFFFF" size="1.25rem" />
+          </span>
+        </Button>
         <Separator />
         <PlayPauseButton onClick={onClickPlayerButton} isPlaying={isPlaying} />
-        <button className={`${defaultButtonClassName}`} onClick={() => onClickPlayerButton("rewind")}>
-          <RewindIcon color="#FFFFFF" size="1.25rem" />
-        </button>
-        <button className={`${defaultButtonClassName}`} onClick={() => onClickPlayerButton("fast-forward")}>
-          <FastForwardIcon color="#FFFFFF" size="1.25rem" />
-        </button>
+        <Button className={`${defaultButtonClassName}`} onClick={() => onClickPlayerButton("rewind")} variant="secondary">
+          <span>
+            <RewindIcon color="#FFFFFF" size="1.25rem" />
+          </span>
+        </Button>
+        <Button className={`${defaultButtonClassName}`} onClick={() => onClickPlayerButton("fast-forward")} variant="secondary">
+          <span>
+            <FastForwardIcon color="#FFFFFF" size="1.25rem" />
+          </span>
+        </Button>
         <Separator />
         <div className="w-full flex items-center">
-          <input
-            className="bg-gray-100 py-1.5 px-2 w-full rounded-sm outline-none"
+          <Input
             placeholder="New Video URL"
             onChange={handleChangeNewVideoUrl}
             onKeyDown={handleChangeVideoOnKeyDown}
             value={newVideoUrl}
           />
-          <button className={`${defaultButtonClassName} ml-2`} onClick={handleChangeVideo}>
-            <ArrowRightIcon color="#FFFFFF" size="1.25rem" />
-          </button>
+          <Button className="ml-2 rounded w-12" onClick={handleChangeVideo}>
+            <span>
+              <ArrowRightIcon color="#FFFFFF" size="1.25rem" />
+            </span>
+          </Button>
         </div>
         <Separator />
-        <button className={`${defaultButtonClassName} bg-red-500 hover:bg-red-400`} onClick={() => onClickPlayerButton("leave-room")}>
-          <DoorOpenIcon color="#FFFFFF" size="1.25rem" />
-        </button>
-        <button
-          className={`${defaultButtonClassName} data-[active=settings]:bg-brand-indigo-400`}
+        <Button
+          className={`${defaultButtonClassName} bg-red-500 hover:bg-red-400`}
+          onClick={() => onClickPlayerButton("leave-room")}
+          variant="secondary"
+        >
+          <span>
+            <DoorOpenIcon color="#FFFFFF" size="1.25rem" />
+          </span>
+        </Button>
+        <Button
+          className={`${defaultButtonClassName}`}
           data-active={activeView}
           onClick={() => onClickPlayerButton("settings")}
+          variant={activeView === "settings" ? "default" : "secondary"}
         >
-          <SettingsIcon color="#FFFFFF" size="1.25rem" />
-        </button>
+          <span>
+            <SettingsIcon color="#FFFFFF" size="1.25rem" />
+          </span>
+        </Button>
       </div>
     </div>
   );

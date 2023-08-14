@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
+
+import { ArrowBigDown, SendIcon } from "lucide-react";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Messages, ServerMessageType } from "@/types/interfaces";
 import { USER_MESSAGE } from "@/constants/socketActions";
-import { ArrowBigDown, SendIcon } from "lucide-react";
 import { CustomSocket } from "@/types/socketCustomTypes";
 
 interface ChatProps {
@@ -98,14 +102,14 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
   };
 
   return (
-    <div className="flex flex-col flex-grow h-full relative hide-scrollbar">
-      <div className="flex-grow overflow-y-auto p-4 h-full" ref={chatContainerRef}>
+    <div className="flex flex-col flex-grow w-full h-full relative hide-scrollbar">
+      <div className="flex-grow overflow-y-auto p-4 h-full gap-y-4 flex flex-col" ref={chatContainerRef}>
         {messages.map((message, index) => (
-          <div className={getMessageClassname(message.type)} key={index}>
+          <div className={`${getMessageClassname(message.type)} bg-gray-800 rounded p-1 px-2`} key={index}>
             {message.type === "USER" && (
-              <h4 className={`${message.userId === socket?.userId ? "text-red-500" : "text-green-500"}`}>{message.username}</h4>
+              <span className={`${message.userId === socket?.userId ? "text-red-500" : "text-green-500"}`}>{message.username}</span>
             )}
-            <p className="text-text">{message.message}</p>
+            <p className="text-text text-primary-foreground">{message.message}</p>
           </div>
         ))}
       </div>
@@ -115,17 +119,17 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
         </div>
       )}
       <div className="flex items-center p-2">
-        <input
-          className="bg-gray-100 py-1.5 px-2 w-full outline-none h-10 rounded-l"
+        <Input
+          className="h-10 rounded-l rounded-r-none"
           type="text"
           value={chatMessage}
           onChange={handleOnChangeMessage}
           onKeyDown={handleOnKeyDown}
           placeholder="Say something"
         />
-        <button onClick={handleSendMessage} className="bg-brand-indigo-300 w-12 h-10 flex items-center justify-center rounded-r">
+        <Button onClick={handleSendMessage} className="w-12 h-10 rounded-r rounded-l-none">
           <SendIcon color="#ffffff" size="1.25rem" />
-        </button>
+        </Button>
       </div>
     </div>
   );

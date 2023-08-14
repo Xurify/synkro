@@ -1,10 +1,17 @@
 import React, { useState } from "react";
 
-import { generateName } from "../libs/utils/names";
-import DiceIcon from "./DiceIcon";
-import { CHECK_IF_ROOM_EXISTS, JOIN_ROOM } from "@/constants/socketActions";
 import { useRouter } from "next/router";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+
+import { CHECK_IF_ROOM_EXISTS, JOIN_ROOM } from "@/constants/socketActions";
 import { useSocket } from "@/context/SocketContext";
+import { generateName } from "@/libs/utils/names";
+
+import DiceIcon from "./DiceIcon";
 
 export interface JoinRoomBoxProps {
   toggle: () => void;
@@ -15,8 +22,8 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
   const [roomId, setRoomId] = useState("");
 
   const { socket } = useSocket();
-
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -37,7 +44,12 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
 
     socket?.emit(CHECK_IF_ROOM_EXISTS, roomId, (value) => {
       if (value === null) {
-        alert("Sorry, this room doesn't exist 😥");
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: "Sorry, this room doesn't exist 😥",
+          action: <ToastAction altText="Try again">Try again</ToastAction>,
+        });
       } else {
         socket.emit(JOIN_ROOM, roomId, username, () => {
           router.push(`/room/${roomId}`);
@@ -47,47 +59,34 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
   }, [roomId, router, socket, username]);
 
   return (
-    <div className="max-w-[30rem] w-full bg-white shadow-lg p-4 rounded">
+    <div className="max-w-[30rem] w-full bg-card p-4 rounded">
       <div className="flex">
-        <input
-          className="bg-gray-100 py-1.5 px-2 w-full rounded-sm outline-none"
-          placeholder="Room Id"
-          onChange={handleChangeRoomId}
-          value={roomId}
-        />
+        <Input placeholder="Room Id" onChange={handleChangeRoomId} value={roomId} />
       </div>
       <div className="flex mt-3">
-        <input
-          className="bg-gray-100 py-1.5 px-2 w-full rounded-sm outline-none"
-          placeholder="Username"
-          onChange={handleChangeUsername}
-          value={username}
-        />
-        <button
-          className="w-9 h-9 min-w-[2.25rem] border border-brand-blue-800 text-brand-blue-800 hover:bg-brand-blue-800 hover:text-white rounded ml-2 flex items-center justify-center"
+        <Input placeholder="Username" onChange={handleChangeUsername} value={username} />
+        <Button
+          className="w-9 h-9 min-w-[2.25rem] border border-brand-blue-800 text-primary hover:bg-primary hover:text-white ml-2"
           onClick={handleGenerateRandomUsername}
+          variant="secondary"
         >
-          <DiceIcon />
-        </button>
+          <span>
+            <DiceIcon />
+          </span>
+        </Button>
       </div>
       <div className="mt-4 flex flex-col items-center justify-end">
-        <button
-          className="w-full h-9 py-1 px-2 bg-brand-purple-200 hover:bg-brand-purple-100 text-brand-blue-800 rounded"
-          onClick={handleJoinRoom}
-        >
+        <Button className="w-full h-9 py-1 px-2 border" onClick={handleJoinRoom} variant="default">
           Join Room
-        </button>
+        </Button>
         <div className="flex items-center justify-center my-4 max-w-[10rem] w-full">
           <div className="flex-grow border-b border-gray-500"></div>
           <span className="px-4 text-gray-500">or</span>
           <div className="flex-grow border-b border-gray-500"></div>
         </div>
-        <button
-          className="max-w-[28rem] w-full h-9 py-1 px-2 border border-brand-blue-800 box-border bg-brand-blue-600 text-white rounded"
-          onClick={toggleShowCreate}
-        >
+        <Button className="w-full h-9 py-1 px-2 border" onClick={toggleShowCreate} variant="secondary">
           Create Room
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,8 +1,3 @@
 export const Separator = () => (
-  <div
-    className="separator"
-    data-orientation="vertical"
-    aria-orientation="vertical"
-    role="separator"
-  />
+  <div className="separator text-foreground" data-orientation="vertical" aria-orientation="vertical" role="separator" />
 );

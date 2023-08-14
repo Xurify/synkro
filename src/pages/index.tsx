@@ -10,7 +10,7 @@ export const HomePage: React.FC = () => {
   const handleToggle = () => setIsCreateBoxShown(!isCreateBoxShown);
 
   return (
-    <main className="flex flex-col mt-4">
+    <main className="flex flex-col">
       <div className="w-full h-full flex flex-col items-center justify-center px-2">
         {isCreateBoxShown ? <CreateRoomBox toggle={handleToggle} /> : <JoinRoomBox toggle={handleToggle} />}
       </div>
