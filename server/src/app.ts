@@ -106,7 +106,8 @@ io.on('connection', (socket: CustomSocketServer) => {
 
       const room: Room = getRoomById(roomId, rooms);
       if (room) {
-        const newMembers = [...room.members, user];
+        const userExistsInRoomMembers = room.members.find((member) => member.id === user.id);
+        const newMembers = userExistsInRoomMembers ? room.members : [...room.members, user];
         const updatedRoom = updateRoom(roomId, rooms, {
           ...room,
           members: newMembers,

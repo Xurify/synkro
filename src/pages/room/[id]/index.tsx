@@ -230,7 +230,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const handleToggleFullscreen = () =>
     runIfPlayerIsReady(() => {
       console.log("TOGGLEFULLSCREEN", player);
-      screenfull.request(findDOMNode(player as unknown as Element | null));
+      screenfull.request(findDOMNode(player as unknown as Element) as Element);
     });
 
   const handleClickPlayerButton = (buttonAction: ButtonActions, payload?: string | number) => {

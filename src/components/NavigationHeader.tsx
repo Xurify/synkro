@@ -9,7 +9,7 @@ export default function NavigationHeader() {
           <div className="h-[2.5rem] w-[2.5rem] mr-2">
             <Icon />
           </div>
-          <span className="mt-[6px] font-bold text-primary">Synkro</span>
+          <span className="mt-[6px] font-bold text-foreground">Synkro</span>
         </Link>
       </div>
     </nav>

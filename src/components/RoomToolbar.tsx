@@ -101,12 +101,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
         </Button>
         <Separator />
         <div className="w-full flex items-center">
-          <Input
-            placeholder="New Video URL"
-            onChange={handleChangeNewVideoUrl}
-            onKeyDown={handleChangeVideoOnKeyDown}
-            value={newVideoUrl}
-          />
+          <Input placeholder="Change video" onChange={handleChangeNewVideoUrl} onKeyDown={handleChangeVideoOnKeyDown} value={newVideoUrl} />
           <Button className="ml-2 rounded w-12" onClick={handleChangeVideo}>
             <span>
               <ArrowRightIcon color="#FFFFFF" size="1.25rem" />
