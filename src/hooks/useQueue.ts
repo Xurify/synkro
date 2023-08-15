@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-interface Queue<T> {
+export interface Queue<T> {
   first: T | null;
   last: T | null;
   size: number;

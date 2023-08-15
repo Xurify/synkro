@@ -22,10 +22,11 @@ import {
   SYNC_VIDEO_INFORMATION,
   GET_VIDEO_INFORMATION,
   GET_HOST_VIDEO_INFORMATION,
+  ADD_VIDEO_TO_QUEUE,
 } from "../constants/socketActions";
-import { ChatMessage, Room, ServerMessage, User, UserId } from "./interfaces";
+import { ChatMessage, Room, ServerMessage, User, UserId, VideoQueueItem } from "./interfaces";
 
-export interface ServerToClientEvents {
+export interface ClientToServerEvents {
   connect: () => void;
   disconnect: () => void;
   [JOIN_ROOM]: (roomId: string, username: string, callback: (value: boolean) => void) => void;
@@ -47,9 +48,10 @@ export interface ServerToClientEvents {
   [SYNC_TIME]: (time: number) => void;
   [SYNC_VIDEO_INFORMATION]: (callback: (playing: boolean, hostVideoUrl: string, time: number) => void) => void;
   [GET_VIDEO_INFORMATION]: () => void;
+  [ADD_VIDEO_TO_QUEUE]: (newVideo: VideoQueueItem) => void;
 }
 
-export interface ClientToServerEvents {
+export interface ServerToClientEvents {
   connect: () => void;
   disconnect: () => void;
   [JOIN_ROOM]: (roomId: string, username: string, callback: (value: boolean) => void) => void;
@@ -73,8 +75,8 @@ export interface ClientToServerEvents {
   [GET_HOST_VIDEO_INFORMATION]: (callback: (playing: boolean, hostVideoUrl: string, time: number) => void) => void;
 }
 
-export type CustomSocket = Socket<ClientToServerEvents, ServerToClientEvents> & CustomSocketProperties;
-export type CustomSocketServer = Socket<ServerToClientEvents, ClientToServerEvents> & CustomSocketProperties;
+export type CustomSocket = Socket<ServerToClientEvents, ClientToServerEvents> & CustomSocketProperties;
+export type CustomSocketServer = Socket<ClientToServerEvents, ServerToClientEvents> & CustomSocketProperties;
 
 type CustomSocketProperties = {
   userId?: string;

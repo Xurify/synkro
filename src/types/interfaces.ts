@@ -47,7 +47,15 @@ export interface ServerMessage {
   message: string;
   type: ServerMessageType;
   timestamp: string;
+  //id: string;
 }
 
 export type Message = ChatMessage | ServerMessage;
 export type Messages = Message[];
+
+export interface VideoQueueItem {
+  id: string;
+  name: string;
+  url: string;
+  thumbnail?: string;
+}

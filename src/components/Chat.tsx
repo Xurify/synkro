@@ -88,9 +88,7 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
 
   const handleSendMessage = () => {
     if (!socket || chatMessage.trim() === "") return;
-    if (socket) {
-      socket.emit(USER_MESSAGE, chatMessage, roomId);
-    }
+    socket.emit(USER_MESSAGE, chatMessage, roomId);
     setChatMessage("");
   };
 
@@ -128,7 +126,9 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
           placeholder="Say something"
         />
         <Button onClick={handleSendMessage} className="w-12 h-10 rounded-r rounded-l-none">
-          <SendIcon color="#ffffff" size="1.25rem" />
+          <span>
+            <SendIcon color="#ffffff" size="1.25rem" />
+          </span>
         </Button>
       </div>
     </div>

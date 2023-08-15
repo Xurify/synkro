@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { findDOMNode } from "react-dom";
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
+
 import type ReactPlayerType from "react-player";
 import screenfull from "screenfull";
 import { parse } from "cookie";
@@ -22,13 +24,17 @@ import {
   GET_VIDEO_INFORMATION,
   GET_HOST_VIDEO_INFORMATION,
 } from "../../../constants/socketActions";
-import type { ChatMessage, Messages, ServerMessage } from "@/types/interfaces";
+import type { ChatMessage, Messages, VideoQueueItem } from "@/types/interfaces";
+
 import { useSocket } from "@/context/SocketContext";
 import RoomToolbar, { ButtonActions, SidebarViews } from "@/components/RoomToolbar";
 import Chat from "@/components/Chat";
 import Sidebar from "@/components/Sidebar";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { findDOMNode } from "react-dom";
+import useQueue from "@/hooks/useQueue";
+import Queue from "@/components/Queue";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   loading: () => {
@@ -45,7 +51,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [activeView, setActiveView] = useState<SidebarViews>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
   const [messages, setMessages] = useState<Messages>([]);
-  const [serverMessages, setServerMessages] = useState<ServerMessage[]>([]);
+  //const [serverMessages, setServerMessages] = useState<ServerMessage[]>([]);
   // const [videoUrl, setVideoUrl] = useState<string[] | string>([
   //   "https://youtu.be/ECsqSli1DpY",
   //   "https://youtu.be/4yKsIdr_PNU",
@@ -53,7 +59,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   //   "https://youtu.be/KTK5CTDy0Yk",
   // ]);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("https://youtu.be/ECsqSli1DpY");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   // const [isSeeking, setIsSeeking] = useState(false);
   // const [duration, setDuration] = useState(0);
   //const [played, setPlayed] = useState(0);
@@ -61,11 +67,13 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const { socket, room, isConnecting } = useSocket();
   const isSocketAvailable = !!socket;
 
-  const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
-
   const router = useRouter();
   const searchParams = useSearchParams();
   const roomId = searchParams.get("id") as string;
+
+  const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
+
+  const videoQueue = useQueue<VideoQueueItem>();
 
   useEffect(() => {
     room && setStoredRoom(room);
@@ -97,7 +105,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
     socket.on(SERVER_MESSAGE, (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setServerMessages((prevMessages) => [...prevMessages, newMessage]);
+      //setServerMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
     socket.on(USER_MESSAGE, (newMessage: ChatMessage) => {
@@ -151,12 +159,12 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
   const onReady = (player: ReactPlayerType) => {
     setPlayer(player);
-    setLoading(false);
+    setIsLoading(false);
     socket?.emit(GET_VIDEO_INFORMATION);
   };
 
   useEffect(() => {
-    if (!player) return;
+    if (!player && !isLoading) return;
     socketMethods();
   }, [player]);
 
@@ -270,7 +278,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
   const views: { [key in SidebarViews]: JSX.Element } = {
     chat: <Chat messages={messages} socket={socket} roomId={roomId} />,
-    queue: <div className="flex-grow overflow-y-auto p-4">QUEUE</div>,
+    queue: <Queue videoQueue={videoQueue} socket={socket} />,
     settings: <div className="flex-grow overflow-y-auto p-4">SETTINGS</div>,
   };
 
@@ -278,20 +286,22 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     <main className="mx-auto flex justify-center">
       <div className="flex flex-col max-w-[80rem] w-full">
         <div className="max-w-[80rem] w-full">
-          <div className="player-wrapper bg-card mb-2">
-            <ReactPlayer
-              className="react-player"
-              url={currentVideoUrl}
-              width="100%"
-              height="100%"
-              playing={isPlaying}
-              onReady={onReady}
-              onBuffer={handleBuffer}
-              onPlay={handlePlay}
-              onPause={handlePause}
-              controls={true}
-              onEnded={handleEnded}
-            />
+          <div className="bg-card mb-2">
+            <AspectRatio ratio={16 / 9}>
+              <ReactPlayer
+                className="react-player"
+                url={currentVideoUrl}
+                width="100%"
+                height="100%"
+                playing={isPlaying}
+                onReady={onReady}
+                onBuffer={handleBuffer}
+                onPlay={handlePlay}
+                onPause={handlePause}
+                controls={true}
+                onEnded={handleEnded}
+              />
+            </AspectRatio>
           </div>
         </div>
         <div className="w-full flex items-center justify-center">
