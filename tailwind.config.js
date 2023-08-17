@@ -6,9 +6,6 @@ module.exports = {
     container: {
       center: true,
       padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
     },
     fontFamily: {
       noto: ["Noto Sans", "sans-serif"],
@@ -77,6 +74,10 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+    },
+    screens: {
+      md: "880px",
+      "2xl": "1400px",
     },
   },
   plugins: [require("tailwindcss-animate")],

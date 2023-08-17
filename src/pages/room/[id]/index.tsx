@@ -283,7 +283,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   };
 
   return (
-    <main className="mx-auto flex justify-center">
+    <main className="mx-auto h-full flex flex-col md:flex-row justify-center">
       <div className="flex flex-col max-w-[80rem] w-full">
         <div className="max-w-[80rem] w-full">
           <div className="bg-card mb-2">

@@ -7,7 +7,7 @@ export const Page: React.FC<React.PropsWithChildren> = ({ children }) => {
     <>
       <NavigationHeader />
       <PageHead />
-      <div className="px-2">{children}</div>
+      <div className="px-2 h-[calc(100vh-88px)] md:h-full">{children}</div>
     </>
   );
 };
