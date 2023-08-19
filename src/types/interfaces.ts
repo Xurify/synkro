@@ -13,7 +13,7 @@ export interface Room {
   id: string;
   name: string;
   host: string;
-  queue: Queue[];
+  videoQueue: VideoQueueItem[];
   members: User[];
   previouslyConnectedMembers: { userId: UserId; username: string }[];
   maxRoomSize: number;
@@ -21,8 +21,6 @@ export interface Room {
 }
 
 export type Rooms = { [roomId: RoomId]: Room };
-
-interface Queue {}
 
 export interface ChatMessage {
   username: string;
@@ -57,5 +55,5 @@ export interface VideoQueueItem {
   id: string;
   name: string;
   url: string;
-  thumbnail?: string;
+  thumbnail: string;
 }

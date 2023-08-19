@@ -3,7 +3,7 @@ import { createServer, Server as HttpServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
 import shortid from 'shortid';
 import { Server } from 'socket.io';
-import { Room, User, UserId } from '../../src/types/interfaces';
+import { Room, User, UserId, VideoQueueItem } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
 import { addRoom, addUser, getPreviouslyConnectedUser, getRoomById, getUser, requestIsNotFromHost, updateRoom } from './utils/socket';
 import {
@@ -28,6 +28,7 @@ import {
   GET_VIDEO_INFORMATION,
   SYNC_VIDEO_INFORMATION,
   GET_HOST_VIDEO_INFORMATION,
+  ADD_VIDEO_TO_QUEUE,
 } from '../../src/constants/socketActions';
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
@@ -234,7 +235,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user.roomId) {
-      socket.in(user.roomId).emit(REWIND_VIDEO, time);
+      socket.to(user.roomId).emit(REWIND_VIDEO, time);
     }
   });
 
@@ -242,7 +243,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user.roomId) {
-      socket.in(user.roomId).emit(FASTFORWARD_VIDEO, time);
+      socket.to(user.roomId).emit(FASTFORWARD_VIDEO, time);
     }
   });
 
@@ -251,6 +252,16 @@ io.on('connection', (socket: CustomSocketServer) => {
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
       socket.in(user.roomId).emit(CHANGE_VIDEO, url);
+    }
+  });
+
+  socket.on(ADD_VIDEO_TO_QUEUE, (newVideo: VideoQueueItem) => {
+    if (requestIsNotFromHost(socket, rooms)) return;
+    const user = socket?.userId && getUser(socket.userId, users);
+    if (user && user?.roomId) {
+      const room: Room = getRoomById(user.roomId, rooms);
+      room.videoQueue = [...room.videoQueue, newVideo];
+      socket.to(user.roomId).emit(ADD_VIDEO_TO_QUEUE, newVideo);
     }
   });
 

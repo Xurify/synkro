@@ -1,3 +1,5 @@
+import { YOUTUBE_VIDEO_URL_REGEX } from "@/constants/constants";
+
 export async function fetcher<JSON = any>(input: RequestInfo, init?: RequestInit): Promise<JSON> {
   const res = await fetch(input, init);
 
@@ -25,4 +27,17 @@ export const capitalize = (value: string): string => {
 export const truncate = (value: string, length: number): string => {
   if (!value || value.length <= length) return value;
   return `${value.slice(0, length)}...`;
+};
+
+export const convertURLToYoutubeVideoId = (url: string): string | null => {
+  const regex = /(youtu\.be\/|\/embed\/|\/watch\?v=|\/\?v=|\/v\/|\/e\/|watch\?v%3D|watch\?feature=player_embedded&v=)([^#\&\?]*).*/;
+  const match = url.match(regex);
+  return match && match[2].length === 11 ? match[2] : null;
+};
+
+export const convertURLToCorrectProviderVideoId = (url: string): string | null => {
+  if (YOUTUBE_VIDEO_URL_REGEX.test(url)) {
+    return convertURLToYoutubeVideoId(url);
+  }
+  return "";
 };

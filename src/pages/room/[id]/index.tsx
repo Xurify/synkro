@@ -23,6 +23,7 @@ import {
   SYNC_VIDEO_INFORMATION,
   GET_VIDEO_INFORMATION,
   GET_HOST_VIDEO_INFORMATION,
+  ADD_VIDEO_TO_QUEUE,
 } from "../../../constants/socketActions";
 import type { ChatMessage, Messages, VideoQueueItem } from "@/types/interfaces";
 
@@ -35,6 +36,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import useQueue from "@/hooks/useQueue";
 import Queue from "@/components/Queue";
+import { convertURLToCorrectProviderVideoId } from "@/libs/utils/frontend-utils";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   loading: () => {
@@ -145,6 +147,10 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     socket.on(CHANGE_VIDEO, (newVideoUrl: string) => {
       setCurrentVideoUrl(newVideoUrl);
       setIsPlaying(true);
+    });
+
+    socket.on(ADD_VIDEO_TO_QUEUE, (newVideo: VideoQueueItem) => {
+      videoQueue.add(newVideo);
     });
 
     socket.on(SYNC_TIME, (currentTime: number) => {
@@ -276,9 +282,11 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     }
   };
 
+  const currentVideoId = convertURLToCorrectProviderVideoId(currentVideoUrl) as string;
+
   const views: { [key in SidebarViews]: JSX.Element } = {
     chat: <Chat messages={messages} socket={socket} roomId={roomId} />,
-    queue: <Queue videoQueue={videoQueue} socket={socket} />,
+    queue: <Queue currentVideoId={currentVideoId} videoQueue={videoQueue} onClickPlayerButton={handleClickPlayerButton} />,
     settings: <div className="flex-grow overflow-y-auto p-4">SETTINGS</div>,
   };
 

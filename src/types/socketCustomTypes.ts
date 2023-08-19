@@ -73,6 +73,7 @@ export interface ServerToClientEvents {
   [SYNC_VIDEO_INFORMATION]: (playing: boolean, hostVideoUrl: string, time: number) => void;
   [GET_VIDEO_INFORMATION]: () => void;
   [GET_HOST_VIDEO_INFORMATION]: (callback: (playing: boolean, hostVideoUrl: string, time: number) => void) => void;
+  [ADD_VIDEO_TO_QUEUE]: (newVideo: VideoQueueItem) => void;
 }
 
 export type CustomSocket = Socket<ServerToClientEvents, ClientToServerEvents> & CustomSocketProperties;

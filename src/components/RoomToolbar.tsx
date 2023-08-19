@@ -41,10 +41,12 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
   };
 
   const handleChangeVideo = () => {
-    onClickPlayerButton("change-video", newVideoUrl);
     if (socket?.userId && room) {
-      setNewVideoUrl("");
-      runIfAuthorized(room.host, socket.userId, () => socket?.emit(CHANGE_VIDEO, newVideoUrl));
+      runIfAuthorized(room.host, socket.userId, () => {
+        onClickPlayerButton("change-video", newVideoUrl);
+        setNewVideoUrl("");
+        socket?.emit(CHANGE_VIDEO, newVideoUrl);
+      });
     }
   };
 
@@ -55,7 +57,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
   const defaultButtonClassName = `w-9 h-9 min-w-[2.25rem]`;
 
   return (
-    <div className="max-w-[80rem] w-full bg-card shadow-md p-2.5 rounded flex">
+    <div className="max-w-[80rem] w-full bg-card shadow-md p-2.5 rounded flex overflow-x-auto">
       <div className="w-full flex gap-2">
         <Button
           className={`${defaultButtonClassName}`}
@@ -78,7 +80,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
           </span>
         </Button>
         <Button
-          className={`${defaultButtonClassName} data-[active=settings]:bg-brand-indigo-400`}
+          className={`${defaultButtonClassName}`}
           data-active={activeView}
           onClick={() => onClickPlayerButton("expand")}
           variant={activeView === "expand" ? "default" : "secondary"}
@@ -101,7 +103,13 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
         </Button>
         <Separator />
         <div className="w-full flex items-center">
-          <Input placeholder="Change video" onChange={handleChangeNewVideoUrl} onKeyDown={handleChangeVideoOnKeyDown} value={newVideoUrl} />
+          <Input
+            className="min-w-[200px]"
+            placeholder="Change video"
+            onChange={handleChangeNewVideoUrl}
+            onKeyDown={handleChangeVideoOnKeyDown}
+            value={newVideoUrl}
+          />
           <Button className="ml-2 rounded w-12" onClick={handleChangeVideo}>
             <span>
               <ArrowRightIcon color="#FFFFFF" size="1.25rem" />

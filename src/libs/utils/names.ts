@@ -1,4 +1,4 @@
-import { capitalize } from "./utils";
+import { capitalize } from "./frontend-utils";
 
 const getRandomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min;
 
@@ -2858,9 +2858,6 @@ export const generateName = () => {
     "Lieuwe",
   ];
 
-  const name =
-    capitalize(name1[getRandomInt(0, name1.length + 1)]) +
-    " " +
-    capitalize(name2[getRandomInt(0, name2.length + 1)]);
+  const name = capitalize(name1[getRandomInt(0, name1.length + 1)]) + " " + capitalize(name2[getRandomInt(0, name2.length + 1)]);
   return name;
 };

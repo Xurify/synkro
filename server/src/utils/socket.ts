@@ -22,7 +22,7 @@ export const addRoom = (id: string, name: string, user: User): Room | null => {
     host: user.id,
     name: trimmedName,
     id,
-    queue: [],
+    videoQueue: [],
     maxRoomSize: 20,
     members: [user],
     created,
