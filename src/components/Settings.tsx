@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CHANGE_VIDEO } from "@/constants/socketActions";
 
-import { useToast } from "./ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useSocket } from "@/context/SocketContext";
 import { runIfAuthorized } from "@/libs/utils/socket";
 import { Label } from "@radix-ui/react-label";
@@ -12,25 +12,31 @@ import { Label } from "@radix-ui/react-label";
 interface SettingsProps {}
 
 const Settings: React.FC<SettingsProps> = () => {
-  const [newVideoInQueueUrl, setNewVideoInQueueUrl] = useState<string>("");
+  const [maxRoomSize, setMaxRoomSize] = useState<number>(20);
+  const [roomPasscode, setRoomPasscode] = useState<string>("");
 
   const { toast } = useToast();
   const { socket, room } = useSocket();
 
   const isAuthorized = room?.host === socket?.userId;
 
-  const handleOnChangeMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewVideoInQueueUrl(e.target.value);
+  const handleOnChangeMaxRoomSize = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMaxRoomSize(Number(e.target.value));
   };
 
-  const handleOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") return;
+  const handleOnChangeRoomPasscode = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRoomPasscode(e.target.value);
   };
 
   const handleSaveSettings = (newSettings: any) => {
     if (socket?.userId && room) {
       runIfAuthorized(room.host, socket.userId, () => {
         socket?.emit(CHANGE_VIDEO, newSettings);
+        toast({
+          variant: "default",
+          title: "Success!",
+          description: "Room settings have successfully been saved.",
+        });
       });
     }
   };
@@ -58,27 +64,13 @@ const Settings: React.FC<SettingsProps> = () => {
       </div>
       <div className="text-sm text-secondary-foreground">
         <Label htmlFor="max-room-size">Max Room Size</Label>
-        <Input
-          className="h-10 rounded-l rounded-r-none"
-          id="max-room-size"
-          type="text"
-          value={newVideoInQueueUrl}
-          onChange={handleOnChangeMessage}
-          onKeyDown={handleOnKeyDown}
-        />
+        <Input disabled={!isAuthorized} id="max-room-size" type="number" value={maxRoomSize} onChange={handleOnChangeMaxRoomSize} />
       </div>
       <div className="text-sm text-secondary-foreground">
         <Label htmlFor="room-passcode">Room Passcode</Label>
-        <Input
-          className="h-10 rounded-l rounded-r-none"
-          type="text"
-          id="room-passcode"
-          value={newVideoInQueueUrl}
-          onChange={handleOnChangeMessage}
-          onKeyDown={handleOnKeyDown}
-        />
+        <Input disabled={!isAuthorized} type="text" id="room-passcode" value={roomPasscode} onChange={handleOnChangeRoomPasscode} />
       </div>
-      <Button onClick={handleSaveSettings} className="w-full h-10">
+      <Button onClick={handleSaveSettings} className="w-full">
         Save
       </Button>
     </div>
