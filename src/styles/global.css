@@ -95,3 +95,7 @@ body.dark {
   height: 0;
   background-color: transparent;
 }
+
+.input-colored {
+  background: #3b2f51;
+}

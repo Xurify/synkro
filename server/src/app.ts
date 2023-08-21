@@ -3,7 +3,7 @@ import { createServer, Server as HttpServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
 import shortid from 'shortid';
 import { Server } from 'socket.io';
-import { Room, User, UserId, VideoQueueItem } from '../../src/types/interfaces';
+import { Room, User, VideoQueueItem } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
 import { addRoom, addUser, getPreviouslyConnectedUser, getRoomById, getUser, requestIsNotFromHost, updateRoom } from './utils/socket';
 import {
@@ -29,6 +29,7 @@ import {
   SYNC_VIDEO_INFORMATION,
   GET_HOST_VIDEO_INFORMATION,
   ADD_VIDEO_TO_QUEUE,
+  END_OF_VIDEO,
 } from '../../src/constants/socketActions';
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
@@ -222,11 +223,11 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
   });
 
-  socket.on(BUFFERING_VIDEO, (userId: UserId, time: number) => {
-    const user = userId && getUser(userId, users);
+  socket.on(BUFFERING_VIDEO, (time: number) => {
+    const user = socket.userId && getUser(socket.userId, users);
     if (requestIsNotFromHost(socket, rooms) && user && user.roomId) {
+      io.to(user.roomId).emit('USER_VIDEO_STATUS', socket.userId, 'BUFFERING');
     } else if (user && user.roomId) {
-      console.log('SYNC_TIME_SERVER');
       socket.to(user.roomId).emit(SYNC_TIME, time);
     }
   });
@@ -247,6 +248,21 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
   });
 
+  socket.on(END_OF_VIDEO, () => {
+    if (requestIsNotFromHost(socket, rooms)) return;
+    const user = socket?.userId && getUser(socket.userId, users);
+    if (user && user?.roomId) {
+      const room: Room = getRoomById(user.roomId, rooms);
+      const nextVideo = room.videoInfo.queue[room.videoInfo.currentQueueIndex + 1] ?? room.videoInfo.queue[0];
+
+      if (nextVideo) {
+        const nextIndex = room.videoInfo.currentQueueIndex + 1;
+        room.videoInfo.currentQueueIndex = nextIndex < room.videoInfo.queue.length ? nextIndex : 0;
+        io.to(user.roomId).emit(CHANGE_VIDEO, nextVideo.url);
+      }
+    }
+  });
+
   socket.on(CHANGE_VIDEO, (url: string) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
@@ -260,7 +276,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
       const room: Room = getRoomById(user.roomId, rooms);
-      room.videoQueue = [...room.videoQueue, newVideo];
+      room.videoInfo.queue = [...room.videoInfo.queue, newVideo];
       socket.to(user.roomId).emit(ADD_VIDEO_TO_QUEUE, newVideo);
     }
   });

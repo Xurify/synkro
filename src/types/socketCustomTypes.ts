@@ -23,8 +23,9 @@ import {
   GET_VIDEO_INFORMATION,
   GET_HOST_VIDEO_INFORMATION,
   ADD_VIDEO_TO_QUEUE,
+  END_OF_VIDEO,
 } from "../constants/socketActions";
-import { ChatMessage, Room, ServerMessage, User, UserId, VideoQueueItem } from "./interfaces";
+import { ChatMessage, Room, ServerMessage, User, VideoQueueItem } from "./interfaces";
 
 export interface ClientToServerEvents {
   connect: () => void;
@@ -43,8 +44,9 @@ export interface ClientToServerEvents {
   [PAUSE_VIDEO]: () => void;
   [FASTFORWARD_VIDEO]: (newTime: number) => void;
   [REWIND_VIDEO]: (newTime: number) => void;
-  [BUFFERING_VIDEO]: (userId: UserId, time: number) => void;
+  [BUFFERING_VIDEO]: (time: number) => void;
   [CHANGE_VIDEO]: (newVideoUrl: string) => void;
+  [END_OF_VIDEO]: () => void;
   [SYNC_TIME]: (time: number) => void;
   [SYNC_VIDEO_INFORMATION]: (callback: (playing: boolean, hostVideoUrl: string, time: number) => void) => void;
   [GET_VIDEO_INFORMATION]: () => void;
@@ -69,7 +71,7 @@ export interface ServerToClientEvents {
   [REWIND_VIDEO]: (newTime: number) => void;
   [CHANGE_VIDEO]: (newVideoUrl: string) => void;
   [SYNC_TIME]: (time: number) => void;
-  [BUFFERING_VIDEO]: (userId: UserId, time: number) => void;
+  [BUFFERING_VIDEO]: (time: number) => void;
   [SYNC_VIDEO_INFORMATION]: (playing: boolean, hostVideoUrl: string, time: number) => void;
   [GET_VIDEO_INFORMATION]: () => void;
   [GET_HOST_VIDEO_INFORMATION]: (callback: (playing: boolean, hostVideoUrl: string, time: number) => void) => void;

@@ -24,18 +24,22 @@ import {
   GET_VIDEO_INFORMATION,
   GET_HOST_VIDEO_INFORMATION,
   ADD_VIDEO_TO_QUEUE,
+  END_OF_VIDEO,
 } from "../../../constants/socketActions";
 import type { ChatMessage, Messages, VideoQueueItem } from "@/types/interfaces";
 
-import { useSocket } from "@/context/SocketContext";
-import RoomToolbar, { ButtonActions, SidebarViews } from "@/components/RoomToolbar";
 import Chat from "@/components/Chat";
 import Sidebar from "@/components/Sidebar";
+import Queue from "@/components/Queue";
+import Settings from "@/components/Settings";
+import RoomToolbar, { ButtonActions, SidebarViews } from "@/components/RoomToolbar";
+
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 
+import { useSocket } from "@/context/SocketContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import useQueue from "@/hooks/useQueue";
-import Queue from "@/components/Queue";
+import { useQueue } from "@/hooks/useQueue";
+
 import { convertURLToCorrectProviderVideoId } from "@/libs/utils/frontend-utils";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
@@ -79,6 +83,10 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
   useEffect(() => {
     room && setStoredRoom(room);
+
+    if (room && Array.isArray(room?.videoInfo?.queue) && room.videoInfo.queue.length > 0) {
+      videoQueue.set(room.videoInfo.queue);
+    }
   }, [room]);
 
   useEffect(() => {
@@ -94,6 +102,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       });
     } else if (!room && storedRoom && socket) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
+        console.log("RECONNECT_USER_2", canReconnect);
         if (!canReconnect) {
           setStoredRoom(null);
           router.push("/");
@@ -158,8 +167,8 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     });
 
     return () => {
-      socket.offAnyOutgoing();
-      socket.disconnect();
+      // socket.offAnyOutgoing();
+      // socket.disconnect();
     };
   }, [socket, player]);
 
@@ -231,19 +240,21 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   };
 
   const handleBuffer = () => {
-    console.log("HANDLEBUFFER");
     if (!player) return null;
     const currentTime = player.getCurrentTime();
     if (socket?.userId) {
-      socket.emit(BUFFERING_VIDEO, socket.userId, currentTime);
+      socket.emit(BUFFERING_VIDEO, currentTime);
     }
   };
 
-  const handleEnded = () => {};
+  const handleEnded = () => {
+    runIfAuthorized(() => {
+      socket?.emit(END_OF_VIDEO);
+    });
+  };
 
   const handleToggleFullscreen = () =>
     runIfPlayerIsReady(() => {
-      console.log("TOGGLEFULLSCREEN", player);
       screenfull.request(findDOMNode(player as unknown as Element) as Element);
     });
 
@@ -287,7 +298,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const views: { [key in SidebarViews]: JSX.Element } = {
     chat: <Chat messages={messages} socket={socket} roomId={roomId} />,
     queue: <Queue currentVideoId={currentVideoId} videoQueue={videoQueue} onClickPlayerButton={handleClickPlayerButton} />,
-    settings: <div className="flex-grow overflow-y-auto p-4">SETTINGS</div>,
+    settings: <Settings />,
   };
 
   return (

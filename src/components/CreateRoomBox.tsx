@@ -59,7 +59,7 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
   return (
     <div className="max-w-[30rem] w-full bg-card p-4 rounded">
       <div className="flex mb-3">
-        <Input placeholder="Room Name" onChange={handleChangeRoomName} value={roomName} />
+        <Input placeholder="Room name" onChange={handleChangeRoomName} value={roomName} />
         <Button
           className="w-9 h-9 min-w-[2.25rem] border border-brand-blue-800 text-primary hover:bg-primary hover:text-white ml-2"
           onClick={handleGenerateRandomRoomName}

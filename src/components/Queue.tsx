@@ -65,7 +65,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
       return;
     }
 
-    const YOUTUBE_API_KEY = "AIzaSyANv-MByfjfsJ7V7JGRKHgEoNLjmBkkEvY";
+    const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
 
     const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${YOUTUBE_API_KEY}&part=snippet,contentDetails,statistics`;
 
@@ -102,40 +102,6 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
       });
     }
   };
-
-  const mockVideos = [
-    {
-      url: "https://youtu.be/y8eL_BKN7O4",
-      name: "The REAL Reason Russia Owns Kaliningrad",
-      thumbnail: "https://i.ytimg.com/vi/y8eL_BKN7O4/mqdefault.jpg",
-      id: "y8eL_BKN7O4",
-    },
-    {
-      url: "https://youtu.be/X105aHoIwF0",
-      name: "Donald Trump INDICTED in Georgia + Is Taylor Swift BIGGER Than Michael Jackson & Beyonce?",
-      thumbnail: "https://i.ytimg.com/vi/X105aHoIwF0/mqdefault.jpg",
-      id: "X105aHoIwF0",
-    },
-    {
-      url: "https://youtu.be/jBASEn7oP2E",
-      name: "#196 Obama’s Ex Says he Fantasizes about dudes! and Climate Change Therapists are Making Bank",
-      thumbnail: "https://i.ytimg.com/vi/jBASEn7oP2E/mqdefault.jpg",
-      id: "jBASEn7oP2E",
-    },
-    {
-      url: "https://youtu.be/6yQEA18C-XI",
-      name: "George Hotz vs Eliezer Yudkowsky AI Safety Debate",
-      thumbnail: "https://i.ytimg.com/vi/6yQEA18C-XI/mqdefault.jpg",
-      id: "6yQEA18C-XI",
-    },
-    {
-      url: "https://youtu.be/iZGYYcNRXiw",
-      name: "Rahaasjad Fookuses 4-nädalase programmi tagasiside: Iris Karu",
-      thumbnail: "https://i.ytimg.com/vi/iZGYYcNRXiw/mqdefault.jpg",
-      id: "iZGYYcNRXiw",
-    },
-  ];
-  console.log("QUEUE2", videoQueue);
 
   return (
     <div className="flex flex-col flex-grow w-full h-full relative hide-scrollbar">

@@ -7,10 +7,11 @@ export interface Queue<T> {
   queue: T[];
   add: (element: T) => void;
   remove: () => void;
+  set: (elements: T[]) => void;
   clear: () => void;
 }
 
-const useQueue = <T>(): Queue<T> => {
+export const useQueue = <T>(): Queue<T> => {
   const [queue, setQueue] = useState<T[]>([]);
 
   const add = (element: T) => {
@@ -22,6 +23,10 @@ const useQueue = <T>(): Queue<T> => {
     setQueue((prevQueue) => prevQueue.slice(1));
   };
 
+  const set = (newQueue: T[]) => {
+    setQueue(newQueue);
+  };
+
   const clear = () => {
     setQueue([]);
   };
@@ -30,7 +35,7 @@ const useQueue = <T>(): Queue<T> => {
   const last = queue.length > 0 ? queue[queue.length - 1] : null;
   const size = queue.length;
 
-  return { first, last, size, queue, add, remove, clear };
+  return { first, last, size, queue, add, remove, clear, set };
 };
 
 export default useQueue;

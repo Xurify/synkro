@@ -13,7 +13,11 @@ export interface Room {
   id: string;
   name: string;
   host: string;
-  videoQueue: VideoQueueItem[];
+  videoInfo: {
+    currentVideoUrl: string | null;
+    currentQueueIndex: number;
+    queue: VideoQueueItem[];
+  };
   members: User[];
   previouslyConnectedMembers: { userId: UserId; username: string }[];
   maxRoomSize: number;
