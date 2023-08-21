@@ -6,7 +6,6 @@ import { PlayIcon, PlusIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { VideoQueueItem } from "@/types/interfaces";
-import { CustomSocket } from "@/types/socketCustomTypes";
 import { ADD_VIDEO_TO_QUEUE, CHANGE_VIDEO } from "@/constants/socketActions";
 
 import { Queue } from "@/hooks/useQueue";
