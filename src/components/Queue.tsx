@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 
-import { PlayIcon, PlusIcon } from "lucide-react";
+import { PlayIcon, PlusIcon, TrashIcon, Trash2Icon } from "lucide-react";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { VideoQueueItem } from "@/types/interfaces";
-import { ADD_VIDEO_TO_QUEUE, CHANGE_VIDEO } from "@/constants/socketActions";
+import { ADD_VIDEO_TO_QUEUE, CHANGE_VIDEO, REMOVE_VIDEO_FROM_QUEUE, VIDEO_QUEUE_REORDERED } from "@/constants/socketActions";
 
 import { Queue } from "@/hooks/useQueue";
 import { YOUTUBE_VIDEO_URL_REGEX } from "@/constants/constants";
@@ -96,10 +97,42 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
     if (socket?.userId && room) {
       runIfAuthorized(room.host, socket.userId, () => {
         onClickPlayerButton("change-video", newVideoUrl);
-        socket?.emit(CHANGE_VIDEO, newVideoUrl);
+        socket.emit(CHANGE_VIDEO, newVideoUrl);
       });
     }
   };
+
+  const handleRemoveVideoFromQueue = (videoUrl: string) => {
+    if (socket?.userId && room) {
+      runIfAuthorized(room.host, socket.userId, () => {
+        socket.emit(REMOVE_VIDEO_FROM_QUEUE, videoUrl);
+        videoQueue.removeItem("url", videoUrl);
+      });
+    }
+  };
+
+  const handleReorder = (list: VideoQueueItem[], startIndex: number, endIndex: number): VideoQueueItem[] => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+
+  const onDragEnd = (result: DropResult) => {
+    if (socket?.userId && room) {
+      runIfAuthorized(room.host, socket.userId, () => {
+        if (!result.destination) return;
+        const items = handleReorder(videoQueue.queue, result.source.index, result.destination.index);
+        videoQueue.set(items);
+        socket.emit(VIDEO_QUEUE_REORDERED, items);
+      });
+    }
+  };
+
+  const getItemStyle = (draggableStyle?: React.CSSProperties) => ({
+    userSelect: "none" as React.CSSProperties["userSelect"],
+    ...draggableStyle,
+  });
 
   return (
     <div className="flex flex-col flex-grow w-full h-full relative hide-scrollbar">
@@ -120,24 +153,50 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
           </Button>
         </div>
       )}
-      <div className="flex-grow overflow-y-auto p-4 h-full gap-y-4 flex flex-col">
-        {videoQueue.queue.map((video, index) => (
-          <div
-            className={`bg-gray-800 rounded p-1 px-2 bg-${currentVideoId === video.id ? "primary" : "default"} cursor-pointer`}
-            key={`${video.id}-${index}`}
-          >
-            <div className="w-full h-[130px] relative">
-              <Button className="p-2 w-8 h-8 z-[2] absolute bottom-2 right-2 bg-black" onClick={() => handleChangeVideo(video.url)}>
-                <span>
-                  <PlayIcon fill="#FFFFFF" color="#FFFFFF" size="1.25rem" />
-                </span>
-              </Button>
-              <Image alt="" src={video.thumbnail} layout="fill" />
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="droppable">
+          {(provided) => (
+            <div
+              className="flex-grow overflow-y-auto p-4 h-full gap-y-4 flex flex-col"
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {videoQueue.queue.map((video, index) => (
+                <Draggable key={`${video.id}-${index}`} draggableId={`${video.id}-${index}`} index={index}>
+                  {(provided, snapshot) => (
+                    <div
+                      className={`${snapshot.isDragging ? "lightgreen" : "bg-gray-800"} rounded p-1 px-2 bg-${
+                        currentVideoId === video.id ? "primary" : "default"
+                      } cursor-pointer`}
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      style={getItemStyle(provided.draggableProps.style)}
+                    >
+                      <div className="w-full h-[130px] relative">
+                        <div className="flex absolute bottom-2 right-2 z-[2] gap-2">
+                          <Button className="p-2 w-8 h-8 bg-black" onClick={() => handleChangeVideo(video.url)}>
+                            <span>
+                              <PlayIcon fill="#FFFFFF" color="#FFFFFF" size="1.25rem" />
+                            </span>
+                          </Button>
+                          <Button className="p-2 w-8 h-8 bg-black" onClick={() => handleRemoveVideoFromQueue(video.url)}>
+                            <span>
+                              <Trash2Icon color="#FFFFFF" size="1.25rem" />
+                            </span>
+                          </Button>
+                        </div>
+                        <Image alt="" src={video.thumbnail} layout="fill" />
+                      </div>
+                      <p className="text-text text-primary-foreground mt-2 text-sm">{video.name}</p>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
             </div>
-            <p className="text-text text-primary-foreground mt-2 text-sm">{video.name}</p>
-          </div>
-        ))}
-      </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 };

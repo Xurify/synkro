@@ -7,6 +7,7 @@ export interface Queue<T> {
   queue: T[];
   add: (element: T) => void;
   remove: () => void;
+  removeItem: <K extends keyof T>(key: K, value: T[K]) => void;
   set: (elements: T[]) => void;
   clear: () => void;
 }
@@ -23,6 +24,10 @@ export const useQueue = <T>(): Queue<T> => {
     setQueue((prevQueue) => prevQueue.slice(1));
   };
 
+  const removeItem = <K extends keyof T>(key: K, value: T[K]) => {
+    setQueue((prevQueue) => prevQueue.filter((item) => item[key] !== value));
+  };
+
   const set = (newQueue: T[]) => {
     setQueue(newQueue);
   };
@@ -35,7 +40,7 @@ export const useQueue = <T>(): Queue<T> => {
   const last = queue.length > 0 ? queue[queue.length - 1] : null;
   const size = queue.length;
 
-  return { first, last, size, queue, add, remove, clear, set };
+  return { first, last, size, queue, add, remove, removeItem, clear, set };
 };
 
 export default useQueue;

@@ -24,6 +24,8 @@ import {
   GET_HOST_VIDEO_INFORMATION,
   ADD_VIDEO_TO_QUEUE,
   END_OF_VIDEO,
+  REMOVE_VIDEO_FROM_QUEUE,
+  VIDEO_QUEUE_REORDERED,
 } from "../constants/socketActions";
 import { ChatMessage, Room, ServerMessage, User, VideoQueueItem } from "./interfaces";
 
@@ -50,7 +52,9 @@ export interface ClientToServerEvents {
   [SYNC_TIME]: (time: number) => void;
   [SYNC_VIDEO_INFORMATION]: (callback: (playing: boolean, hostVideoUrl: string, time: number) => void) => void;
   [GET_VIDEO_INFORMATION]: () => void;
-  [ADD_VIDEO_TO_QUEUE]: (newVideo: VideoQueueItem) => void;
+  [ADD_VIDEO_TO_QUEUE]: (video: VideoQueueItem) => void;
+  [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
+  [VIDEO_QUEUE_REORDERED]: (videoQueue: VideoQueueItem[]) => void;
 }
 
 export interface ServerToClientEvents {
@@ -75,7 +79,9 @@ export interface ServerToClientEvents {
   [SYNC_VIDEO_INFORMATION]: (playing: boolean, hostVideoUrl: string, time: number) => void;
   [GET_VIDEO_INFORMATION]: () => void;
   [GET_HOST_VIDEO_INFORMATION]: (callback: (playing: boolean, hostVideoUrl: string, time: number) => void) => void;
-  [ADD_VIDEO_TO_QUEUE]: (newVideo: VideoQueueItem) => void;
+  [ADD_VIDEO_TO_QUEUE]: (video: VideoQueueItem) => void;
+  [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
+  [VIDEO_QUEUE_REORDERED]: (videoQueue: VideoQueueItem[]) => void;
 }
 
 export type CustomSocket = Socket<ServerToClientEvents, ClientToServerEvents> & CustomSocketProperties;

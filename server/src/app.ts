@@ -30,6 +30,8 @@ import {
   GET_HOST_VIDEO_INFORMATION,
   ADD_VIDEO_TO_QUEUE,
   END_OF_VIDEO,
+  REMOVE_VIDEO_FROM_QUEUE,
+  VIDEO_QUEUE_REORDERED,
 } from '../../src/constants/socketActions';
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
@@ -282,6 +284,27 @@ io.on('connection', (socket: CustomSocketServer) => {
       const room: Room = getRoomById(user.roomId, rooms);
       room.videoInfo.queue = [...room.videoInfo.queue, newVideo];
       socket.to(user.roomId).emit(ADD_VIDEO_TO_QUEUE, newVideo);
+    }
+  });
+
+  socket.on(REMOVE_VIDEO_FROM_QUEUE, (url: string) => {
+    if (requestIsNotFromHost(socket, rooms)) return;
+    const user = socket?.userId && getUser(socket.userId, users);
+    if (user && user?.roomId) {
+      const room: Room = getRoomById(user.roomId, rooms);
+      const newVideoQueue = room.videoInfo.queue.filter((videoItem) => videoItem.url !== url);
+      room.videoInfo.queue = newVideoQueue;
+      socket.to(user.roomId).emit(REMOVE_VIDEO_FROM_QUEUE, url);
+    }
+  });
+
+  socket.on(VIDEO_QUEUE_REORDERED, (newVideoQueue: VideoQueueItem[]) => {
+    if (requestIsNotFromHost(socket, rooms)) return;
+    const user = socket?.userId && getUser(socket.userId, users);
+    if (user && user?.roomId) {
+      const room: Room = getRoomById(user.roomId, rooms);
+      room.videoInfo.queue = newVideoQueue;
+      socket.to(user.roomId).emit(VIDEO_QUEUE_REORDERED, newVideoQueue);
     }
   });
 

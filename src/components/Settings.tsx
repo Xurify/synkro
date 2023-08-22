@@ -7,9 +7,10 @@ import { CHANGE_VIDEO } from "@/constants/socketActions";
 import { useToast } from "@/components/ui/use-toast";
 import { useSocket } from "@/context/SocketContext";
 import { runIfAuthorized } from "@/libs/utils/socket";
-import { Label } from "@radix-ui/react-label";
+
 import { UserModal } from "./UserModal";
 import { User } from "@/types/interfaces";
+import { Label } from "./ui/label";
 
 interface SettingsProps {}
 

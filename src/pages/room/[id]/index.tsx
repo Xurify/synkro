@@ -25,6 +25,8 @@ import {
   GET_HOST_VIDEO_INFORMATION,
   ADD_VIDEO_TO_QUEUE,
   END_OF_VIDEO,
+  REMOVE_VIDEO_FROM_QUEUE,
+  VIDEO_QUEUE_REORDERED,
 } from "../../../constants/socketActions";
 import type { ChatMessage, Messages, VideoQueueItem } from "@/types/interfaces";
 
@@ -152,6 +154,14 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
     socket.on(ADD_VIDEO_TO_QUEUE, (newVideo: VideoQueueItem) => {
       videoQueue.add(newVideo);
+    });
+
+    socket.on(REMOVE_VIDEO_FROM_QUEUE, (url: string) => {
+      videoQueue.removeItem("url", url);
+    });
+
+    socket.on(VIDEO_QUEUE_REORDERED, (newVideoQueue: VideoQueueItem[]) => {
+      videoQueue.set(newVideoQueue);
     });
 
     socket.on(SYNC_TIME, (currentTime: number) => {
