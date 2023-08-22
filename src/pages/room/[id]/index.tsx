@@ -158,6 +158,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     socket.on(CHANGE_VIDEO, (newVideoUrl: string) => {
       setCurrentVideoUrl(newVideoUrl);
       player?.seekTo(0);
+      console.log("CHANGE_VIDEO_1", newVideoUrl, player);
       setIsPlaying(true);
     });
 
@@ -295,6 +296,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
           setCurrentVideoUrl(payload);
           socket?.emit(CHANGE_VIDEO, payload);
           player?.seekTo(0);
+          console.log("CHANGE_VIDEO_HANDLE", payload, player);
           setIsPlaying(true);
         }
         return;
