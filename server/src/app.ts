@@ -170,8 +170,6 @@ io.on('connection', (socket: CustomSocketServer) => {
           previouslyConnectedMembers: [{ userId: user.id, username: user.username }],
         });
 
-        // const newMembers = previouslyConnectedUser ? [...existingRoom.members, user] : existingRoom.members;
-        // const updatedRoom = updateRoom(roomId, rooms, { ...existingRoom, members: newMembers });
         rooms[roomId] = updatedRoom;
         if (roomTimeouts[roomId]) {
           clearTimeout(roomTimeouts[roomId]);
@@ -377,6 +375,10 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
 
 server.listen(PORT, () => {
   console.log(`🚀 WebSocket server is running on http://localhost:${PORT}`);
+});
+
+app.get('/api/healthz', (_req, res) => {
+  res.send('Success');
 });
 
 app.get('/api/rooms', (_req, res) => {

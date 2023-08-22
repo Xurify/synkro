@@ -77,11 +77,6 @@ body.dark {
   background-color: #12111e;
 }
 
-.separator {
-  width: 1px;
-  margin: 0px 10px;
-}
-
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }

@@ -71,7 +71,11 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        const videoInfo = data.items[0];
+        const videoInfo = data.items?.[0];
+
+        if (!videoInfo) {
+          console.error("No video info available", videoId);
+        }
 
         const id = videoInfo.id;
         const title = videoInfo.snippet.title;
