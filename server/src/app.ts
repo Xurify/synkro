@@ -162,8 +162,16 @@ io.on('connection', (socket: CustomSocketServer) => {
           users,
         );
 
-        const newMembers = previouslyConnectedUser ? [...existingRoom.members, user] : existingRoom.members;
-        const updatedRoom = updateRoom(roomId, rooms, { ...existingRoom, members: newMembers });
+        const userExistsInRoomMembers = existingRoom.members.find((member) => member.id === user.id);
+        const newMembers = userExistsInRoomMembers ? existingRoom.members : [...existingRoom.members, user];
+        const updatedRoom = updateRoom(roomId, rooms, {
+          ...existingRoom,
+          members: newMembers,
+          previouslyConnectedMembers: [{ userId: user.id, username: user.username }],
+        });
+
+        // const newMembers = previouslyConnectedUser ? [...existingRoom.members, user] : existingRoom.members;
+        // const updatedRoom = updateRoom(roomId, rooms, { ...existingRoom, members: newMembers });
         rooms[roomId] = updatedRoom;
         if (roomTimeouts[roomId]) {
           clearTimeout(roomTimeouts[roomId]);

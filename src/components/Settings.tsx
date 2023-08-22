@@ -74,6 +74,7 @@ const Settings: React.FC<SettingsProps> = () => {
               Array.isArray(room?.members) &&
               room.members.map((member) => (
                 <UserModal
+                  key={`user-modal-button-${member.id}`}
                   buttonText={
                     <div>
                       <span className="mr-1">{generateUserIcon(member, room.host)}</span>
