@@ -157,6 +157,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
     socket.on(CHANGE_VIDEO, (newVideoUrl: string) => {
       setCurrentVideoUrl(newVideoUrl);
+      player?.seekTo(0);
       setIsPlaying(true);
     });
 
@@ -216,17 +217,17 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     const currentTime = player?.getCurrentTime();
     if ((currentTime && currentTime < time - 0.5) || currentTime > time + 0.5) {
       player.seekTo(time);
-      !isPlaying && setIsPlaying(true);
+      setIsPlaying(true);
     }
   };
 
   const handlePlay = () => {
-    !isPlaying && setIsPlaying(true);
+    setIsPlaying(true);
     runIfAuthorized(() => socket?.emit(PLAY_VIDEO));
   };
 
   const handlePause = () => {
-    isPlaying && setIsPlaying(false);
+    setIsPlaying(false);
     runIfAuthorized(() => socket?.emit(PAUSE_VIDEO));
   };
 
@@ -293,6 +294,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
         if (typeof payload === "string" && isValidUrl(payload)) {
           setCurrentVideoUrl(payload);
           socket?.emit(CHANGE_VIDEO, payload);
+          player?.seekTo(0);
           setIsPlaying(true);
         }
         return;
