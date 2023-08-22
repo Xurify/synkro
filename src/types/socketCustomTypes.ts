@@ -26,6 +26,7 @@ import {
   END_OF_VIDEO,
   REMOVE_VIDEO_FROM_QUEUE,
   VIDEO_QUEUE_REORDERED,
+  CHANGE_SETTINGS,
 } from "../constants/socketActions";
 import { ChatMessage, Room, ServerMessage, User, VideoQueueItem } from "./interfaces";
 
@@ -55,6 +56,7 @@ export interface ClientToServerEvents {
   [ADD_VIDEO_TO_QUEUE]: (video: VideoQueueItem) => void;
   [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
   [VIDEO_QUEUE_REORDERED]: (videoQueue: VideoQueueItem[]) => void;
+  [CHANGE_SETTINGS]: (newSettings: { maxRoomSize?: number; roomPasscode?: string }) => void;
 }
 
 export interface ServerToClientEvents {

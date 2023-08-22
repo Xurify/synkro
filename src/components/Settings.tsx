@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CHANGE_VIDEO } from "@/constants/socketActions";
+import { CHANGE_SETTINGS } from "@/constants/socketActions";
 
 import { useToast } from "@/components/ui/use-toast";
 import { useSocket } from "@/context/SocketContext";
@@ -31,16 +31,21 @@ const Settings: React.FC<SettingsProps> = () => {
     setRoomPasscode(e.target.value);
   };
 
-  const handleSaveSettings = (newSettings: any) => {
+  const handleSaveSettings = (newSettings: { maxRoomSize?: number; roomPasscode?: string }) => {
     if (socket?.userId && room) {
       runIfAuthorized(room.host, socket.userId, () => {
-        socket?.emit(CHANGE_VIDEO, newSettings);
+        socket.emit(CHANGE_SETTINGS, newSettings);
         toast({
           variant: "default",
           title: "Success!",
-          description: "Room settings have successfully been saved.",
+          description: (
+            <span>
+              Room settings have successfully been saved! <br /> Jk. This part doesn't work yet 🤫
+            </span>
+          ),
         });
       });
+      return;
     }
   };
 
@@ -108,7 +113,7 @@ const Settings: React.FC<SettingsProps> = () => {
         <Label htmlFor="room-passcode">Room Passcode</Label>
         <Input disabled={!isAuthorized} type="text" id="room-passcode" value={roomPasscode} onChange={handleOnChangeRoomPasscode} />
       </div>
-      <Button onClick={handleSaveSettings} className="w-full">
+      <Button onClick={() => handleSaveSettings({})} className="w-full">
         Save
       </Button>
     </div>

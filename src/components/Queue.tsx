@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { PlayIcon, PlusIcon, TrashIcon, Trash2Icon } from "lucide-react";
+import { PlayIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { ADD_VIDEO_TO_QUEUE, CHANGE_VIDEO, REMOVE_VIDEO_FROM_QUEUE, VIDEO_QUEUE_
 
 import { Queue } from "@/hooks/useQueue";
 import { YOUTUBE_VIDEO_URL_REGEX } from "@/constants/constants";
-import { useToast } from "./ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { convertURLToYoutubeVideoId } from "@/libs/utils/frontend-utils";
 import Image from "next/image";
 import { useSocket } from "@/context/SocketContext";
