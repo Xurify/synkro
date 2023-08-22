@@ -27,6 +27,7 @@ import {
   END_OF_VIDEO,
   REMOVE_VIDEO_FROM_QUEUE,
   VIDEO_QUEUE_REORDERED,
+  GET_ROOM_INFO,
 } from "../../../constants/socketActions";
 import type { ChatMessage, Messages, VideoQueueItem } from "@/types/interfaces";
 
@@ -42,7 +43,7 @@ import { useSocket } from "@/context/SocketContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useQueue } from "@/hooks/useQueue";
 
-import { convertURLToCorrectProviderVideoId } from "@/libs/utils/frontend-utils";
+import { convertURLToCorrectProviderVideoId, isValidUrl } from "@/libs/utils/frontend-utils";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   loading: () => {
@@ -109,6 +110,10 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const socketMethods = React.useCallback(() => {
     if (!socket) return;
 
+    socket.on(GET_ROOM_INFO, (newRoom) => {
+      setStoredRoom(newRoom);
+    });
+
     socket.on(SERVER_MESSAGE, (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       //setServerMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -133,6 +138,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
     socket.on(PLAY_VIDEO, () => {
       setIsPlaying(true);
+      //handleSyncTime();
     });
 
     socket.on(PAUSE_VIDEO, () => {
@@ -213,8 +219,11 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   };
 
   const handlePlay = () => {
+    console.log("ISPLAYING");
     !isPlaying && setIsPlaying(true);
-    runIfAuthorized(() => socket?.emit(PLAY_VIDEO));
+    runIfAuthorized(() => {
+      socket?.emit(PLAY_VIDEO);
+    });
   };
 
   const handlePause = () => {
@@ -282,8 +291,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
         handleLeaveRoom();
         return;
       case "change-video":
-        if (typeof payload === "string") {
+        if (typeof payload === "string" && isValidUrl(payload)) {
           setCurrentVideoUrl(payload);
+          socket?.emit(CHANGE_VIDEO, payload);
           setIsPlaying(true);
         }
         return;

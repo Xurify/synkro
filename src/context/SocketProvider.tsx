@@ -3,7 +3,7 @@ import io from "socket.io-client";
 import { SocketContext } from "./SocketContext";
 import { CustomSocket } from "@/types/socketCustomTypes";
 import { socketURL } from "@/constants/constants";
-import { GET_ROOM_INFO, GET_USER_INFO } from "@/constants/socketActions";
+import { GET_ROOM_INFO, GET_USER_INFO, SET_HOST } from "@/constants/socketActions";
 import { Room, User } from "@/types/interfaces";
 
 interface SocketProviderProps {
@@ -42,6 +42,13 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
 
     newSocket.on(GET_USER_INFO, (newUser) => {
       setUser(newUser);
+    });
+
+    newSocket.on(SET_HOST, (newHost: string) => {
+      if (room) {
+        const newRoom = { ...room, host: newHost };
+        setRoom(newRoom);
+      }
     });
 
     return () => {

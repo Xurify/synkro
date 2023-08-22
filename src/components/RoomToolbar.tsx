@@ -45,7 +45,6 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
       runIfAuthorized(room.host, socket.userId, () => {
         onClickPlayerButton("change-video", newVideoUrl);
         setNewVideoUrl("");
-        socket?.emit(CHANGE_VIDEO, newVideoUrl);
       });
     }
   };
@@ -103,7 +102,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
             </span>
           </Button>
           <Separator className="hidden md:flex" />
-          <div className="w-full items-center hidden md:flex">
+          <div className="w-full items-center hidden md:flex h-[2.5rem]">
             <Input
               className="min-w-[140px]"
               placeholder="Change video"

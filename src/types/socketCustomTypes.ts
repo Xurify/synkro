@@ -69,6 +69,7 @@ export interface ServerToClientEvents {
   [CHECK_IF_ROOM_IS_FULL]: (roomId: string, callback: any) => void;
   [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room | null) => void) => void;
   [CREATE_ROOM]: (username: string, roomName: string, callback: (value: { result?: Room; error?: string }) => void) => void;
+  [SET_HOST]: (host: string) => void;
   [GET_ROOM_INFO]: (room: Room) => void;
   [GET_USER_INFO]: (user: User) => void;
   [PLAY_VIDEO]: () => void;

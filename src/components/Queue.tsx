@@ -101,7 +101,6 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
     if (socket?.userId && room) {
       runIfAuthorized(room.host, socket.userId, () => {
         onClickPlayerButton("change-video", newVideoUrl);
-        socket.emit(CHANGE_VIDEO, newVideoUrl);
       });
     }
   };

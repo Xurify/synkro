@@ -1,4 +1,4 @@
-import { YOUTUBE_VIDEO_URL_REGEX } from "@/constants/constants";
+import { URL_REGEX, YOUTUBE_VIDEO_URL_REGEX } from "@/constants/constants";
 
 export async function fetcher<JSON = any>(input: RequestInfo, init?: RequestInit): Promise<JSON> {
   const res = await fetch(input, init);
@@ -40,4 +40,9 @@ export const convertURLToCorrectProviderVideoId = (url: string): string | null =
     return convertURLToYoutubeVideoId(url);
   }
   return "";
+};
+
+export const isValidUrl = (url: string): string | null => {
+  if (URL_REGEX.test(url)) return url;
+  return null;
 };

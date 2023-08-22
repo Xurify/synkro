@@ -124,7 +124,7 @@ io.on('connection', (socket: CustomSocketServer) => {
           roomTimeouts[roomId] = undefined;
         }
         typeof callback === 'function' && callback(false);
-        socket.emit(GET_ROOM_INFO, updatedRoom);
+        io.to(roomId).emit(GET_ROOM_INFO, updatedRoom);
         console.log(`👀 New user joined in room: ${roomId} - User Id: ${userId}`);
       }
     } else {
@@ -175,7 +175,7 @@ io.on('connection', (socket: CustomSocketServer) => {
           clearTimeout(roomTimeouts[roomId]);
           roomTimeouts[roomId] = undefined;
         }
-        socket.emit(GET_ROOM_INFO, updatedRoom);
+        io.to(roomId).emit(GET_ROOM_INFO, updatedRoom);
       }
     } else {
       typeof callback === 'function' && callback(false);
@@ -359,6 +359,7 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
       const updatedUsers = users.filter((user) => user.id !== socket.userId);
       users = updatedUsers;
 
+      io.to(room.id).emit(GET_ROOM_INFO, updatedRoom);
       if (userWasHost && room.members.length > 0) {
         io.in(room.id).emit(SET_HOST, room.host);
         io.in(room.id).emit(SERVER_MESSAGE, {
@@ -369,7 +370,7 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
     }
 
     const roomInfo = getRoomById(user.roomId, rooms);
-    console.log('LEAVE_ROOM', user.roomId, roomInfo?.members?.length, users.length, activeConnections);
+    console.log(LEAVE_ROOM, user.roomId, roomInfo?.members?.length, users.length, activeConnections);
   }
 };
 
