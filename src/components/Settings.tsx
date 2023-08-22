@@ -15,7 +15,7 @@ import { Label } from "./ui/label";
 interface SettingsProps {}
 
 const Settings: React.FC<SettingsProps> = () => {
-  const [maxRoomSize, setMaxRoomSize] = useState<number>(20);
+  const [maxRoomSize, setMaxRoomSize] = useState<number>(10);
   const [roomPasscode, setRoomPasscode] = useState<string>("");
 
   const { toast } = useToast();
