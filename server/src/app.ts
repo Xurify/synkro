@@ -43,6 +43,7 @@ const io: Server = new Server(server);
 let users: User[] = [];
 const rooms: { [roomId: string]: Room } = {};
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
+const hostReconnectTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 
 let activeConnections = 0;
 
@@ -74,6 +75,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         const user = addUser({ id: socket.userId, username, roomId: newRoomId, socketId: socket.id }, users);
         socket.join(newRoomId);
         socket.roomId = newRoomId;
+
         const newRoom = addRoom(newRoomId, roomName, user);
         if (newRoom) {
           rooms[newRoomId] = newRoom;
@@ -115,7 +117,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         const updatedRoom = updateRoom(roomId, rooms, {
           ...room,
           members: newMembers,
-          previouslyConnectedMembers: [{ userId: user.id, username: user.username }],
+          previouslyConnectedMembers: [...room.previouslyConnectedMembers, { userId: user.id, username: user.username }],
         });
         rooms[roomId] = updatedRoom;
         socket.roomId = roomId;
@@ -219,6 +221,11 @@ io.on('connection', (socket: CustomSocketServer) => {
     const user = socket.userId && getUser(socket.userId, users);
     if (user && user.roomId) {
       socket.to(user.roomId).emit(PLAY_VIDEO);
+
+      io.sockets.sockets.get(user.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string, time: number) => {
+        socket.to(user.roomId).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, time);
+        console.log(SYNC_VIDEO_INFORMATION);
+      });
     }
   });
 
@@ -359,14 +366,20 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
       const updatedUsers = users.filter((user) => user.id !== socket.userId);
       users = updatedUsers;
 
-      io.to(room.id).emit(GET_ROOM_INFO, updatedRoom);
       if (userWasHost && room.members.length > 0) {
-        io.in(room.id).emit(SET_HOST, room.host);
-        io.in(room.id).emit(SERVER_MESSAGE, {
-          type: 'NEW_HOST',
-          message: `${room.members[0].username} is now the host. 👑`,
-        });
+        hostReconnectTimeouts[room.id] = setTimeout(() => {
+          updatedRoom.host = room.members[0].id;
+          rooms[user.roomId] = updatedRoom;
+
+          io.in(room.id).emit(SET_HOST, room.host);
+          io.in(room.id).emit(SERVER_MESSAGE, {
+            type: 'NEW_HOST',
+            message: `${room.members[0].username} is now the host. 👑`,
+          });
+        }, 5000);
       }
+
+      io.to(room.id).emit(GET_ROOM_INFO, updatedRoom);
     }
 
     const roomInfo = getRoomById(user.roomId, rooms);

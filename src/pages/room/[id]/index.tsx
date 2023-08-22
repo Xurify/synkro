@@ -90,14 +90,16 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   useEffect(() => {
     console.log(room, storedRoom, socket, socket?.connected, isConnecting);
 
+    console.log("FIRST", !isConnecting && socket?.connected && !room, !room && storedRoom && !!socket);
     if (!isConnecting && socket?.connected && !room) {
+      console.log(RECONNECT_USER);
       socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
         if (!canReconnect) {
           setStoredRoom(null);
           router.push("/");
         }
       });
-    } else if (!room && storedRoom && socket) {
+    } else if (!room && storedRoom && !!socket) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
         if (!canReconnect) {
           setStoredRoom(null);
@@ -175,8 +177,8 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     });
 
     return () => {
-      // socket.offAnyOutgoing();
-      // socket.disconnect();
+      socket.offAnyOutgoing();
+      socket.disconnect();
     };
   }, [socket, player]);
 
@@ -212,18 +214,15 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const handleSyncTime = (time: number) => {
     if (!player) return;
     const currentTime = player?.getCurrentTime();
-    if ((currentTime && currentTime < time - 0.3) || currentTime > time + 0.3) {
+    if ((currentTime && currentTime < time - 0.5) || currentTime > time + 0.5) {
       player.seekTo(time);
       !isPlaying && setIsPlaying(true);
     }
   };
 
   const handlePlay = () => {
-    console.log("ISPLAYING");
     !isPlaying && setIsPlaying(true);
-    runIfAuthorized(() => {
-      socket?.emit(PLAY_VIDEO);
-    });
+    runIfAuthorized(() => socket?.emit(PLAY_VIDEO));
   };
 
   const handlePause = () => {
@@ -334,6 +333,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
               />
             </AspectRatio>
           </div>
+          w
         </div>
         <div className="w-full flex items-center justify-center">
           <RoomToolbar activeView={activeView} onClickPlayerButton={handleClickPlayerButton} isPlaying={isPlaying} roomId={roomId} />
