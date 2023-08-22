@@ -6,7 +6,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { VideoQueueItem } from "@/types/interfaces";
-import { ADD_VIDEO_TO_QUEUE, CHANGE_VIDEO, REMOVE_VIDEO_FROM_QUEUE, VIDEO_QUEUE_REORDERED } from "@/constants/socketActions";
+import { ADD_VIDEO_TO_QUEUE, REMOVE_VIDEO_FROM_QUEUE, VIDEO_QUEUE_REORDERED } from "@/constants/socketActions";
 
 import { Queue } from "@/hooks/useQueue";
 import { YOUTUBE_VIDEO_URL_REGEX } from "@/constants/constants";
