@@ -315,7 +315,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   return (
     <main className="mx-auto h-full flex flex-col md:flex-row justify-center">
       <div className="flex flex-col max-w-[80rem] w-full">
-        <div className="max-w-[80rem] w-full">
+        <div className="w-full">
           <div className="bg-card mb-2">
             <AspectRatio ratio={16 / 9}>
               <ReactPlayer
@@ -333,7 +333,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
               />
             </AspectRatio>
           </div>
-          w
         </div>
         <div className="w-full flex items-center justify-center">
           <RoomToolbar activeView={activeView} onClickPlayerButton={handleClickPlayerButton} isPlaying={isPlaying} roomId={roomId} />
