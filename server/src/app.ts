@@ -141,6 +141,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
       if (!existingRoom) {
         typeof callback === 'function' && callback(false);
+        return;
       }
 
       socket.userId = userId;
