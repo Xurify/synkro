@@ -94,6 +94,7 @@ io.on('connection', (socket: CustomSocketServer) => {
       const existingRoom: Room = getRoomById(roomId, rooms);
       if (!existingRoom) {
         typeof callback === 'function' && callback(false);
+        return;
       }
 
       socket.join(roomId);
