@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 
 import { runIfAuthorized } from "@/libs/utils/socket";
 import { useSocket } from "@/context/SocketContext";
-import { CHANGE_VIDEO } from "@/constants/socketActions";
 
 import { Separator } from "./Separator";
 import { PlayPauseButton } from "./PlayPauseButton";
