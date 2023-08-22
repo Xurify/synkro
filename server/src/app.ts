@@ -267,6 +267,10 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
+      const room: Room = getRoomById(user.roomId, rooms);
+      if (room) {
+        room.videoInfo.currentVideoUrl = url;
+      }
       socket.in(user.roomId).emit(CHANGE_VIDEO, url);
     }
   });

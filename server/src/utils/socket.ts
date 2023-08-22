@@ -27,7 +27,7 @@ export const addRoom = (id: string, name: string, user: User): Room | null => {
       currentQueueIndex: -1,
       queue: [],
     },
-    maxRoomSize: 20,
+    maxRoomSize: 10,
     members: [user],
     created,
     previouslyConnectedMembers: [{ userId: user.id, username: user.username }],
