@@ -165,10 +165,10 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
               ref={provided.innerRef}
             >
               {videoQueue.queue.map((video, index) => (
-                <Draggable key={`${video.id}-${index}`} draggableId={`${video.id}-${index}`} index={index}>
+                <Draggable key={`${video.id}-${index}`} draggableId={`${video.id}-${index}`} index={index} isDragDisabled={!isAuthorized}>
                   {(provided, snapshot) => (
                     <div
-                      className={`${snapshot.isDragging ? "lightgreen" : "bg-gray-800"} rounded p-1 px-2 bg-${
+                      className={`${snapshot.isDragging ? "bg-[#6936ff75]" : "bg-[#7f80974d]"} rounded p-2 bg-${
                         currentVideoId === video.id ? "primary" : "default"
                       } cursor-pointer`}
                       ref={provided.innerRef}
@@ -177,18 +177,20 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
                       style={getItemStyle(provided.draggableProps.style)}
                     >
                       <div className="w-full h-[130px] relative">
-                        <div className="flex absolute bottom-2 right-2 z-[2] gap-2">
-                          <Button className="p-2 w-8 h-8 bg-black" onClick={() => handleChangeVideo(video.url)}>
-                            <span>
-                              <PlayIcon fill="#FFFFFF" color="#FFFFFF" size="1.25rem" />
-                            </span>
-                          </Button>
-                          <Button className="p-2 w-8 h-8 bg-black" onClick={() => handleRemoveVideoFromQueue(video.url)}>
-                            <span>
-                              <Trash2Icon color="#FFFFFF" size="1.25rem" />
-                            </span>
-                          </Button>
-                        </div>
+                        {isAuthorized && (
+                          <div className="flex absolute bottom-2 right-2 z-[2] gap-2">
+                            <Button className="p-2 w-8 h-8 bg-black" onClick={() => handleChangeVideo(video.url)}>
+                              <span>
+                                <PlayIcon fill="#FFFFFF" color="#FFFFFF" size="1.25rem" />
+                              </span>
+                            </Button>
+                            <Button className="p-2 w-8 h-8 bg-black" onClick={() => handleRemoveVideoFromQueue(video.url)}>
+                              <span>
+                                <Trash2Icon color="#FFFFFF" size="1.25rem" />
+                              </span>
+                            </Button>
+                          </div>
+                        )}
                         <Image alt="" src={video.thumbnail} layout="fill" />
                       </div>
                       <p className="text-text text-primary-foreground mt-2 text-sm">{video.name}</p>

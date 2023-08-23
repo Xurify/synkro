@@ -397,7 +397,7 @@ server.listen(PORT, () => {
 });
 
 app.get('/api/healthz', (_req, res) => {
-  res.send('Success');
+  res.send({ status: 'ok' });
 });
 
 app.get('/api/rooms', (_req, res) => {
