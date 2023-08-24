@@ -94,3 +94,13 @@ body.dark {
 .input-colored {
   background: #3b2f51;
 }
+
+.star-field-canvas-wrapper {
+  * {
+    color: #ffffff;
+    background-color: #000;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+}

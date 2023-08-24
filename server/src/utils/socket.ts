@@ -1,5 +1,6 @@
 import { Room, Rooms, User, RoomId, UserId } from '../../../src/types/interfaces';
 import { CustomSocket } from '../../../src/types/socketCustomTypes';
+import { nanoid } from 'nanoid';
 
 export const getUser = (id: string, users: User[]): User | undefined => users.find((user) => user.id === id);
 
@@ -18,10 +19,12 @@ export const addRoom = (id: string, name: string, user: User): Room | null => {
   if (typeof name != 'string') return null;
   const trimmedName = name?.trim();
   const created = new Date().toISOString();
+  const inviteCode = nanoid(5);
   const room: Room = {
     host: user.id,
     name: trimmedName,
     id,
+    inviteCode,
     videoInfo: {
       currentVideoUrl: null,
       currentQueueIndex: -1,
@@ -49,6 +52,11 @@ export const updateRoom = (id: string, rooms: Rooms, newRoom: Partial<Room>): Ro
 
 export const getRoomById = (roomId: string, rooms: Rooms): Room => {
   const room = rooms[roomId];
+  return room;
+};
+
+export const getRoomByInviteCode = (inviteCode: string, rooms: Rooms): Room | undefined => {
+  const room = Object.values(rooms).find((room) => room.inviteCode === inviteCode);
   return room;
 };
 

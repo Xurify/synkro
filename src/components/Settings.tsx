@@ -91,7 +91,7 @@ const Settings: React.FC<SettingsProps> = () => {
                       User: <span className="text-primary">{member.username}</span>
                     </div>
                   }
-                  disabled={member.id === socket?.userId}
+                  disabled={!isAuthorized || member.id === socket?.userId}
                 />
               ))}
           </div>

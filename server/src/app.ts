@@ -1,7 +1,6 @@
 import express, { Application } from 'express';
 import { createServer, Server as HttpServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
-import shortid from 'shortid';
 import { Server } from 'socket.io';
 import { Room, User, VideoQueueItem } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
@@ -33,6 +32,7 @@ import {
   REMOVE_VIDEO_FROM_QUEUE,
   VIDEO_QUEUE_REORDERED,
 } from '../../src/constants/socketActions';
+import { nanoid } from 'nanoid';
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
 const app: Application = express();
@@ -42,6 +42,7 @@ const io: Server = new Server(server);
 
 let users: User[] = [];
 const rooms: { [roomId: string]: Room } = {};
+
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 const hostReconnectTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 
@@ -65,7 +66,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(CREATE_ROOM, (username, roomName, callback: (value: { result?: Room; error?: string }) => void) => {
-    const newRoomId = shortid.generate();
+    const newRoomId = nanoid(6);
     if (userId) {
       const room: Room = getRoomById(newRoomId, rooms);
       if (room) {
@@ -173,6 +174,17 @@ io.on('connection', (socket: CustomSocketServer) => {
           members: newMembers,
           previouslyConnectedMembers: [{ userId: user.id, username: user.username }],
         });
+
+        if (hostReconnectTimeouts[roomId] && userId === updatedRoom.host) {
+          clearTimeout(hostReconnectTimeouts[roomId]);
+          delete hostReconnectTimeouts[roomId];
+          updatedRoom.host = userId;
+          io.in(roomId).emit(SET_HOST, userId);
+          io.in(roomId).emit(SERVER_MESSAGE, {
+            type: 'HOST_RECONNECTED',
+            message: `${previouslyConnectedUser.username} has returned as the host. 👑`,
+          });
+        }
 
         rooms[roomId] = updatedRoom;
         if (roomTimeouts[roomId]) {
@@ -354,7 +366,7 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
       const updatedRoom = updateRoom(user.roomId, rooms, { members: newMembers });
       rooms[user.roomId] = updatedRoom;
 
-      const THREE_MINUTES = 3 * 60 * 1000;
+      const THREE_MINUTES = 0.7 * 60 * 1000;
 
       if (newMembers.length === 0) {
         roomTimeouts[user.roomId] = setTimeout(async () => {
@@ -372,15 +384,18 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
       users = updatedUsers;
 
       if (userWasHost && room.members.length > 0) {
+        clearTimeout(hostReconnectTimeouts[room.id]);
         hostReconnectTimeouts[room.id] = setTimeout(() => {
-          updatedRoom.host = room.members[0].id;
-          rooms[user.roomId] = updatedRoom;
+          if (room.members.length > 0) {
+            updatedRoom.host = room.members[0].id;
+            rooms[user.roomId] = updatedRoom;
 
-          io.in(room.id).emit(SET_HOST, room.host);
-          io.in(room.id).emit(SERVER_MESSAGE, {
-            type: 'NEW_HOST',
-            message: `${room.members[0].username} is now the host. 👑`,
-          });
+            io.in(room.id).emit(SET_HOST, room.host);
+            io.in(room.id).emit(SERVER_MESSAGE, {
+              type: 'NEW_HOST',
+              message: `${room.members[0].username} is now the host. 👑`,
+            });
+          }
         }, 5000);
       }
 
@@ -406,4 +421,8 @@ app.get('/api/rooms', (_req, res) => {
 
 app.get('/api/users', (_req, res) => {
   res.json({ users });
+});
+
+app.get('/api/connections', (_req, res) => {
+  res.json({ activeConnections, hostReconnectTimeouts, roomTimeouts, users: users.length, rooms: Object.values(rooms).length });
 });

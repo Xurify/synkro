@@ -63,7 +63,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   //const [serverMessages, setServerMessages] = useState<ServerMessage[]>([]);
   const { socket, room, isConnecting } = useSocket();
   const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(room?.videoInfo.currentVideoUrl || "https://youtu.be/ECsqSli1DpY");
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(room?.videoInfo.currentVideoUrl || "https://youtu.be/QdKhuEnkwiY");
   const [isLoading, setIsLoading] = useState(false);
 
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
@@ -76,6 +76,8 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const videoQueue = useQueue<VideoQueueItem>();
 
   useEffect(() => {
+    console.log(room, storedRoom, socket, socket?.connected, isConnecting, sessionToken);
+
     room && setStoredRoom(room);
 
     if (room && Array.isArray(room?.videoInfo?.queue) && room.videoInfo.queue.length > 0) {
@@ -88,11 +90,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   }, [room]);
 
   useEffect(() => {
-    console.log(room, storedRoom, socket, socket?.connected, isConnecting);
-
-    console.log("FIRST", !isConnecting && socket?.connected && !room, !room && storedRoom && !!socket);
     if (!isConnecting && socket?.connected && !room) {
-      console.log(RECONNECT_USER);
       socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
         if (!canReconnect) {
           setStoredRoom(null);
@@ -135,15 +133,11 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, time) => {
       setCurrentVideoUrl(hostVideoUrl);
       setIsPlaying(playing);
-      //player?.seekTo(time);
       handleSyncTime(time);
-
-      console.log(SYNC_VIDEO_INFORMATION, playing, hostVideoUrl, time);
     });
 
     socket.on(PLAY_VIDEO, () => {
       setIsPlaying(true);
-      //handleSyncTime();
     });
 
     socket.on(PAUSE_VIDEO, () => {
@@ -160,9 +154,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
     socket.on(CHANGE_VIDEO, (newVideoUrl: string) => {
       setCurrentVideoUrl(newVideoUrl);
-      setIsPlaying(true);
-      //player?.seekTo(0);
-      console.log("CHANGE_VIDEO_1", newVideoUrl, player);
+      handlePlay();
     });
 
     socket.on(ADD_VIDEO_TO_QUEUE, (newVideo: VideoQueueItem) => {
@@ -298,8 +290,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
         if (typeof payload === "string" && isValidUrl(payload)) {
           setCurrentVideoUrl(payload);
           socket?.emit(CHANGE_VIDEO, payload);
-          //player?.seekTo(0);
-          console.log("CHANGE_VIDEO_HANDLE", payload, player);
           setIsPlaying(true);
         }
         return;
@@ -330,8 +320,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
                 url={currentVideoUrl}
                 width="100%"
                 height="100%"
-                playing={true}
-                //playing={isPlaying}
+                playing={isPlaying}
                 onReady={onReady}
                 onBuffer={handleBuffer}
                 onPlay={handlePlay}

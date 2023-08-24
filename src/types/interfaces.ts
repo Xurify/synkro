@@ -13,6 +13,7 @@ export interface Room {
   id: string;
   name: string;
   host: string;
+  inviteCode: string | null;
   videoInfo: {
     currentVideoUrl: string | null;
     currentQueueIndex: number;
