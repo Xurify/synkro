@@ -143,8 +143,8 @@ class StarField extends Component<{}, IStarFieldState> {
 
   render() {
     return (
-      <div className="star-field-canvas-wrapper">
-        <canvas ref={this.fieldRef} id="field"></canvas>
+      <div className="star-field-canvas-wrapper absolute w-full">
+        <canvas className="max-h-[calc(100vh-90px)] w-full" ref={this.fieldRef} id="field"></canvas>
       </div>
     );
   }

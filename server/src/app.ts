@@ -121,6 +121,7 @@ io.on('connection', (socket: CustomSocketServer) => {
           members: newMembers,
           previouslyConnectedMembers: [...room.previouslyConnectedMembers, { userId: user.id, username: user.username }],
         });
+        console.log('previouslyConnectedMember', user.id, updatedRoom);
         rooms[roomId] = updatedRoom;
         socket.roomId = roomId;
         if (roomTimeouts[roomId]) {
@@ -189,7 +190,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         rooms[roomId] = updatedRoom;
         if (roomTimeouts[roomId]) {
           clearTimeout(roomTimeouts[roomId]);
-          roomTimeouts[roomId] = undefined;
+          delete roomTimeouts[roomId];
         }
         io.to(roomId).emit(GET_ROOM_INFO, updatedRoom);
       }
@@ -368,9 +369,12 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
 
       const THREE_MINUTES = 0.7 * 60 * 1000;
 
+      console.log('handleUserLeaveRoom', socket.userId, user.roomId, newMembers, updatedRoom);
+
       if (newMembers.length === 0) {
         roomTimeouts[user.roomId] = setTimeout(async () => {
           if (updatedRoom.members.length === 0) {
+            hostReconnectTimeouts[room.id] && clearTimeout(hostReconnectTimeouts[room.id]);
             delete rooms[user.roomId];
             console.log(`🚀 Room ${user.roomId} has been deleted.`);
           }
@@ -384,7 +388,7 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
       users = updatedUsers;
 
       if (userWasHost && room.members.length > 0) {
-        clearTimeout(hostReconnectTimeouts[room.id]);
+        hostReconnectTimeouts[room.id] && clearTimeout(hostReconnectTimeouts[room.id]);
         hostReconnectTimeouts[room.id] = setTimeout(() => {
           if (room.members.length > 0) {
             updatedRoom.host = room.members[0].id;
@@ -407,6 +411,17 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
   }
 };
 
+// const CLEANUP_INTERVAL = 10 * 60 * 1000;
+
+// setInterval(() => {
+//   for (let roomId in rooms) {
+//     if (rooms[roomId].members.length === 0) {
+//       delete rooms[roomId];
+//       console.log(`Cleanup: Room ${roomId} has been deleted.`);
+//     }
+//   }
+// }, CLEANUP_INTERVAL);
+
 server.listen(PORT, () => {
   console.log(`🚀 WebSocket server is running on http://localhost:${PORT}`);
 });
@@ -424,5 +439,9 @@ app.get('/api/users', (_req, res) => {
 });
 
 app.get('/api/connections', (_req, res) => {
-  res.json({ activeConnections, hostReconnectTimeouts, roomTimeouts, users: users.length, rooms: Object.values(rooms).length });
+  res.json({
+    activeConnections,
+    users: users.length,
+    rooms: Object.values(rooms).length,
+  });
 });
