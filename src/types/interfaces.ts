@@ -44,6 +44,7 @@ export enum ServerMessageType {
   ERROR = "ERROR",
   USER_JOINED = "USER_JOINED",
   USER_DISCONNECTED = "USER_DISCONNECTED",
+  USER_RECONNECTED = "USER_RECONNECTED",
 }
 
 export interface ServerMessage {

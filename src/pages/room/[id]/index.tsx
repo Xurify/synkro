@@ -78,7 +78,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   useEffect(() => {
     console.log(room, storedRoom, socket, socket?.connected, isConnecting, sessionToken);
 
-    room && setStoredRoom(room);
+    setStoredRoom(room);
 
     if (room && Array.isArray(room?.videoInfo?.queue) && room.videoInfo.queue.length > 0) {
       videoQueue.set(room.videoInfo.queue);
@@ -90,6 +90,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   }, [room]);
 
   useEffect(() => {
+    console.log("isCOnda", !isConnecting, socket?.connected, !room, room);
     if (!isConnecting && socket?.connected && !room) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
         if (!canReconnect) {
@@ -104,6 +105,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
           router.push("/");
         }
       });
+    } else if (room === undefined && isConnecting === false) {
+      setStoredRoom(null);
+      router.push("/");
     }
   }, [isSocketAvailable, isConnecting, room]);
 
@@ -327,6 +331,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
                 onPause={handlePause}
                 controls={true}
                 onEnded={handleEnded}
+                fallback={<div>LoadingAS</div>}
               />
             </AspectRatio>
           </div>

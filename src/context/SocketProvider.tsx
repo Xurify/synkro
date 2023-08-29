@@ -12,7 +12,7 @@ interface SocketProviderProps {
 
 export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProps>> = ({ children, sessionToken }) => {
   const [socket, setSocket] = React.useState<CustomSocket | null>(null);
-  const [room, setRoom] = React.useState<Room | null>(null);
+  const [room, setRoom] = React.useState<Room | null | undefined>(undefined);
   const [user, setUser] = React.useState<User | null>(null);
   const [isConnecting, setIsConnecting] = React.useState<boolean>(true);
 

@@ -5,7 +5,6 @@ export default function NavigationHeader() {
     <nav className="bg-card w-full flex p-4 mb-4 shadow">
       <div className="text-2xl font-bold text-brand-blue-600">
         <Link className="flex items-center" href="/">
-          {/* <Tv className="h-[2rem] w-[2rem] mr-2" /> */}
           <div className="h-[2.5rem] w-[2.5rem] mr-2">
             <Icon />
           </div>

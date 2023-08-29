@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import { createServer, Server as HttpServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 import { Server } from 'socket.io';
 import { Room, User, VideoQueueItem } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
@@ -65,9 +66,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(CREATE_ROOM, async (username, roomName, callback: (value: { result?: Room; error?: string }) => void) => {
-    const newRoomId = await import('nanoid').then((nanoid) => {
-      return nanoid.nanoid(6);
-    });
+    const newRoomId = nanoid(6);
     if (userId) {
       const room: Room = getRoomById(newRoomId, rooms);
       if (room) {
@@ -79,6 +78,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         socket.roomId = newRoomId;
 
         const newRoom = addRoom(newRoomId, roomName, user);
+        startCleanupInterval();
         if (newRoom) {
           rooms[newRoomId] = newRoom;
           typeof callback === 'function' && callback({ result: newRoom });
@@ -414,14 +414,27 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
 
 // const CLEANUP_INTERVAL = 10 * 60 * 1000;
 
-// setInterval(() => {
-//   for (let roomId in rooms) {
-//     if (rooms[roomId].members.length === 0) {
-//       delete rooms[roomId];
-//       console.log(`Cleanup: Room ${roomId} has been deleted.`);
-//     }
-//   }
-// }, CLEANUP_INTERVAL);
+const CLEANUP_INTERVAL = 10 * 60 * 1000; // 10 minutes
+let cleanupInterval: NodeJS.Timeout | null = null;
+
+const startCleanupInterval = () => {
+  if (!cleanupInterval && Object.keys(rooms).length > 0) {
+    cleanupInterval = setInterval(() => {
+      for (let roomId in rooms) {
+        if (rooms[roomId].members.length === 0) {
+          delete rooms[roomId];
+          console.log(`Cleanup: Room ${roomId} has been deleted.`);
+        }
+      }
+      // Stop the interval if there are no rooms left
+      if (Object.keys(rooms).length === 0 && cleanupInterval) {
+        clearInterval(cleanupInterval);
+        cleanupInterval = null;
+        console.log('Cleanup interval stopped as there are no rooms left.');
+      }
+    }, CLEANUP_INTERVAL);
+  }
+};
 
 server.listen(PORT, () => {
   console.log(`🚀 WebSocket server is running on http://localhost:${PORT}`);

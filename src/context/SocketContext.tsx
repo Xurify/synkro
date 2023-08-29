@@ -4,7 +4,7 @@ import React from "react";
 
 export type SocketContextType = {
   socket: CustomSocket | null;
-  room: Room | null;
+  room: Room | null | undefined;
   user: User | null;
   isConnecting: boolean;
 };

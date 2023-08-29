@@ -52,7 +52,9 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
     if (e.key === "Enter") handleChangeVideo();
   };
 
-  const defaultButtonClassName = `w-9 h-9 min-w-[2.25rem]`;
+  const defaultButtonClassName = "w-9 h-9 min-w-[2.25rem]";
+
+  const isAuthorized = room?.host === socket?.userId;
 
   return (
     <div className="max-w-[80rem] w-full bg-card shadow-md p-2.5 rounded flex">
@@ -104,6 +106,8 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
           <div className="w-full items-center hidden md:flex h-[2.5rem]">
             <Input
               className="min-w-[140px]"
+              disabled={!isAuthorized}
+              type="text"
               placeholder="Change video"
               onChange={handleChangeNewVideoUrl}
               onKeyDown={handleChangeVideoOnKeyDown}
@@ -115,7 +119,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
               </span>
             </Button>
           </div>
-          <Separator className="ml-auto" />
+          <Separator />
           <Button
             className={`${defaultButtonClassName} bg-red-500 hover:bg-red-400`}
             onClick={() => onClickPlayerButton("leave-room")}
@@ -140,6 +144,8 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
           <div className="w-full flex items-center">
             <Input
               className="min-w-[140px]"
+              disabled={!isAuthorized}
+              type="text"
               placeholder="Change video"
               onChange={handleChangeNewVideoUrl}
               onKeyDown={handleChangeVideoOnKeyDown}

@@ -4,7 +4,7 @@ import { ArrowBigDown, SendIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Messages, ServerMessageType } from "@/types/interfaces";
+import { ChatMessage, Messages, ServerMessageType } from "@/types/interfaces";
 import { USER_MESSAGE } from "@/constants/socketActions";
 import { CustomSocket } from "@/types/socketCustomTypes";
 
@@ -42,7 +42,14 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
 
   useEffect(() => scrollToBottom(true, false), []);
 
-  useEffect(() => scrollToBottom(), [messages]);
+  useEffect(() => {
+    const lastMessage = (messages as ChatMessage[])[messages.length - 1];
+    if (lastMessage?.userId !== socket?.userId) {
+      scrollToBottom();
+    } else {
+      scrollToBottom(true);
+    }
+  }, [messages]);
 
   useEffect(() => {
     const chatContainer = chatContainerRef.current;
@@ -94,9 +101,21 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
 
   const getMessageClassname = (type: ServerMessageType | "USER"): string | undefined => {
     switch (type) {
+      case "USER":
+        return "user-message";
+      case "ALERT":
+        return "bg-orange-500";
+      case "USER_JOINED":
+        return "bg-blue-600";
+      case "USER_RECONNECTED":
+        return "bg-blue-700";
+      case "USER_DISCONNECTED":
+        return "bg-red-600";
+      case "ERROR":
+        return "bg-red-500";
+      default:
+        return "";
     }
-
-    return undefined;
   };
 
   return (
