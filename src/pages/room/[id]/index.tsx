@@ -44,6 +44,8 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useQueue } from "@/hooks/useQueue";
 
 import { convertURLToCorrectProviderVideoId, isValidUrl } from "@/libs/utils/frontend-utils";
+import { useToast } from "@/components/ui/use-toast";
+import { RefreshCcwIcon } from "lucide-react";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   loading: () => {
@@ -65,11 +67,13 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(room?.videoInfo.currentVideoUrl || "https://youtu.be/QdKhuEnkwiY");
   const [isLoading, setIsLoading] = useState(false);
+  const [_isSyncing, setIsSyncing] = useState(false);
 
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
   const isSocketAvailable = !!socket;
 
   const router = useRouter();
+  const { toast } = useToast();
   const searchParams = useSearchParams();
   const roomId = searchParams.get("id") as string;
 
@@ -111,6 +115,22 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     }
   }, [isSocketAvailable, isConnecting, room]);
 
+  // React.useEffect(() => {
+  //   const returnedToast = toast({
+  //     variant: "info",
+  //     Icon: RefreshCcwIcon,
+  //     iconClassname: "animate-spin",
+  //     title: "Syncing with host",
+  //     description: "This shouldn't take too long at all!",
+  //     open: isSyncing,
+  //   });
+  //   console.log("TEST", isSyncing);
+  //   if (!isSyncing) {
+  //     console.log(returnedToast.id, "returnedToast.id");
+  //     dismiss(returnedToast.id);
+  //   }
+  // }, [isSyncing]);
+
   const socketMethods = React.useCallback(() => {
     if (!socket) return;
 
@@ -138,6 +158,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       setCurrentVideoUrl(hostVideoUrl);
       setIsPlaying(playing);
       handleSyncTime(time);
+      setIsSyncing(false);
     });
 
     socket.on(PLAY_VIDEO, () => {
@@ -296,6 +317,18 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
           socket?.emit(CHANGE_VIDEO, payload);
           setIsPlaying(true);
         }
+        return;
+      case "sync-video":
+        setIsSyncing(true);
+        socket?.emit(GET_VIDEO_INFORMATION);
+        toast({
+          variant: "info",
+          Icon: RefreshCcwIcon,
+          iconClassname: "animate-spin",
+          title: "Syncing with host",
+          description: "This shouldn't take too long at all!",
+          duration: 1000,
+        });
         return;
       case "expand":
         handleToggleFullscreen();

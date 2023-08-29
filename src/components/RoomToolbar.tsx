@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   ArrowRightIcon,
+  RefreshCwIcon,
   ExpandIcon,
   FastForwardIcon,
   ListOrderedIcon,
@@ -19,7 +20,16 @@ import { useSocket } from "@/context/SocketContext";
 import { Separator } from "./Separator";
 import { PlayPauseButton } from "./PlayPauseButton";
 
-export type ButtonActions = SidebarViews | "expand" | "play" | "pause" | "fast-forward" | "rewind" | "change-video" | "leave-room";
+export type ButtonActions =
+  | SidebarViews
+  | "expand"
+  | "play"
+  | "pause"
+  | "fast-forward"
+  | "rewind"
+  | "sync-video"
+  | "change-video"
+  | "leave-room";
 export type SidebarViews = "chat" | "queue" | "settings";
 
 interface RoomToolbarProps {
@@ -40,7 +50,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
   };
 
   const handleChangeVideo = () => {
-    if (socket?.userId && room) {
+    if (socket?.userId && room?.host) {
       runIfAuthorized(room.host, socket.userId, () => {
         onClickPlayerButton("change-video", newVideoUrl);
         setNewVideoUrl("");
@@ -52,6 +62,16 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
     if (e.key === "Enter") handleChangeVideo();
   };
 
+  const handleSyncVideo = () => {
+    if (socket?.userId && room?.host) {
+      if (room.host !== socket.userId) {
+        onClickPlayerButton("sync-video", newVideoUrl);
+      } else {
+        runIfAuthorized(room.host, socket.userId, () => {});
+      }
+    }
+  };
+
   const defaultButtonClassName = "w-9 h-9 min-w-[2.25rem]";
 
   const isAuthorized = room?.host === socket?.userId;
@@ -59,7 +79,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
   return (
     <div className="max-w-[80rem] w-full bg-card shadow-md p-2.5 rounded flex">
       <div className="w-full">
-        <div className="w-full flex gap-2 overflow-x-auto">
+        <div className="w-full flex gap-2 overflow-x-auto h-9">
           <Button
             className={`${defaultButtonClassName}`}
             data-active={activeView}
@@ -103,7 +123,12 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
             </span>
           </Button>
           <Separator className="hidden md:flex" />
-          <div className="w-full items-center hidden md:flex h-[2.5rem]">
+          <Button className="rounded w-12" onClick={handleSyncVideo}>
+            <span>
+              <RefreshCwIcon color="#FFFFFF" size="1.25rem" />
+            </span>
+          </Button>
+          <div className="w-full items-center hidden md:flex">
             <Input
               className="min-w-[140px]"
               disabled={!isAuthorized}
@@ -121,7 +146,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
           </div>
           <Separator />
           <Button
-            className={`${defaultButtonClassName} bg-red-500 hover:bg-red-400`}
+            className={`${defaultButtonClassName} bg-red-600 hover:bg-red-500`}
             onClick={() => onClickPlayerButton("leave-room")}
             variant="secondary"
           >
