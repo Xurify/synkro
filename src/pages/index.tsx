@@ -4,10 +4,12 @@ import JoinRoomBox from "@/components/JoinRoomBox";
 import { parse } from "cookie";
 import { GetServerSideProps } from "next";
 
-export const HomePage: React.FC = () => {
+export const HomePage: React.FC<{ sessionToken: string | null }> = ({ sessionToken }) => {
   const [isCreateBoxShown, setIsCreateBoxShown] = useState(true);
 
   const handleToggle = () => setIsCreateBoxShown(!isCreateBoxShown);
+
+  console.log("sessionToken", sessionToken);
 
   return (
     <main className="flex flex-col">

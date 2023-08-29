@@ -1,7 +1,6 @@
 import React from "react";
 import PageHead from "./PageHead";
 import NavigationHeader from "./NavigationHeader";
-import StarField from "./StarField";
 
 export const Page: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (

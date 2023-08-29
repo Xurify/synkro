@@ -32,7 +32,6 @@ import {
   REMOVE_VIDEO_FROM_QUEUE,
   VIDEO_QUEUE_REORDERED,
 } from '../../src/constants/socketActions';
-import { nanoid } from 'nanoid';
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
 const app: Application = express();
@@ -65,8 +64,10 @@ io.on('connection', (socket: CustomSocketServer) => {
     typeof callback === 'function' && callback(room);
   });
 
-  socket.on(CREATE_ROOM, (username, roomName, callback: (value: { result?: Room; error?: string }) => void) => {
-    const newRoomId = nanoid(6);
+  socket.on(CREATE_ROOM, async (username, roomName, callback: (value: { result?: Room; error?: string }) => void) => {
+    const newRoomId = await import('nanoid').then((nanoid) => {
+      return nanoid.nanoid(6);
+    });
     if (userId) {
       const room: Room = getRoomById(newRoomId, rooms);
       if (room) {
