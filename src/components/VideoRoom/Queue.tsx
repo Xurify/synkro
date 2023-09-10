@@ -81,7 +81,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
 
         const id = videoInfo.id;
         const title = videoInfo.snippet.title;
-        const thumbnail = videoInfo.snippet.thumbnails.medium.url;
+        const thumbnail = videoInfo.snippet.thumbnails.maxres.url;
 
         const newVideo = {
           url: newVideoInQueueUrl,
@@ -139,6 +139,14 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
     ...draggableStyle,
   });
 
+  // inset 0 2px 3px rgba(255, 255, 255, 0.3), inset 0 -2px 3px #4d219b, 0 1px 1px #331567
+  // shadow-[inset_0_2px_3px_rgba(255,_255,_255,_0.3),_inset_0_-2px_3px_#4d219b,_0_1px_1px_#331567]
+
+  // background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(107,46,215,1) 35%, rgba(77,52,122,1) 100%);
+  // bg-[linear-gradient(90deg,_rgba(2,0,36,1)_0%,_rgba(107,46,215,1)_35%,rgba(77,52,122,1)_100%)]
+
+  //bg-[linear-gradient(120deg,_rgba(2,0,36,1)_0%,_rgba(107,46,215,1)_35%,rgba(77,52,122,1)_100%)]
+
   return (
     <div className="flex flex-col flex-grow w-full h-full relative hide-scrollbar md:max-h-[calc(100vh-158px)]">
       {isAuthorized && (
@@ -175,9 +183,13 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
                 >
                   {(provided, snapshot) => (
                     <div
-                      className={`${snapshot.isDragging ? "bg-[#6936ff75]" : "bg-[#7f80974d]"} rounded w-[250px] md:w-auto p-2 bg-${
-                        currentVideoId === video.id ? "primary" : "default"
-                      } cursor-pointer`}
+                      className={`${
+                        currentVideoId === video.id
+                          ? "bg-gradient-to-br from-[#4d347a] from-10% via-[#6b2ed7] via-60% to-[#18118d] to-92%"
+                          : snapshot.isDragging
+                          ? "bg-[#6936ff75]"
+                          : "bg-[#212123]"
+                      } rounded w-[250px] md:w-auto p-2 cursor-pointer`}
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
@@ -198,7 +210,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
                             </Button>
                           </div>
                         )}
-                        <Image alt="" src={video.thumbnail} layout="fill" />
+                        <Image alt="" src={video.thumbnail} layout="fill" quality={25} />
                       </div>
                       <p className="text-text text-primary-foreground mt-2 text-sm">{video.name}</p>
                     </div>

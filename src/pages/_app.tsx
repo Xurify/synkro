@@ -5,12 +5,12 @@ import { Analytics } from "@vercel/analytics/react";
 import { Page } from "@/components/Page";
 import { Toaster } from "@/components/ui/toaster";
 import { SocketProvider } from "@/context/SocketProvider";
-import { useDarkMode } from "@/hooks/useDarkMode";
+//import { useDarkMode } from "@/hooks/useDarkMode";
 
 import "@/styles/global.css";
 
 export default function App({ Component, pageProps }: AppProps) {
-  useDarkMode();
+  //useDarkMode();
   return (
     <>
       <SocketProvider sessionToken={pageProps?.sessionToken || null}>
