@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { generateName } from "@/libs/utils/names";
 import { GetServerSideProps } from "next";
-import { CHECK_IF_ROOM_EXISTS, JOIN_ROOM_BY_INVITE } from "@/constants/socketActions";
+import { JOIN_ROOM_BY_INVITE } from "@/constants/socketActions";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -17,7 +17,7 @@ export interface InvitePageProps {
   sessionToken: string;
 }
 
-export const InvitePage: React.FC<InvitePageProps> = ({ sessionToken }) => {
+export const InvitePage: React.FC<InvitePageProps> = () => {
   const [username, setUsername] = useState("");
 
   const router = useRouter();
