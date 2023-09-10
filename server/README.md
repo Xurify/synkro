@@ -4,7 +4,7 @@ Syknro is an app built to watch videos with friends in sync!
 
 ## Getting Started
 
-First, run the development server:
+First, install the needed dependencies:
 
 ```bash
 npm install
@@ -13,6 +13,8 @@ yarn install
 # or
 pnpm install
 ```
+
+Next, run the development server:
 
 ```bash
 npm run dev
