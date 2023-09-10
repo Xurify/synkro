@@ -3,7 +3,7 @@ import { createServer, Server as HttpServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
 import { nanoid } from 'nanoid';
 import { Server } from 'socket.io';
-import { Room, User } from '../../src/types/interfaces';
+import { Room, Rooms, User } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
 import {
   addRoom,
@@ -102,48 +102,20 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(JOIN_ROOM, (roomId, username, callback) => {
-    if (roomId && username && socket.userId) {
-      const existingRoom: Room = getRoomById(roomId, rooms);
-      if (!existingRoom) {
-        typeof callback === 'function' && callback({ success: false, error: `Failed to find room: ${roomId}` });
-        return;
-      }
-
-      const existingUser = getUser(socket.userId, users);
-
-      if (existingUser) {
-        io.to(roomId).emit(SERVER_MESSAGE, {
-          type: USER_RECONNECTED,
-          message: `${existingUser.username} reconnected`,
-        });
-        return;
-      }
-
-      const user = addUser({ id: socket.userId, username, roomId, socketId: socket.id }, users);
-
-      const room: Room = getRoomById(roomId, rooms);
-      if (room) {
-        const userExistsInRoomMembers = room.members.find((member) => member.id === user.id);
-        const newMembers = userExistsInRoomMembers ? room.members : [...room.members, user];
-        const updatedRoom = updateRoom(roomId, rooms, {
-          ...room,
-          members: newMembers,
-          previouslyConnectedMembers: [...room.previouslyConnectedMembers, { userId: user.id, username: user.username }],
-        });
-        rooms[roomId] = updatedRoom;
-        socket.roomId = roomId;
-        if (roomTimeouts[roomId]) {
-          clearTimeout(roomTimeouts[roomId]);
-          roomTimeouts[roomId] = undefined;
-        }
-        typeof callback === 'function' && callback({ success: true });
-        io.to(roomId).emit(GET_ROOM_INFO, updatedRoom);
-        console.log(`👀 New user joined in room: ${roomId} - User Id: ${userId}`);
-      }
-
-      socket.join(roomId);
-    } else {
+    if (!roomId || !username || !socket.userId) {
       typeof callback === 'function' && callback({ success: false, error: 'An invalid input was provided' });
+      return;
+    }
+
+    const existingRoom = getRoomById(roomId, rooms);
+    if (!existingRoom) {
+      typeof callback === 'function' && callback({ success: false, error: `Failed to find room: ${roomId}` });
+      return;
+    }
+
+    const updatedRoom = addUserToRoom(socket, socket.userId, roomId, username, rooms, users);
+    if (updatedRoom && typeof callback === 'function') {
+      callback({ success: true });
     }
   });
 
@@ -154,43 +126,19 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
 
     const room = getRoomByInviteCode(inviteCode, rooms);
-
     if (!room) {
-      typeof callback === 'function' && callback({ success: false, error: 'Invite code is invalid or this room no longer exists' });
+      typeof callback === 'function' &&
+        callback({
+          success: false,
+          error: 'Invite code is invalid or this room no longer exists',
+        });
       return;
     }
 
-    socket.join(room.id);
-
-    const existingUser = getUser(socket.userId, users);
-
-    if (existingUser) {
-      io.to(room.id).emit(SERVER_MESSAGE, {
-        type: USER_RECONNECTED,
-        message: `${existingUser.username} reconnected`,
-      });
-      return;
+    const updatedRoom = addUserToRoom(socket, socket.userId, room.id, username, rooms, users);
+    if (updatedRoom && typeof callback === 'function') {
+      callback({ success: true, roomId: room.id });
     }
-
-    const user = addUser({ id: socket.userId, username, roomId: room.id, socketId: socket.id }, users);
-
-    const userExistsInRoomMembers = room.members.find((member) => member.id === user.id);
-    const newMembers = userExistsInRoomMembers ? room.members : [...room.members, user];
-    const updatedRoom = updateRoom(room.id, rooms, {
-      ...room,
-      members: newMembers,
-      previouslyConnectedMembers: [...room.previouslyConnectedMembers, { userId: user.id, username: user.username }],
-    });
-
-    rooms[room.id] = updatedRoom;
-    if (roomTimeouts[room.id]) {
-      clearTimeout(roomTimeouts[room.id]);
-      roomTimeouts[room.id] = undefined;
-    }
-
-    typeof callback === 'function' && callback({ success: true, roomId: room.id });
-    io.to(room.id).emit(GET_ROOM_INFO, updatedRoom);
-    console.log(`👀 New user joined in room: ${room.id} using invite code - User Id: ${socket.userId}`);
   });
 
   socket.on(RECONNECT_USER, (roomId, userId, callback) => {
@@ -411,7 +359,7 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
   if (user) {
     io.to(user.roomId).emit(SERVER_MESSAGE, {
       type: USER_DISCONNECTED,
-      message: `A user disconnected ${user.roomId}`,
+      message: `${user.username} has disconnected`,
     });
 
     const room: Room = getRoomById(user.roomId, rooms);
@@ -467,13 +415,48 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
   }
 };
 
+const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: string, username: string, rooms: Rooms, users: User[]): Room | null => {
+  const room = getRoomById(roomId, rooms);
+  if (!room) return null;
+
+  socket.join(roomId);
+  const existingUser = getUser(userId, users);
+  if (existingUser) {
+    io.to(roomId).emit(SERVER_MESSAGE, {
+      type: USER_RECONNECTED,
+      message: `${existingUser.username} has reconnected`,
+    });
+    //return room;
+  }
+
+  const user = addUser({ id: userId, username, roomId, socketId: socket.id }, users);
+
+  const userExistsInRoomMembers = room.members.find((member) => member.id === user.id);
+  const newMembers = userExistsInRoomMembers ? room.members : [...room.members, user];
+  const updatedRoom = updateRoom(roomId, rooms, {
+    ...room,
+    members: newMembers,
+    previouslyConnectedMembers: [...room.previouslyConnectedMembers, { userId: user.id, username: user.username }],
+  });
+
+  rooms[roomId] = updatedRoom;
+  if (roomTimeouts[roomId]) {
+    clearTimeout(roomTimeouts[roomId]);
+    roomTimeouts[roomId] = undefined;
+  }
+
+  io.to(roomId).emit(GET_ROOM_INFO, updatedRoom);
+  console.log(`👀 New user joined in room: ${roomId} - User Id: ${userId}`);
+  return updatedRoom;
+};
+
 const CLEANUP_INTERVAL = 10 * 60 * 1000;
 let cleanupInterval: NodeJS.Timeout | null = null;
 
 const startCleanupInterval = () => {
   if (!cleanupInterval && Object.keys(rooms).length > 0) {
     cleanupInterval = setInterval(() => {
-      for (let roomId in rooms) {
+      for (const roomId in rooms) {
         if (rooms[roomId].members.length === 0) {
           delete rooms[roomId];
           console.log(`🧼 Cleanup: Room ${roomId} has been deleted.`);
