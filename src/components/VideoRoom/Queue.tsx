@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import { PlayIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import UAParser from "ua-parser-js";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
   const { socket, room } = useSocket();
 
   const isAuthorized = room?.host === socket?.userId;
+  const isMobile = new UAParser().getDevice().type === "mobile";
 
   const handleOnChangeMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewVideoInQueueUrl(e.target.value);
@@ -138,7 +140,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
   });
 
   return (
-    <div className="flex flex-col flex-grow w-full h-full relative hide-scrollbar">
+    <div className="flex flex-col flex-grow w-full h-full relative hide-scrollbar md:max-h-[calc(100vh-158px)]">
       {isAuthorized && (
         <div className="flex items-center p-2">
           <Input
@@ -157,7 +159,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
         </div>
       )}
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="droppable">
+        <Droppable droppableId="droppable" isDropDisabled={!isAuthorized || isMobile}>
           {(provided) => (
             <div
               className="flex-grow overflow-y-auto p-4 h-full gap-y-4 flex flex-col"
@@ -165,10 +167,15 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
               ref={provided.innerRef}
             >
               {videoQueue.queue.map((video, index) => (
-                <Draggable key={`${video.id}-${index}`} draggableId={`${video.id}-${index}`} index={index} isDragDisabled={!isAuthorized}>
+                <Draggable
+                  key={`${video.id}-${index}`}
+                  draggableId={`${video.id}-${index}`}
+                  index={index}
+                  isDragDisabled={!isAuthorized || isMobile}
+                >
                   {(provided, snapshot) => (
                     <div
-                      className={`${snapshot.isDragging ? "bg-[#6936ff75]" : "bg-[#7f80974d]"} rounded p-2 bg-${
+                      className={`${snapshot.isDragging ? "bg-[#6936ff75]" : "bg-[#7f80974d]"} rounded w-[250px] md:w-auto p-2 bg-${
                         currentVideoId === video.id ? "primary" : "default"
                       } cursor-pointer`}
                       ref={provided.innerRef}

@@ -377,7 +377,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
             </AspectRatio>
           </div>
         </div>
-        <div className="w-full flex items-center justify-center p-2">
+        <div className="w-full flex items-center justify-center p-2 md:p-0">
           <RoomToolbar activeView={activeView} onClickPlayerButton={handleClickPlayerButton} isPlaying={isPlaying} roomId={roomId} />
         </div>
       </div>

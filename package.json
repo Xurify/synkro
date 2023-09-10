@@ -23,6 +23,7 @@
     "@types/screenfull": "^4.1.0",
     "@types/socket.io": "^3.0.2",
     "@types/socket.io-client": "^3.0.0",
+    "@types/ua-parser-js": "^0.7.37",
     "@types/uuid": "^9.0.2",
     "@types/ws": "^8.5.5",
     "@vercel/analytics": "^1.0.1",
@@ -50,6 +51,7 @@
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.6",
     "typescript": "5.1.6",
+    "ua-parser-js": "^1.0.36",
     "uuid": "^9.0.0",
     "yarn": "^1.22.19"
   },
