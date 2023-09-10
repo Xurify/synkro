@@ -45,7 +45,7 @@ import { useSocket } from "@/context/SocketContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useQueue } from "@/hooks/useQueue";
 
-import { convertURLToCorrectProviderVideoId, isValidUrl, pickBetweenRandomString } from "@/libs/utils/frontend-utils";
+import { convertURLToCorrectProviderVideoId, isValidUrl } from "@/libs/utils/frontend-utils";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   loading: () => {
@@ -65,9 +65,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   //const [serverMessages, setServerMessages] = useState<ServerMessage[]>([]);
   const { socket, room, isConnecting } = useSocket();
   const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(
-    room?.videoInfo.currentVideoUrl || pickBetweenRandomString("https://youtu.be/QdKhuEnkwiY", "https://youtu.be/DcnPABDFe-c")
-  );
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(room?.videoInfo.currentVideoUrl || "https://youtu.be/QdKhuEnkwiY");
   const [isLoading, setIsLoading] = useState(false);
   const [_isSyncing, setIsSyncing] = useState(false);
 
