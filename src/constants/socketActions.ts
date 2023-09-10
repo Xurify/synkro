@@ -1,4 +1,5 @@
 export const JOIN_ROOM = "JOIN_ROOM";
+export const JOIN_ROOM_BY_INVITE = "JOIN_ROOM_BY_INVITE";
 export const LEAVE_ROOM = "LEAVE_ROOM";
 export const RECONNECT_USER = "RECONNECT_USER";
 export const USER_RECONNECTED = "USER_RECONNECTED";

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 
 import { useRouter } from "next/router";
 
+import { DicesIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,8 +12,6 @@ import { ToastAction } from "@/components/ui/toast";
 import { CHECK_IF_ROOM_EXISTS, JOIN_ROOM } from "@/constants/socketActions";
 import { useSocket } from "@/context/SocketContext";
 import { generateName } from "@/libs/utils/names";
-
-import DiceIcon from "./DiceIcon";
 
 export interface JoinRoomBoxProps {
   toggle: () => void;
@@ -51,8 +51,8 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
           action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       } else {
-        socket.emit(JOIN_ROOM, roomId, username, () => {
-          router.push(`/room/${roomId}`);
+        socket.emit(JOIN_ROOM, roomId, username, ({ success }) => {
+          success && router.push(`/room/${roomId}`);
         });
       }
     });
@@ -66,12 +66,12 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
       <div className="flex mt-3">
         <Input placeholder="Username" onChange={handleChangeUsername} value={username} />
         <Button
-          className="w-9 h-9 min-w-[2.25rem] border border-brand-blue-800 text-primary hover:bg-primary hover:text-white ml-2"
+          className="w-9 h-9 min-w-[2.25rem] text-primary hover:bg-primary hover:text-white ml-2"
           onClick={handleGenerateRandomUsername}
           variant="secondary"
         >
           <span>
-            <DiceIcon />
+            <DicesIcon size="1.4rem" />
           </span>
         </Button>
       </div>

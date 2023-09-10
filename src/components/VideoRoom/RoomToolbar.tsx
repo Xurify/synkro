@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { runIfAuthorized } from "@/libs/utils/socket";
 import { useSocket } from "@/context/SocketContext";
 
-import { Separator } from "./Separator";
+import { Separator } from "../Separator";
 import { PlayPauseButton } from "./PlayPauseButton";
 
 export type ButtonActions =

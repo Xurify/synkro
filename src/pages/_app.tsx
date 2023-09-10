@@ -14,7 +14,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <SocketProvider sessionToken={pageProps?.sessionToken || null}>
-        <Page>
+        <Page navigationHeaderProps={pageProps.navigationHeaderProps}>
           <Component {...pageProps} />
           <Analytics />
           <Toaster />

@@ -1,15 +1,13 @@
 import { useState } from "react";
+import { GetServerSideProps } from "next";
 import CreateRoomBox from "@/components/CreateRoomBox";
 import JoinRoomBox from "@/components/JoinRoomBox";
-import { parse } from "cookie";
-import { GetServerSideProps } from "next";
 
 export const HomePage: React.FC<{ sessionToken: string | null }> = ({ sessionToken }) => {
+  console.log(sessionToken, "SDADDd");
   const [isCreateBoxShown, setIsCreateBoxShown] = useState(true);
 
   const handleToggle = () => setIsCreateBoxShown(!isCreateBoxShown);
-
-  console.log("sessionToken", sessionToken);
 
   return (
     <main className="flex flex-col">
@@ -23,8 +21,7 @@ export const HomePage: React.FC<{ sessionToken: string | null }> = ({ sessionTok
 export default HomePage;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const cookies = parse(context.req.headers.cookie || "");
-  const sessionToken = cookies["session_token"] || null;
+  const sessionToken = context.req.cookies["session_token"] || null;
   return {
     props: {
       sessionToken,

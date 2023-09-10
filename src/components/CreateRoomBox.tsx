@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
+import { DicesIcon } from "lucide-react";
 
-import { generateName } from "../libs/utils/names";
-import DiceIcon from "./DiceIcon";
-import { JoinRoomBoxProps } from "./JoinRoomBox";
-import { CREATE_ROOM } from "@/constants/socketActions";
 import { useRouter } from "next/router";
 import { useSocket } from "@/context/SocketContext";
+import { useToast } from "@/components/ui/use-toast";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ToastAction } from "@/components/ui/toast";
+import { JoinRoomBoxProps } from "./JoinRoomBox";
+
+import { generateName } from "../libs/utils/names";
+import { CREATE_ROOM } from "@/constants/socketActions";
 
 export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJoin }) => {
   const [username, setUsername] = useState("");
@@ -61,24 +63,24 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
       <div className="flex mb-3">
         <Input placeholder="Room name" onChange={handleChangeRoomName} value={roomName} />
         <Button
-          className="w-9 h-9 min-w-[2.25rem] border border-brand-blue-800 text-primary hover:bg-primary hover:text-white ml-2"
+          className="w-9 h-9 min-w-[2.25rem] text-primary hover:bg-primary hover:text-white ml-2"
           onClick={handleGenerateRandomRoomName}
           variant="secondary"
         >
           <span>
-            <DiceIcon />
+            <DicesIcon size="1.4rem" />
           </span>
         </Button>
       </div>
       <div className="flex">
         <Input placeholder="Username" onChange={handleChangeUsername} value={username} />
         <Button
-          className="w-9 h-9 min-w-[2.25rem] border border-brand-blue-800 text-primary hover:bg-primary hover:text-white ml-2"
+          className="w-9 h-9 min-w-[2.25rem] text-primary hover:bg-primary hover:text-white ml-2"
           onClick={handleGenerateRandomUsername}
           variant="secondary"
         >
           <span>
-            <DiceIcon />
+            <DicesIcon size="1.4rem" />
           </span>
         </Button>
       </div>

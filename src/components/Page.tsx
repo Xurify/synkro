@@ -1,13 +1,17 @@
 import React from "react";
 import PageHead from "./PageHead";
-import NavigationHeader from "./NavigationHeader";
+import NavigationHeader, { NavigationHeaderProps } from "./Header/NavigationHeader";
 
-export const Page: React.FC<React.PropsWithChildren> = ({ children }) => {
+interface PageProps {
+  navigationHeaderProps: NavigationHeaderProps;
+}
+
+export const Page: React.FC<React.PropsWithChildren<PageProps>> = ({ children, navigationHeaderProps = {} }) => {
   return (
     <>
-      <NavigationHeader />
+      <NavigationHeader {...navigationHeaderProps} />
       <PageHead />
-      <div className="px-2 h-[calc(100vh-88px)] md:h-full relative">{children}</div>
+      <div className="md:px-2 h-[calc(100vh-88px)] md:h-full relative">{children}</div>
     </>
   );
 };

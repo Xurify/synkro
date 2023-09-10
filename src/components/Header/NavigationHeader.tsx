@@ -1,21 +1,29 @@
 import Link from "next/link";
+import VideoRoomHeader from "./VideoRoomHeader";
 
-export default function NavigationHeader() {
+export interface NavigationHeaderProps {
+  page?: "home" | "video_room";
+}
+
+export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ page }) => {
   return (
-    <nav className="bg-card w-full flex p-4 mb-4 shadow">
-      <div className="text-2xl font-bold text-brand-blue-600">
+    <nav className="bg-card w-full flex p-4 md:mb-4 shadow">
+      <div className="text-2xl font-bold text-brand-blue-600 flex justify-between w-full">
         <Link className="flex items-center" href="/">
           <div className="h-[2.5rem] w-[2.5rem] mr-2">
-            <Icon />
+            <SynkroIcon />
           </div>
           <span className="mt-[6px] font-bold text-foreground">Synkro</span>
         </Link>
+        {page === "video_room" && <VideoRoomHeader />}
       </div>
     </nav>
   );
-}
+};
 
-function Icon() {
+export default NavigationHeader;
+
+function SynkroIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 422 420">
       <path fill="#F583FF" d="M267.667 136H381V378H267.667z"></path>

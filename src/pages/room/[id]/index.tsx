@@ -5,8 +5,9 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import type ReactPlayerType from "react-player";
+//import { OnProgressProps } from "react-player/base";
 import screenfull from "screenfull";
-import { parse } from "cookie";
+import { RefreshCcwIcon } from "lucide-react";
 
 import {
   LEAVE_ROOM,
@@ -31,25 +32,24 @@ import {
 } from "../../../constants/socketActions";
 import type { ChatMessage, Messages, VideoQueueItem } from "@/types/interfaces";
 
-import Chat from "@/components/Chat";
+import Chat from "@/components/VideoRoom/Chat";
 import Sidebar from "@/components/Sidebar";
-import Queue from "@/components/Queue";
-import Settings from "@/components/Settings";
-import RoomToolbar, { ButtonActions, SidebarViews } from "@/components/RoomToolbar";
+import Queue from "@/components/VideoRoom/Queue";
+import Settings from "@/components/VideoRoom/Settings";
+import RoomToolbar, { ButtonActions, SidebarViews } from "@/components/VideoRoom/RoomToolbar";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useToast } from "@/components/ui/use-toast";
 
 import { useSocket } from "@/context/SocketContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useQueue } from "@/hooks/useQueue";
 
-import { convertURLToCorrectProviderVideoId, isValidUrl } from "@/libs/utils/frontend-utils";
-import { useToast } from "@/components/ui/use-toast";
-import { RefreshCcwIcon } from "lucide-react";
+import { convertURLToCorrectProviderVideoId, isValidUrl, pickBetweenRandomString } from "@/libs/utils/frontend-utils";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   loading: () => {
-    return <div className="w-full h-full flex">LOADING</div>;
+    return <div className="w-full h-full flex text-white items-center justify-center">LOADING</div>;
   },
   ssr: false,
 });
@@ -65,7 +65,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   //const [serverMessages, setServerMessages] = useState<ServerMessage[]>([]);
   const { socket, room, isConnecting } = useSocket();
   const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(room?.videoInfo.currentVideoUrl || "https://youtu.be/QdKhuEnkwiY");
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(
+    room?.videoInfo.currentVideoUrl || pickBetweenRandomString("https://youtu.be/QdKhuEnkwiY", "https://youtu.be/DcnPABDFe-c")
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [_isSyncing, setIsSyncing] = useState(false);
 
@@ -104,7 +106,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       });
     } else if (!room && storedRoom && !!socket) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
-        if (!canReconnect) {
+        if (!canReconnect.success) {
           setStoredRoom(null);
           router.push("/");
         }
@@ -346,6 +348,11 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     settings: <Settings />,
   };
 
+  // const onProgress = (state: OnProgressProps) => {
+  //   // Might fallback to this if the videos consistently go out of sync
+  //   //console.log("onProgress", state);
+  // };
+
   return (
     <main className="mx-auto h-full flex flex-col md:flex-row justify-center">
       <div className="flex flex-col max-w-[80rem] w-full">
@@ -363,13 +370,14 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
                 onPlay={handlePlay}
                 onPause={handlePause}
                 controls={true}
+                //onProgress={onProgress}
                 onEnded={handleEnded}
                 fallback={<div>LoadingAS</div>}
               />
             </AspectRatio>
           </div>
         </div>
-        <div className="w-full flex items-center justify-center">
+        <div className="w-full flex items-center justify-center p-2">
           <RoomToolbar activeView={activeView} onClickPlayerButton={handleClickPlayerButton} isPlaying={isPlaying} roomId={roomId} />
         </div>
       </div>
@@ -381,11 +389,13 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 export default RoomPage;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const cookies = parse(context.req.headers.cookie || "");
-  const sessionToken = cookies["session_token"] || null;
+  const sessionToken = context.req.cookies["session_token"] || null;
   return {
     props: {
       sessionToken,
+      navigationHeaderProps: {
+        page: "video_room",
+      },
     },
   };
 };

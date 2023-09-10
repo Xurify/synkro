@@ -8,9 +8,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { useSocket } from "@/context/SocketContext";
 import { runIfAuthorized } from "@/libs/utils/socket";
 
-import { UserModal } from "./UserModal";
+import { UserModal } from "../Modals/UserModal";
 import { User } from "@/types/interfaces";
-import { Label } from "./ui/label";
+import { Label } from "../ui/label";
 
 interface SettingsProps {}
 
@@ -45,7 +45,6 @@ const Settings: React.FC<SettingsProps> = () => {
           ),
         });
       });
-      return;
     }
   };
 

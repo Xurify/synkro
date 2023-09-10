@@ -27,15 +27,16 @@ import {
   REMOVE_VIDEO_FROM_QUEUE,
   VIDEO_QUEUE_REORDERED,
   CHANGE_SETTINGS,
+  JOIN_ROOM_BY_INVITE,
 } from "../constants/socketActions";
 import { ChatMessage, Room, ServerMessage, User, VideoQueueItem } from "./interfaces";
 
 export interface ClientToServerEvents {
   connect: () => void;
   disconnect: () => void;
-  [JOIN_ROOM]: (roomId: string, username: string, callback: (value: boolean) => void) => void;
+  [JOIN_ROOM]: (roomId: string, username: string, callback: (value: { success: boolean; error?: string }) => void) => void;
   [LEAVE_ROOM]: (roomId: string) => void;
-  [RECONNECT_USER]: (roomId: string, userId: string, callback: (canReconnect: boolean) => void) => void;
+  [RECONNECT_USER]: (roomId: string, userId: string, callback: (value: { success: boolean; error?: string }) => void) => void;
   [USER_MESSAGE]: (message: string, roomId: string) => void;
   [SERVER_MESSAGE]: ({ message, type }: ServerMessage) => void;
   [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room | null) => void) => void;
@@ -57,12 +58,17 @@ export interface ClientToServerEvents {
   [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
   [VIDEO_QUEUE_REORDERED]: (videoQueue: VideoQueueItem[]) => void;
   [CHANGE_SETTINGS]: (newSettings: { maxRoomSize?: number; roomPasscode?: string }) => void;
+  [JOIN_ROOM_BY_INVITE]: (
+    inviteCode: string,
+    username: string,
+    callback: (value: { success: boolean; roomId?: string; error?: string }) => void
+  ) => void;
 }
 
 export interface ServerToClientEvents {
   connect: () => void;
   disconnect: () => void;
-  [JOIN_ROOM]: (roomId: string, username: string, callback: (value: boolean) => void) => void;
+  [JOIN_ROOM]: (roomId: string, username: string, callback: (value: { success: boolean; error: string }) => void) => void;
   [LEAVE_ROOM]: (roomId: string) => void;
   [SERVER_MESSAGE]: ({ message, type }: ServerMessage) => void;
   [USER_MESSAGE]: (message: ChatMessage, roomId: string) => void;
@@ -85,6 +91,11 @@ export interface ServerToClientEvents {
   [ADD_VIDEO_TO_QUEUE]: (video: VideoQueueItem) => void;
   [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
   [VIDEO_QUEUE_REORDERED]: (videoQueue: VideoQueueItem[]) => void;
+  [JOIN_ROOM_BY_INVITE]: (
+    inviteCode: string,
+    username: string,
+    callback: (value: { success: boolean; roomId?: string; error?: string }) => void
+  ) => void;
 }
 
 export type CustomSocket = Socket<ServerToClientEvents, ClientToServerEvents> & CustomSocketProperties;

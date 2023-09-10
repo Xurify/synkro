@@ -1,5 +1,12 @@
 import { URL_REGEX, YOUTUBE_VIDEO_URL_REGEX } from "@/constants/constants";
 
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 export async function fetcher<JSON = any>(input: RequestInfo, init?: RequestInit): Promise<JSON> {
   const res = await fetch(input, init);
 
@@ -46,3 +53,5 @@ export const isValidUrl = (url: string): string | null => {
   if (URL_REGEX.test(url)) return url;
   return null;
 };
+
+export const pickBetweenRandomString = (firstItem: string, secondItem: string) => (Math.random() > 0.5 ? firstItem : secondItem);
