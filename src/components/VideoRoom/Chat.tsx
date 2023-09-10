@@ -99,22 +99,24 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
     setChatMessage("");
   };
 
+  const defaultMessageClassname = "bg-[#171923] border border-gray-600";
+
   const getMessageClassname = (type: ServerMessageType | "USER"): string | undefined => {
     switch (type) {
       case "USER":
-        return "user-message";
+        return `user-message ${defaultMessageClassname}`;
       case "ALERT":
         return "bg-orange-500";
       case "USER_JOINED":
         return "bg-blue-600";
       case "USER_RECONNECTED":
-        return "bg-blue-700";
+        return "border border-blue-500 bg-[#2b3b5d]";
       case "USER_DISCONNECTED":
-        return "bg-red-600";
+        return "border border-red-600 bg-[#571e1d]";
       case "ERROR":
         return "bg-red-500";
       default:
-        return "";
+        return `${defaultMessageClassname}`;
     }
   };
 
@@ -122,7 +124,7 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
     <div className="flex flex-col flex-grow w-full h-full relative hide-scrollbar">
       <div className="flex-grow overflow-y-auto p-4 h-full gap-y-4 flex flex-col" ref={chatContainerRef}>
         {messages.map((message, index) => (
-          <div className={`${getMessageClassname(message.type)} bg-gray-800 rounded p-1 px-2`} key={index}>
+          <div className={`${getMessageClassname(message.type)} rounded p-1 px-2`} key={index}>
             {message.type === "USER" && (
               <span className={`${message.userId === socket?.userId ? "text-red-500" : "text-green-500"}`}>{message.username}</span>
             )}

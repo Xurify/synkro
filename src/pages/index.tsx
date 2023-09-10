@@ -3,8 +3,7 @@ import { GetServerSideProps } from "next";
 import CreateRoomBox from "@/components/CreateRoomBox";
 import JoinRoomBox from "@/components/JoinRoomBox";
 
-export const HomePage: React.FC<{ sessionToken: string | null }> = ({ sessionToken }) => {
-  console.log(sessionToken, "SDADDd");
+export const HomePage: React.FC<{ sessionToken: string | null }> = () => {
   const [isCreateBoxShown, setIsCreateBoxShown] = useState(true);
 
   const handleToggle = () => setIsCreateBoxShown(!isCreateBoxShown);
