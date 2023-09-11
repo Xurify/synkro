@@ -1,5 +1,6 @@
 import React from "react";
 import io from "socket.io-client";
+import { useRouter } from "next/router";
 import { SocketContext } from "./SocketContext";
 import { CustomSocket } from "@/types/socketCustomTypes";
 import { socketURL } from "@/constants/constants";
@@ -15,8 +16,18 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
   const [room, setRoom] = React.useState<Room | null | undefined>(undefined);
   const [user, setUser] = React.useState<User | null>(null);
   const [isConnecting, setIsConnecting] = React.useState<boolean>(true);
+  const [retries, setRetries] = React.useState(3);
+
+  const router = useRouter();
 
   React.useEffect(() => {
+    if (!sessionToken) {
+      if (retries > 0) {
+        setRetries((prevRetries) => prevRetries - 1);
+        router.replace(router.asPath);
+      }
+      return;
+    }
     const newSocket = io(socketURL, {
       transports: ["websocket"],
       query: {
