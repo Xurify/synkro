@@ -96,7 +96,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   useEffect(() => {
     console.log("isCOnda", !isConnecting, socket?.connected, !room, room);
     if (!isConnecting && socket?.connected && !room) {
+      console.log("RECONNECTING_TEST");
       socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
+        console.log("RECONNECT_USER", roomId, sessionToken, canReconnect);
         if (!canReconnect) {
           setStoredRoom(null);
           router.push("/");
