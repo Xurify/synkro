@@ -42,6 +42,7 @@ import {
   REMOVE_VIDEO_FROM_QUEUE,
   VIDEO_QUEUE_REORDERED,
   JOIN_ROOM_BY_INVITE,
+  NEW_USER_JOINED,
 } from '../../src/constants/socketActions';
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
@@ -447,6 +448,10 @@ const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: strin
 
   io.to(roomId).emit(GET_ROOM_INFO, updatedRoom);
   console.log(`👀 New user joined in room: ${roomId} - User Id: ${userId}`);
+  io.to(roomId).emit(SERVER_MESSAGE, {
+    type: NEW_USER_JOINED,
+    message: `${username} has joined the room`,
+  });
   return updatedRoom;
 };
 

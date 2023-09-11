@@ -106,13 +106,13 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
       case "USER":
         return `user-message ${defaultMessageClassname}`;
       case "ALERT":
-        return "bg-orange-500";
+        return "border border-orange-600 bg-[#67340f]";
       case "USER_JOINED":
-        return "bg-blue-600";
+        return "border border-blue-400 bg-[#224655]";
       case "USER_RECONNECTED":
         return "border border-blue-500 bg-[#2b3b5d]";
       case "USER_DISCONNECTED":
-        return "border border-red-600 bg-[#571e1d]";
+        return "border border-destructive bg-[#471b1b]";
       case "ERROR":
         return "bg-red-500";
       default:
@@ -128,7 +128,7 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
             {message.type === "USER" && (
               <span className={`${message.userId === socket?.userId ? "text-red-500" : "text-green-500"}`}>{message.username}</span>
             )}
-            <p className="text-text text-primary-foreground">{message.message}</p>
+            <p className="text-sm text-primary-foreground">{message.message}</p>
           </div>
         ))}
       </div>

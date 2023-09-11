@@ -212,7 +212,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
                         )}
                         <Image alt="" src={video.thumbnail} layout="fill" quality={25} />
                       </div>
-                      <p className="text-text text-primary-foreground mt-2 text-sm">{video.name}</p>
+                      <p className="text-primary-foreground mt-2 text-sm">{video.name}</p>
                     </div>
                   )}
                 </Draggable>
