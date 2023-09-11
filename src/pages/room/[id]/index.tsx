@@ -370,7 +370,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
                 controls={true}
                 //onProgress={onProgress}
                 onEnded={handleEnded}
-                fallback={<div>LoadingAS</div>}
+                fallback={<div>LOADING</div>}
               />
             </AspectRatio>
           </div>
