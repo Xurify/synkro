@@ -200,7 +200,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
         variant: "destructive",
         Icon: () => <span>😢</span>,
         description: "You have been kicked",
-        duration: 6000,
+        duration: 10000,
       });
       router.push("/");
     });
