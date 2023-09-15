@@ -47,6 +47,11 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
       setIsConnecting(false);
     });
 
+    newSocket.on("disconnect", () => {
+      setIsConnecting(false);
+      setRoom(null);
+    });
+
     newSocket.on(GET_ROOM_INFO, (newRoom) => {
       setRoom(newRoom);
     });

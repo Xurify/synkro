@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { SET_HOST } from "@/constants/socketActions";
+import { KICK_USER, SET_HOST } from "@/constants/socketActions";
 import { useSocket } from "@/context/SocketContext";
 
 interface ModalProps {
@@ -18,6 +18,13 @@ export const UserModal: React.FC<ModalProps> = ({ buttonText, disabled = false, 
   const handleChangeAdmin = () => {
     if (userId) {
       socket?.emit(SET_HOST, userId);
+      handleToggle(null);
+    }
+  };
+
+  const handleKickUser = () => {
+    if (userId) {
+      socket?.emit(KICK_USER, userId);
       handleToggle(null);
     }
   };
@@ -40,7 +47,7 @@ export const UserModal: React.FC<ModalProps> = ({ buttonText, disabled = false, 
           </Button>
         </DialogFooter>
         <DialogFooter>
-          <Button type="submit" variant="destructive">
+          <Button type="submit" variant="destructive" onClick={handleKickUser}>
             Kick user
           </Button>
         </DialogFooter>

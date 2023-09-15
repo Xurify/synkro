@@ -41,6 +41,7 @@ import {
   VIDEO_QUEUE_REORDERED,
   JOIN_ROOM_BY_INVITE,
   CHANGE_SETTINGS,
+  KICK_USER,
 } from '../../src/constants/socketActions';
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
@@ -363,8 +364,6 @@ io.on('connection', (socket: CustomSocketServer) => {
     const user = getUser(userId, users);
     if (!user) return;
 
-    console.log(SET_HOST, userId, user);
-
     const room: Room = getRoomById(socket.roomId, rooms);
     room.host = userId;
     rooms[socket.roomId] = room;
@@ -376,19 +375,44 @@ io.on('connection', (socket: CustomSocketServer) => {
     });
   });
 
+  socket.on(KICK_USER, (userId) => {
+    if (requestIsNotFromHost(socket, rooms)) return;
+    if (!socket.roomId) return;
+
+    const user = getUser(userId, users);
+    if (!user) return;
+
+    handleUserDisconnect(userId);
+    io.sockets.sockets.get(user.socketId)?.emit(KICK_USER);
+    io.sockets.sockets.get(user.socketId)?.leave(user.roomId);
+  });
+
   socket.on(LEAVE_ROOM, () => {
-    handleUserDisconnect(socket);
+    if (socket.userId) {
+      handleUserDisconnect(socket.userId);
+      socket.roomId && socket.leave(socket.roomId);
+      socket.userId = undefined;
+      socket.roomId = undefined;
+      socket.roomId && socket?.emit(LEAVE_ROOM);
+    }
   });
 
   socket.on('disconnect', () => {
-    handleUserDisconnect(socket);
+    if (socket.userId) {
+      handleUserDisconnect(socket.userId);
+      socket.roomId && socket.leave(socket.roomId);
+      socket.userId = undefined;
+      socket.roomId = undefined;
+    }
   });
 });
 
-const handleUserDisconnect = (socket: CustomSocketServer) => {
+const handleUserDisconnect = (userId: string) => {
+  if (!userId) return;
+
   activeConnections > 0 && activeConnections--;
-  console.log(`👻 User disconnected - User Id: ${socket.userId}`);
-  const user = socket?.userId && getUser(socket.userId, users);
+  console.log(`👻 User disconnected - User Id: ${userId}`);
+  const user = userId && getUser(userId, users);
   if (user) {
     io.to(user.roomId).emit(SERVER_MESSAGE, {
       type: ServerMessageType.USER_DISCONNECTED,
@@ -398,15 +422,15 @@ const handleUserDisconnect = (socket: CustomSocketServer) => {
     const room: Room = getRoomById(user.roomId, rooms);
 
     if (room) {
-      const userWasHost = socket.userId === room.host;
+      const userWasHost = userId === room.host;
 
-      const newMembers = room.members.filter((member) => member.id !== socket.userId);
+      const newMembers = room.members.filter((member) => member.id !== userId);
       const updatedRoom = updateRoom(user.roomId, rooms, { members: newMembers });
       rooms[user.roomId] = updatedRoom;
 
       const THREE_MINUTES = 3 * 60 * 1000;
 
-      console.log('handleUserDisconnect', socket.userId, user.roomId, newMembers, updatedRoom);
+      console.log('handleUserDisconnect', userId, user.roomId, newMembers, updatedRoom);
 
       if (newMembers.length === 0) {
         roomTimeouts[user.roomId] = setTimeout(async () => {
@@ -420,7 +444,7 @@ const handleUserDisconnect = (socket: CustomSocketServer) => {
         roomTimeouts[user.roomId] && clearTimeout(roomTimeouts[user.roomId]);
       }
 
-      const updatedUsers = users.filter((user) => user.id !== socket.userId);
+      const updatedUsers = users.filter((user) => user.id !== userId);
       users = updatedUsers;
 
       if (userWasHost && room.members.length > 0) {

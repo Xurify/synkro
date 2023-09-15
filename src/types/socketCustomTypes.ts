@@ -28,7 +28,7 @@ import {
   VIDEO_QUEUE_REORDERED,
   CHANGE_SETTINGS,
   JOIN_ROOM_BY_INVITE,
-  CHANGE_ADMIN,
+  KICK_USER,
 } from "../constants/socketActions";
 import { ChatMessage, Room, ServerMessage, User, VideoQueueItem } from "./interfaces";
 
@@ -43,6 +43,7 @@ export interface ClientToServerEvents {
   [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room | null) => void) => void;
   [CREATE_ROOM]: (username: string, roomName: string, callback: (value: { result?: Room; error?: string }) => void) => void;
   [SET_HOST]: (host: string) => void;
+  [KICK_USER]: (userId: string) => void;
   [GET_USERS]: (users: User[]) => void;
   [GET_ROOM_INFO]: (roomId: string, callback: (room: Room) => void) => void;
   [PLAY_VIDEO]: () => void;
@@ -59,7 +60,6 @@ export interface ClientToServerEvents {
   [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
   [VIDEO_QUEUE_REORDERED]: (videoQueue: VideoQueueItem[]) => void;
   [CHANGE_SETTINGS]: (newSettings: { maxRoomSize?: number; roomPasscode?: string }) => void;
-  [CHANGE_ADMIN]: (userId: string) => void;
   [JOIN_ROOM_BY_INVITE]: (
     inviteCode: string,
     username: string,
@@ -71,7 +71,8 @@ export interface ServerToClientEvents {
   connect: () => void;
   disconnect: () => void;
   [JOIN_ROOM]: (roomId: string, username: string, callback: (value: { success: boolean; error: string }) => void) => void;
-  [LEAVE_ROOM]: (roomId: string) => void;
+  [LEAVE_ROOM]: () => void;
+  [KICK_USER]: () => void;
   [SERVER_MESSAGE]: ({ message, type }: ServerMessage) => void;
   [USER_MESSAGE]: (message: ChatMessage, roomId: string) => void;
   [CHECK_IF_ROOM_IS_FULL]: (roomId: string, callback: any) => void;

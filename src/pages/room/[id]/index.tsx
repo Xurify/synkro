@@ -31,6 +31,7 @@ import {
   VIDEO_QUEUE_REORDERED,
   GET_ROOM_INFO,
   SET_HOST,
+  KICK_USER,
 } from "../../../constants/socketActions";
 import { ServerMessageType, type ChatMessage, type Messages, type VideoQueueItem } from "@/types/interfaces";
 
@@ -49,6 +50,7 @@ import { useQueue } from "@/hooks/useQueue";
 
 import { convertURLToCorrectProviderVideoId, isValidUrl } from "@/libs/utils/frontend-utils";
 import { Spinner } from "@/components/Spinner";
+import { FaceIcon } from "@radix-ui/react-icons";
 
 //import GlugSfx from '../../../assets/audio/mixkit-alert-quick-chime-766.mp3';
 
@@ -67,7 +69,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [activeView, setActiveView] = useState<SidebarViews>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
   const [messages, setMessages] = useState<Messages>([]);
-  //const [serverMessages, setServerMessages] = useState<ServerMessage[]>([]);
   const { socket, room, isConnecting } = useSocket();
   const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(room?.videoInfo.currentVideoUrl || "https://youtu.be/QdKhuEnkwiY");
@@ -203,6 +204,24 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
     socket.on(SYNC_TIME, (currentTime: number) => {
       handleSyncTime(currentTime);
+    });
+
+    socket.on(KICK_USER, () => {
+      socket.disconnect();
+      setStoredRoom(null);
+      toast({
+        variant: "destructive",
+        Icon: () => <span>😢</span>,
+        description: "You have been kicked",
+        duration: 6000,
+      });
+      router.push("/");
+    });
+
+    socket.on(LEAVE_ROOM, () => {
+      socket.disconnect();
+      setStoredRoom(null);
+      router.push("/");
     });
 
     return () => {
