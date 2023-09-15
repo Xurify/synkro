@@ -243,7 +243,6 @@ io.on('connection', (socket: CustomSocketServer) => {
 
       io.sockets.sockets.get(user.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string, time: number) => {
         socket.to(user.roomId).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, time);
-        console.log(SYNC_VIDEO_INFORMATION);
       });
     }
   });
@@ -435,6 +434,8 @@ const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: strin
   if (!room) return null;
 
   socket.join(roomId);
+  socket.roomId = roomId;
+
   const existingUser = getUser(userId, users);
   if (existingUser) {
     io.to(roomId).emit(SERVER_MESSAGE, {

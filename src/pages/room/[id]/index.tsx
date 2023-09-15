@@ -148,10 +148,12 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       const currentTime = player?.getCurrentTime();
       const currentVideoUrl = player?.props?.url as string;
       const isCurrentlyPlaying = player?.props?.playing as boolean;
+      console.log("GET_HOST_VIDEO_INFORMATION", isCurrentlyPlaying, currentVideoUrl, currentTime ?? 0);
       typeof callback === "function" && callback(isCurrentlyPlaying, currentVideoUrl, currentTime ?? 0);
     });
 
     socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, time) => {
+      console.log("SYNC_VIDEO_INFORMATION", playing, hostVideoUrl, time);
       setCurrentVideoUrl(hostVideoUrl);
       setIsPlaying(playing);
       handleSyncTime(time);
@@ -231,9 +233,12 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   };
 
   const handleSyncTime = (time: number) => {
-    if (!player) return;
+    if (!player) {
+      console.log("Failed to sync time");
+      return;
+    }
     const currentTime = player?.getCurrentTime();
-    if ((currentTime && currentTime < time - 0.5) || currentTime > time + 0.5) {
+    if (currentTime < time - 0.6 || currentTime > time + 0.6) {
       player.seekTo(time);
       setIsPlaying(true);
     }
