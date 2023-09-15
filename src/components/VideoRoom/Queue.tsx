@@ -21,7 +21,7 @@ import { ButtonActions } from "./RoomToolbar";
 interface QueueProps {
   currentVideoId: string;
   videoQueue: Queue<VideoQueueItem>;
-  onClickPlayerButton: (newActiveButton: ButtonActions, payload?: string | number) => void;
+  onClickPlayerButton: (newActiveButton: ButtonActions, payload?: { videoUrl: string; videoIndex?: number }) => void;
 }
 
 const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayerButton }) => {
@@ -33,7 +33,12 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
   const isAuthorized = room?.host === socket?.userId;
   const isMobile = new UAParser().getDevice().type === "mobile";
 
-  const handleOnChangeMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const getIndexOfVideoInQueue = (videoId: string): number => {
+    const index = videoQueue.queue.findIndex((video) => video.id === videoId);
+    return index;
+  };
+
+  const handleOnChangeVideoUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewVideoInQueueUrl(e.target.value);
   };
 
@@ -99,10 +104,11 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
       });
   };
 
-  const handleChangeVideo = (newVideoUrl: string) => {
+  const handleChangeVideo = (newVideoUrl: string, newVideoId: string) => {
     if (socket?.userId && room) {
       runIfAuthorized(room.host, socket.userId, () => {
-        onClickPlayerButton("change-video", newVideoUrl);
+        const newVideoIndex = getIndexOfVideoInQueue(newVideoId);
+        onClickPlayerButton("change-video", { videoUrl: newVideoUrl, videoIndex: newVideoIndex });
       });
     }
   };
@@ -155,7 +161,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
             className="h-10 rounded-l rounded-r-none"
             type="text"
             value={newVideoInQueueUrl}
-            onChange={handleOnChangeMessage}
+            onChange={handleOnChangeVideoUrl}
             onKeyDown={handleOnKeyDown}
             placeholder="Add video"
           />
@@ -198,7 +204,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
                       <div className="w-full h-[130px] relative">
                         {isAuthorized && (
                           <div className="flex absolute bottom-2 right-2 z-[2] gap-2">
-                            <Button className="p-2 w-8 h-8 bg-black" onClick={() => handleChangeVideo(video.url)}>
+                            <Button className="p-2 w-8 h-8 bg-black" onClick={() => handleChangeVideo(video.url, video.id)}>
                               <span>
                                 <PlayIcon fill="#FFFFFF" color="#FFFFFF" size="1.25rem" />
                               </span>

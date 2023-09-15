@@ -53,7 +53,6 @@ let users: User[] = [];
 const rooms: { [roomId: string]: Room } = {};
 
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
-const hostReconnectTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 
 let activeConnections = 0;
 
@@ -179,14 +178,12 @@ io.on('connection', (socket: CustomSocketServer) => {
           previouslyConnectedMembers: [{ userId: user.id, username: user.username }],
         });
 
-        if (hostReconnectTimeouts[roomId] && userId === updatedRoom.host) {
-          clearTimeout(hostReconnectTimeouts[roomId]);
-          delete hostReconnectTimeouts[roomId];
+        if (newMembers.length === 1) {
           updatedRoom.host = userId;
           io.in(roomId).emit(SET_HOST, userId);
           io.in(roomId).emit(SERVER_MESSAGE, {
             type: ServerMessageType.NEW_HOST,
-            message: `${previouslyConnectedUser.username} has returned as the host. 👑`,
+            message: `${previouslyConnectedUser.username} is now the host. 👑`,
           });
         }
 
@@ -296,13 +293,16 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
   });
 
-  socket.on(CHANGE_VIDEO, (url) => {
+  socket.on(CHANGE_VIDEO, (url, newIndex) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
       const room: Room = getRoomById(user.roomId, rooms);
       if (room) {
         room.videoInfo.currentVideoUrl = url;
+        if (typeof newIndex === 'number' && newIndex > -1) {
+          room.videoInfo.currentQueueIndex = newIndex;
+        }
       }
       socket.in(user.roomId).emit(CHANGE_VIDEO, url);
       io.sockets.sockets.get(user.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string, time: number) => {
@@ -392,7 +392,6 @@ const handleUserDisconnect = (socket: CustomSocketServer) => {
       if (newMembers.length === 0) {
         roomTimeouts[user.roomId] = setTimeout(async () => {
           if (updatedRoom.members.length === 0) {
-            hostReconnectTimeouts[room.id] && clearTimeout(hostReconnectTimeouts[room.id]);
             delete rooms[user.roomId];
             console.log(`🧼 Cleanup: Room ${user.roomId} has been deleted.`);
           }
@@ -406,19 +405,14 @@ const handleUserDisconnect = (socket: CustomSocketServer) => {
       users = updatedUsers;
 
       if (userWasHost && room.members.length > 0) {
-        hostReconnectTimeouts[room.id] && clearTimeout(hostReconnectTimeouts[room.id]);
-        hostReconnectTimeouts[room.id] = setTimeout(() => {
-          if (room.members.length > 0) {
-            updatedRoom.host = room.members[0].id;
-            rooms[user.roomId] = updatedRoom;
+        updatedRoom.host = room.members[0].id;
+        rooms[user.roomId] = updatedRoom;
 
-            io.in(room.id).emit(SET_HOST, room.host);
-            io.in(room.id).emit(SERVER_MESSAGE, {
-              type: ServerMessageType.NEW_HOST,
-              message: `${room.members[0].username} is now the host. 👑`,
-            });
-          }
-        }, 5000);
+        io.in(room.id).emit(SET_HOST, room.host);
+        io.in(room.id).emit(SERVER_MESSAGE, {
+          type: ServerMessageType.NEW_HOST,
+          message: `${room.members[0].username} is now the host. 👑`,
+        });
       }
 
       io.to(room.id).emit(GET_ROOM_INFO, updatedRoom);

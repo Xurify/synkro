@@ -34,7 +34,7 @@ export type SidebarViews = "chat" | "queue" | "settings";
 
 interface RoomToolbarProps {
   activeView: ButtonActions;
-  onClickPlayerButton: (newActiveButton: ButtonActions, payload?: string | number) => void;
+  onClickPlayerButton: (newActiveButton: ButtonActions, payload?: { videoUrl: string; videoIndex?: number }) => void;
   isPlaying: boolean;
   roomId: string;
 }
@@ -52,7 +52,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
   const handleChangeVideo = () => {
     if (socket?.userId && room?.host) {
       runIfAuthorized(room.host, socket.userId, () => {
-        onClickPlayerButton("change-video", newVideoUrl);
+        onClickPlayerButton("change-video", { videoUrl: newVideoUrl });
         setNewVideoUrl("");
       });
     }
@@ -65,7 +65,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
   const handleSyncVideo = () => {
     if (socket?.userId && room?.host) {
       if (room.host !== socket.userId) {
-        onClickPlayerButton("sync-video", newVideoUrl);
+        onClickPlayerButton("sync-video", { videoUrl: newVideoUrl });
       } else {
         runIfAuthorized(room.host, socket.userId, () => {});
       }

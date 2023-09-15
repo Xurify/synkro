@@ -292,7 +292,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       screenfull.request(findDOMNode(player as unknown as Element) as Element);
     });
 
-  const handleClickPlayerButton = (buttonAction: ButtonActions, payload?: string | number) => {
+  const handleClickPlayerButton = (buttonAction: ButtonActions, payload?: { videoUrl: string; videoIndex?: number }) => {
     if (["chat", "queue", "settings"].includes(buttonAction)) {
       setActiveView(buttonAction as SidebarViews);
     }
@@ -314,9 +314,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
         handleLeaveRoom();
         return;
       case "change-video":
-        if (typeof payload === "string" && isValidUrl(payload)) {
-          setCurrentVideoUrl(payload);
-          socket?.emit(CHANGE_VIDEO, payload);
+        if (typeof payload?.videoUrl === "string" && isValidUrl(payload.videoUrl)) {
+          setCurrentVideoUrl(payload.videoUrl);
+          socket?.emit(CHANGE_VIDEO, payload.videoUrl, payload.videoIndex);
           setIsPlaying(true);
         }
         return;

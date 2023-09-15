@@ -49,7 +49,7 @@ export interface ClientToServerEvents {
   [FASTFORWARD_VIDEO]: (newTime: number) => void;
   [REWIND_VIDEO]: (newTime: number) => void;
   [BUFFERING_VIDEO]: (time: number) => void;
-  [CHANGE_VIDEO]: (newVideoUrl: string) => void;
+  [CHANGE_VIDEO]: (newVideoUrl: string, newIndex?: number) => void;
   [END_OF_VIDEO]: () => void;
   [SYNC_TIME]: (time: number) => void;
   [SYNC_VIDEO_INFORMATION]: (callback: (playing: boolean, hostVideoUrl: string, time: number) => void) => void;
@@ -82,7 +82,7 @@ export interface ServerToClientEvents {
   [PAUSE_VIDEO]: () => void;
   [FASTFORWARD_VIDEO]: (newTime: number) => void;
   [REWIND_VIDEO]: (newTime: number) => void;
-  [CHANGE_VIDEO]: (newVideoUrl: string) => void;
+  [CHANGE_VIDEO]: (newVideoUrl: string, newIndex?: number) => void;
   [SYNC_TIME]: (time: number) => void;
   [BUFFERING_VIDEO]: (time: number) => void;
   [SYNC_VIDEO_INFORMATION]: (playing: boolean, hostVideoUrl: string, time: number) => void;
