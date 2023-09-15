@@ -9,8 +9,8 @@ export const addUser = (
   { id, username, roomId, socketId }: { id: string; username: string; roomId: string; socketId: string },
   users: User[],
 ): User => {
-  const usersInSameRoom = users.filter((user) => user.roomId === roomId);
   const created = new Date().toISOString();
+  const usersInSameRoom = users.filter((user) => user.roomId === roomId);
   const user: User = { id, username, roomId, created, socketId, color: assignUsernameChatColor(usersInSameRoom) };
   const existingUser = getUser(id, users);
   if (!existingUser) users.push(user);
