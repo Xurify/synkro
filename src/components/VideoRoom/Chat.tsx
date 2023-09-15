@@ -105,15 +105,15 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
     switch (type) {
       case "USER":
         return `user-message ${defaultMessageClassname}`;
-      case "ALERT":
+      case ServerMessageType.ALERT:
         return "border border-orange-600 bg-[#67340f]";
-      case "USER_JOINED":
+      case ServerMessageType.USER_JOINED:
         return "border border-blue-400 bg-[#224655]";
-      case "USER_RECONNECTED":
+      case ServerMessageType.USER_RECONNECTED:
         return "border border-blue-500 bg-[#2b3b5d]";
-      case "USER_DISCONNECTED":
+      case ServerMessageType.USER_DISCONNECTED:
         return "border border-destructive bg-[#471b1b]";
-      case "ERROR":
+      case ServerMessageType.ERROR:
         return "bg-red-500";
       default:
         return `${defaultMessageClassname}`;

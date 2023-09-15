@@ -3,7 +3,7 @@ import { createServer, Server as HttpServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
 import { nanoid } from 'nanoid';
 import { Server } from 'socket.io';
-import { Room, Rooms, User } from '../../src/types/interfaces';
+import { Room, Rooms, ServerMessageType, User } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
 import {
   addRoom,
@@ -26,8 +26,6 @@ import {
   CREATE_ROOM,
   PLAY_VIDEO,
   PAUSE_VIDEO,
-  USER_RECONNECTED,
-  USER_DISCONNECTED,
   RECONNECT_USER,
   REWIND_VIDEO,
   FASTFORWARD_VIDEO,
@@ -42,7 +40,6 @@ import {
   REMOVE_VIDEO_FROM_QUEUE,
   VIDEO_QUEUE_REORDERED,
   JOIN_ROOM_BY_INVITE,
-  NEW_USER_JOINED,
   CHANGE_SETTINGS,
 } from '../../src/constants/socketActions';
 
@@ -160,7 +157,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
       if (previouslyConnectedUser) {
         io.to(roomId).emit(SERVER_MESSAGE, {
-          type: USER_RECONNECTED,
+          type: ServerMessageType.USER_RECONNECTED,
           message: `${previouslyConnectedUser.username} reconnected`,
         });
 
@@ -188,7 +185,7 @@ io.on('connection', (socket: CustomSocketServer) => {
           updatedRoom.host = userId;
           io.in(roomId).emit(SET_HOST, userId);
           io.in(roomId).emit(SERVER_MESSAGE, {
-            type: 'HOST_RECONNECTED',
+            type: ServerMessageType.NEW_HOST,
             message: `${previouslyConnectedUser.username} has returned as the host. 👑`,
           });
         }
@@ -375,7 +372,7 @@ const handleUserDisconnect = (socket: CustomSocketServer) => {
   const user = socket?.userId && getUser(socket.userId, users);
   if (user) {
     io.to(user.roomId).emit(SERVER_MESSAGE, {
-      type: USER_DISCONNECTED,
+      type: ServerMessageType.USER_DISCONNECTED,
       message: `${user.username} has disconnected`,
     });
 
@@ -417,7 +414,7 @@ const handleUserDisconnect = (socket: CustomSocketServer) => {
 
             io.in(room.id).emit(SET_HOST, room.host);
             io.in(room.id).emit(SERVER_MESSAGE, {
-              type: 'NEW_HOST',
+              type: ServerMessageType.NEW_HOST,
               message: `${room.members[0].username} is now the host. 👑`,
             });
           }
@@ -440,7 +437,7 @@ const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: strin
   const existingUser = getUser(userId, users);
   if (existingUser) {
     io.to(roomId).emit(SERVER_MESSAGE, {
-      type: USER_RECONNECTED,
+      type: ServerMessageType.USER_RECONNECTED,
       message: `${existingUser.username} has reconnected`,
     });
     //return room;
@@ -465,7 +462,7 @@ const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: strin
   io.to(roomId).emit(GET_ROOM_INFO, updatedRoom);
   console.log(`👀 New user joined in room: ${roomId} - User Id: ${userId}`);
   io.to(roomId).emit(SERVER_MESSAGE, {
-    type: NEW_USER_JOINED,
+    type: ServerMessageType.USER_JOINED,
     message: `${username} has joined the room`,
   });
   return updatedRoom;
