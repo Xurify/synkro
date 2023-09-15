@@ -80,8 +80,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const videoQueue = useQueue<VideoQueueItem>();
 
   useEffect(() => {
-    console.log(room, storedRoom, socket, socket?.connected, isConnecting, sessionToken);
-
     setStoredRoom(room);
 
     if (room && Array.isArray(room?.videoInfo?.queue) && room.videoInfo.queue.length > 0) {
@@ -94,19 +92,16 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   }, [room]);
 
   useEffect(() => {
-    console.log("isCOnda", !isConnecting, socket?.connected, !room, room);
     if (!isConnecting && socket?.connected && !room) {
-      console.log("RECONNECTING_TEST");
-      socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
-        console.log("RECONNECT_USER", roomId, sessionToken, canReconnect);
-        if (!canReconnect) {
+      socket.emit(RECONNECT_USER, roomId, sessionToken, (result) => {
+        if (!result.success) {
           setStoredRoom(null);
           router.push("/");
         }
       });
     } else if (!room && storedRoom && !!socket) {
-      socket.emit(RECONNECT_USER, roomId, sessionToken, (canReconnect) => {
-        if (!canReconnect.success) {
+      socket.emit(RECONNECT_USER, roomId, sessionToken, (result) => {
+        if (!result.success) {
           setStoredRoom(null);
           router.push("/");
         }
