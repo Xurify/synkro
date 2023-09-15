@@ -4,9 +4,10 @@ import { ArrowBigDown, SendIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChatMessage, Messages, ServerMessageType } from "@/types/interfaces";
+import { ChatMessage, Messages } from "@/types/interfaces";
 import { USER_MESSAGE } from "@/constants/socketActions";
 import { CustomSocket } from "@/types/socketCustomTypes";
+import { getMessageClassname } from "@/libs/utils/chat";
 
 interface ChatProps {
   messages: Messages;
@@ -97,27 +98,6 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
     if (!socket || chatMessage.trim() === "") return;
     socket.emit(USER_MESSAGE, chatMessage, roomId);
     setChatMessage("");
-  };
-
-  const defaultMessageClassname = "bg-[#171923] border border-gray-600";
-
-  const getMessageClassname = (type: ServerMessageType | "USER"): string | undefined => {
-    switch (type) {
-      case "USER":
-        return `user-message ${defaultMessageClassname}`;
-      case ServerMessageType.ALERT:
-        return "border border-orange-600 bg-[#67340f]";
-      case ServerMessageType.USER_JOINED:
-        return "border border-blue-400 bg-[#224655]";
-      case ServerMessageType.USER_RECONNECTED:
-        return "border border-blue-500 bg-[#2b3b5d]";
-      case ServerMessageType.USER_DISCONNECTED:
-        return "border border-destructive bg-[#471b1b]";
-      case ServerMessageType.ERROR:
-        return "bg-red-500";
-      default:
-        return `${defaultMessageClassname}`;
-    }
   };
 
   return (

@@ -92,26 +92,34 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     }
   }, [room]);
 
+  const handleGoBackToHome = React.useCallback(() => {
+    setStoredRoom(null);
+    router.push("/");
+  }, [storedRoom]);
+
   useEffect(() => {
     if (!isConnecting && socket?.connected && !room) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (result) => {
         if (!result.success) {
-          setStoredRoom(null);
-          router.push("/");
+          handleGoBackToHome();
         }
       });
     } else if (!room && storedRoom && !!socket) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (result) => {
         if (!result.success) {
-          setStoredRoom(null);
-          router.push("/");
+          handleGoBackToHome();
         }
       });
     } else if (room === undefined && isConnecting === false) {
-      setStoredRoom(null);
-      router.push("/");
+      handleGoBackToHome();
     }
   }, [isSocketAvailable, isConnecting, room]);
+
+  useEffect(() => {
+    if (room && room.members.length === 0) {
+      handleGoBackToHome();
+    }
+  }, [room]);
 
   const socketMethods = React.useCallback(() => {
     if (!socket) return;
