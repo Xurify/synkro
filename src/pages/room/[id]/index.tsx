@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type ReactPlayerType from "react-player";
 //import { OnProgressProps } from "react-player/base";
 import screenfull from "screenfull";
-import { RefreshCcwIcon } from "lucide-react";
+import { LoaderIcon, RefreshCcwIcon } from "lucide-react";
 
 import {
   LEAVE_ROOM,
@@ -46,6 +46,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useQueue } from "@/hooks/useQueue";
 
 import { convertURLToCorrectProviderVideoId, isValidUrl } from "@/libs/utils/frontend-utils";
+import { Spinner } from "@/components/Spinner";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   loading: () => {
@@ -330,6 +331,14 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   //   // Might fallback to this if the videos consistently go out of sync
   //   //console.log("onProgress", state);
   // };
+
+  if (!room) {
+    return (
+      <div className="w-full h-[calc(100vh-106px)] flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <main className="mx-auto h-full flex flex-col md:flex-row justify-center mt-[-1rem] md:mt-0">
