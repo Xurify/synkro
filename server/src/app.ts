@@ -43,6 +43,7 @@ import {
   VIDEO_QUEUE_REORDERED,
   JOIN_ROOM_BY_INVITE,
   NEW_USER_JOINED,
+  CHANGE_SETTINGS,
 } from '../../src/constants/socketActions';
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
@@ -344,16 +345,31 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
   });
 
+  socket.on(CHANGE_SETTINGS, (newSettings) => {
+    if (requestIsNotFromHost(socket, rooms)) return;
+    const user = socket?.userId && getUser(socket.userId, users);
+    if (user && user?.roomId) {
+      const room: Room = getRoomById(user.roomId, rooms);
+      if (newSettings.maxRoomSize && newSettings.maxRoomSize <= 20) {
+        room.maxRoomSize = newSettings.maxRoomSize;
+      }
+      if (newSettings.roomPasscode) {
+        room.passcode = newSettings.roomPasscode;
+      }
+      io.to(user.roomId).emit(GET_ROOM_INFO, room);
+    }
+  });
+
   socket.on(LEAVE_ROOM, () => {
-    handleUserLeaveRoom(socket);
+    handleUserDisconnect(socket);
   });
 
   socket.on('disconnect', () => {
-    handleUserLeaveRoom(socket);
+    handleUserDisconnect(socket);
   });
 });
 
-const handleUserLeaveRoom = (socket: CustomSocketServer) => {
+const handleUserDisconnect = (socket: CustomSocketServer) => {
   activeConnections > 0 && activeConnections--;
   console.log(`👻 User disconnected - User Id: ${socket.userId}`);
   const user = socket?.userId && getUser(socket.userId, users);
@@ -374,7 +390,7 @@ const handleUserLeaveRoom = (socket: CustomSocketServer) => {
 
       const THREE_MINUTES = 3 * 60 * 1000;
 
-      console.log('handleUserLeaveRoom', socket.userId, user.roomId, newMembers, updatedRoom);
+      console.log('handleUserDisconnect', socket.userId, user.roomId, newMembers, updatedRoom);
 
       if (newMembers.length === 0) {
         roomTimeouts[user.roomId] = setTimeout(async () => {

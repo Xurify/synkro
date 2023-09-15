@@ -161,7 +161,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
           />
           <Button onClick={handleAddVideoToQueue} className="w-12 h-10 rounded-r rounded-l-none">
             <span>
-              <PlusIcon color="#ffffff" size="1.25rem" />
+              <PlusIcon color="#FFFFFF" size="1.25rem" />
             </span>
           </Button>
         </div>

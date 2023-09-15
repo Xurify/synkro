@@ -9,6 +9,7 @@ module.exports = {
     },
     fontFamily: {
       noto: ["Noto Sans", "sans-serif"],
+      sans: ["ui-sans-serif", "system-ui"],
     },
     extend: {
       colors: {

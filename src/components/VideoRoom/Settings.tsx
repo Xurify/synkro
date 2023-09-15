@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ClipboardCopyIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,15 +12,19 @@ import { runIfAuthorized } from "@/libs/utils/socket";
 import { UserModal } from "../Modals/UserModal";
 import { User } from "@/types/interfaces";
 import { Label } from "../ui/label";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 
 interface SettingsProps {}
 
 const Settings: React.FC<SettingsProps> = () => {
-  const [maxRoomSize, setMaxRoomSize] = useState<number>(10);
-  const [roomPasscode, setRoomPasscode] = useState<string>("");
-
   const { toast } = useToast();
   const { socket, room } = useSocket();
+
+  const [maxRoomSize, setMaxRoomSize] = useState<number>(room?.maxRoomSize ?? 10);
+  const [roomPasscode, setRoomPasscode] = useState<string>(room?.passcode ?? "");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [_value, copy] = useCopyToClipboard();
 
   const isAuthorized = room?.host === socket?.userId;
 
@@ -31,19 +36,45 @@ const Settings: React.FC<SettingsProps> = () => {
     setRoomPasscode(e.target.value);
   };
 
+  const handleCopyPasscode = () => {
+    room?.passcode &&
+      copy(room.passcode).then(() => {
+        toast({
+          variant: "info",
+          title: "Passcode successfully copied!",
+          description: <span>Share it with someone you trust 🤫</span>,
+        });
+      });
+  };
+
   const handleSaveSettings = (newSettings: { maxRoomSize?: number; roomPasscode?: string }) => {
     if (socket?.userId && room) {
       runIfAuthorized(room.host, socket.userId, () => {
+        errorMessage && setErrorMessage(null);
+
+        if (!newSettings.maxRoomSize && !newSettings.roomPasscode) return;
+        if (newSettings.maxRoomSize === room.maxRoomSize && newSettings.roomPasscode === room.passcode) return;
+
+        if (newSettings.maxRoomSize && newSettings.maxRoomSize > 20) {
+          setErrorMessage("Max room size cannot be larger than 20 characters");
+          return;
+        }
+
         socket.emit(CHANGE_SETTINGS, newSettings);
-        toast({
-          variant: "default",
-          title: "Success!",
-          description: (
-            <span>
-              Room settings have successfully been saved! <br /> Jk. This part doesn't work yet 🤫
-            </span>
-          ),
-        });
+
+        if (newSettings.maxRoomSize && newSettings.roomPasscode) {
+          toast({
+            variant: "default",
+            title: "Success!",
+            description: "Room settings have successfully been saved!",
+          });
+        } else {
+          toast({
+            variant: "default",
+            title: "Success!",
+            description: `${newSettings.maxRoomSize ? "Max room size" : "Room passcode"} updated!`,
+          });
+        }
       });
     }
   };
@@ -53,23 +84,13 @@ const Settings: React.FC<SettingsProps> = () => {
     return member.id === host && "👑";
   };
 
-  // color: #ffffff;
-  //   background-color: #6b2ed7;
-  //   padding: 4px 10px;
-  //   border-radius: 5px;
-  //   text-transform: uppercase;
-  //   font-size: 1em;
-  //   text-align: center;
-  //   border: 1px solid rgba(0, 0, 0, 0.1);
-  //   box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.3), inset 0 -2px 3px #4d219b, 0 1px 1px #331567;
-
   return (
     <div className="flex flex-col flex-grow w-full h-full p-3 gap-4 hide-scrollbar">
       <div>
         {/* text-white p-2 rounded uppercase text-sm text-center ring-2 ring-[#6b2ed7] ring-inset */}
         {/* text-white p-2 rounded uppercase text-sm text-center bg-[#6b2ed7] ring-2 ring-[#6b2ed7] ring-inset */}
         <div className="">
-          <div className="text-white p-2 rounded uppercase text-sm text-center bg-[#6b2ed7] shadow-[inset_0_2px_3px_rgba(255,_255,_255,_0.3),_inset_0_-2px_3px_#4d219b,_0_1px_1px_#331567]">
+          <div className="text-white font-semibold font-sans p-2 rounded uppercase text-sm text-center bg-[#6b2ed7] shadow-[inset_0_2px_3px_rgba(255,_255,_255,_0.3),_inset_0_-2px_3px_#4d219b,_0_1px_1px_#331567]">
             CONNECTED USERS: {room?.members.length}
           </div>
 
@@ -107,14 +128,34 @@ const Settings: React.FC<SettingsProps> = () => {
           value={maxRoomSize}
           onChange={handleOnChangeMaxRoomSize}
         />
+        {!!maxRoomSize && room?.maxRoomSize !== maxRoomSize && <span className="mt-0.5 block text-red-300">Unsaved</span>}
       </div>
       <div className="text-sm text-secondary-foreground">
         <Label htmlFor="room-passcode">Room Passcode</Label>
-        <Input disabled={!isAuthorized} type="text" id="room-passcode" value={roomPasscode} onChange={handleOnChangeRoomPasscode} />
+        <div className="flex items-center">
+          <Input
+            className=""
+            disabled={!isAuthorized}
+            type="password"
+            id="room-passcode"
+            value={roomPasscode}
+            onChange={handleOnChangeRoomPasscode}
+          />
+          <Button onClick={handleCopyPasscode} className="w-12 rounded-r rounded-l-none">
+            <span>
+              <ClipboardCopyIcon color="#FFFFFF" size="1.25rem" />
+            </span>
+          </Button>
+        </div>
+        {!!roomPasscode && room?.passcode !== roomPasscode && <span className="mt-0.5 block text-red-300">Unsaved</span>}
       </div>
-      <Button onClick={() => handleSaveSettings({})} className="w-full">
+      <Button
+        onClick={() => handleSaveSettings({ roomPasscode, maxRoomSize: room?.maxRoomSize === maxRoomSize ? undefined : maxRoomSize })}
+        className="w-full"
+      >
         Save
       </Button>
+      {errorMessage && <span className="text-red-600">{errorMessage}</span>}
     </div>
   );
 };
