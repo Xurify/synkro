@@ -176,7 +176,6 @@ io.on('connection', (socket: CustomSocketServer) => {
         const updatedRoom = updateRoom(roomId, rooms, {
           ...existingRoom,
           members: newMembers,
-          previouslyConnectedMembers: [{ userId: user.id, username: user.username }],
         });
 
         if (newMembers.length === 1) {
@@ -491,6 +490,10 @@ const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: strin
     members: newMembers,
     previouslyConnectedMembers: [...room.previouslyConnectedMembers, { userId: user.id, username: user.username }],
   });
+
+  if (newMembers.length === 1) {
+    updatedRoom.host = userId;
+  }
 
   rooms[roomId] = updatedRoom;
   if (roomTimeouts[roomId]) {
