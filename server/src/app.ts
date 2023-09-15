@@ -214,6 +214,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         userId: socket.userId,
         id: messageID,
         timestamp,
+        color: user.color,
         type: 'USER',
       });
     }

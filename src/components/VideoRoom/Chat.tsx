@@ -106,9 +106,14 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
         {messages.map((message, index) => (
           <div className={`${getMessageClassname(message.type)} rounded p-1 px-2`} key={index}>
             {message.type === "USER" && (
-              <span className={`${message.userId === socket?.userId ? "text-red-500" : "text-green-500"}`}>{message.username}</span>
+              <span
+                className={`${message.userId === socket?.userId ? "text-red-500" : "text-green-500"}`}
+                style={{ color: message.userId === socket?.userId ? undefined : message.color }}
+              >
+                {message.username}
+              </span>
             )}
-            <p className="text-sm text-primary-foreground">{message.message}</p>
+            <p className="text-sm text-inherit">{message.message}</p>
           </div>
         ))}
       </div>

@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type ReactPlayerType from "react-player";
 //import { OnProgressProps } from "react-player/base";
 import screenfull from "screenfull";
-import { LoaderIcon, RefreshCcwIcon } from "lucide-react";
+import { RefreshCcwIcon } from "lucide-react";
 
 import {
   LEAVE_ROOM,

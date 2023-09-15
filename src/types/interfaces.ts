@@ -7,6 +7,7 @@ export interface User {
   username: string;
   roomId: RoomId;
   created: string;
+  color: string;
 }
 
 export interface Room {
@@ -34,6 +35,7 @@ export interface ChatMessage {
   id: string;
   userId: UserId;
   timestamp: string;
+  color: string;
   type: "USER";
 }
 
