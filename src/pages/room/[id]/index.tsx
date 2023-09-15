@@ -49,9 +49,6 @@ import { useQueue } from "@/hooks/useQueue";
 
 import { convertURLToCorrectProviderVideoId, isValidUrl } from "@/libs/utils/frontend-utils";
 import { Spinner } from "@/components/Spinner";
-import { FaceIcon } from "@radix-ui/react-icons";
-
-//import GlugSfx from '../../../assets/audio/mixkit-alert-quick-chime-766.mp3';
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   loading: () => {
