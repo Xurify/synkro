@@ -3,6 +3,7 @@ import { findDOMNode } from "react-dom";
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
+import useSound from "use-sound";
 
 import type ReactPlayerType from "react-player";
 //import { OnProgressProps } from "react-player/base";
@@ -30,7 +31,7 @@ import {
   VIDEO_QUEUE_REORDERED,
   GET_ROOM_INFO,
 } from "../../../constants/socketActions";
-import type { ChatMessage, Messages, VideoQueueItem } from "@/types/interfaces";
+import { ServerMessageType, type ChatMessage, type Messages, type VideoQueueItem } from "@/types/interfaces";
 
 import Chat from "@/components/VideoRoom/Chat";
 import Sidebar from "@/components/Sidebar";
@@ -47,6 +48,8 @@ import { useQueue } from "@/hooks/useQueue";
 
 import { convertURLToCorrectProviderVideoId, isValidUrl } from "@/libs/utils/frontend-utils";
 import { Spinner } from "@/components/Spinner";
+
+//import GlugSfx from '../../../assets/audio/mixkit-alert-quick-chime-766.mp3';
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   loading: () => {
@@ -69,6 +72,8 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(room?.videoInfo.currentVideoUrl || "https://youtu.be/QdKhuEnkwiY");
   const [isLoading, setIsLoading] = useState(false);
   const [_isSyncing, setIsSyncing] = useState(false);
+
+  const [playUserJoinedSound] = useSound("/next-assets/audio/mixkit-alert-quick-chime-766.wav", { volume: 0.1 });
 
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
   const isSocketAvailable = !!socket;
@@ -129,6 +134,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     });
 
     socket.on(SERVER_MESSAGE, (newMessage) => {
+      if ([ServerMessageType.USER_JOINED, ServerMessageType.USER_RECONNECTED].includes(newMessage.type)) {
+        playUserJoinedSound();
+      }
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 

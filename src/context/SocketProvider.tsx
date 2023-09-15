@@ -21,7 +21,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
   const router = useRouter();
 
   React.useEffect(() => {
-    if (!sessionToken) {
+    if (!sessionToken && router.pathname !== "/404") {
       if (retries > 0) {
         setRetries((prevRetries) => prevRetries - 1);
         router.replace(router.asPath);
