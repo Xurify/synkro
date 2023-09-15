@@ -112,22 +112,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     }
   }, [isSocketAvailable, isConnecting, room]);
 
-  // React.useEffect(() => {
-  //   const returnedToast = toast({
-  //     variant: "info",
-  //     Icon: RefreshCcwIcon,
-  //     iconClassname: "animate-spin",
-  //     title: "Syncing with host",
-  //     description: "This shouldn't take too long at all!",
-  //     open: isSyncing,
-  //   });
-  //   console.log("TEST", isSyncing);
-  //   if (!isSyncing) {
-  //     console.log(returnedToast.id, "returnedToast.id");
-  //     dismiss(returnedToast.id);
-  //   }
-  // }, [isSyncing]);
-
   const socketMethods = React.useCallback(() => {
     if (!socket) return;
 
@@ -137,7 +121,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
     socket.on(SERVER_MESSAGE, (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-      //setServerMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
     socket.on(USER_MESSAGE, (newMessage: ChatMessage) => {
