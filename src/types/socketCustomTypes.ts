@@ -28,6 +28,7 @@ import {
   VIDEO_QUEUE_REORDERED,
   CHANGE_SETTINGS,
   JOIN_ROOM_BY_INVITE,
+  CHANGE_ADMIN,
 } from "../constants/socketActions";
 import { ChatMessage, Room, ServerMessage, User, VideoQueueItem } from "./interfaces";
 
@@ -58,6 +59,7 @@ export interface ClientToServerEvents {
   [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
   [VIDEO_QUEUE_REORDERED]: (videoQueue: VideoQueueItem[]) => void;
   [CHANGE_SETTINGS]: (newSettings: { maxRoomSize?: number; roomPasscode?: string }) => void;
+  [CHANGE_ADMIN]: (userId: string) => void;
   [JOIN_ROOM_BY_INVITE]: (
     inviteCode: string,
     username: string,

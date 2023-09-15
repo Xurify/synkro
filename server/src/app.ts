@@ -180,7 +180,6 @@ io.on('connection', (socket: CustomSocketServer) => {
 
         if (newMembers.length === 1) {
           updatedRoom.host = userId;
-          io.in(roomId).emit(SET_HOST, userId);
           io.in(roomId).emit(SERVER_MESSAGE, {
             type: ServerMessageType.NEW_HOST,
             message: `${previouslyConnectedUser.username} is now the host. 👑`,
@@ -357,6 +356,26 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
   });
 
+  socket.on(SET_HOST, (userId) => {
+    if (requestIsNotFromHost(socket, rooms)) return;
+    if (!socket.roomId) return;
+
+    const user = getUser(userId, users);
+    if (!user) return;
+
+    console.log(SET_HOST, userId, user);
+
+    const room: Room = getRoomById(socket.roomId, rooms);
+    room.host = userId;
+    rooms[socket.roomId] = room;
+    //io.in(room.id).emit(SET_HOST, room.host);
+    io.in(room.id).emit(GET_ROOM_INFO, room);
+    io.in(room.id).emit(SERVER_MESSAGE, {
+      type: ServerMessageType.NEW_HOST,
+      message: `${user.username} is now the host. 👑`,
+    });
+  });
+
   socket.on(LEAVE_ROOM, () => {
     handleUserDisconnect(socket);
   });
@@ -406,9 +425,9 @@ const handleUserDisconnect = (socket: CustomSocketServer) => {
 
       if (userWasHost && room.members.length > 0) {
         updatedRoom.host = room.members[0].id;
+        console.log(`TESTING - NEW HOST ${updatedRoom.host} ${room.members}`);
         rooms[user.roomId] = updatedRoom;
 
-        io.in(room.id).emit(SET_HOST, room.host);
         io.in(room.id).emit(SERVER_MESSAGE, {
           type: ServerMessageType.NEW_HOST,
           message: `${room.members[0].username} is now the host. 👑`,

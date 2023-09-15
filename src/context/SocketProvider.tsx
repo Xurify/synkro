@@ -56,6 +56,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
     });
 
     newSocket.on(SET_HOST, (newHost: string) => {
+      console.log(SET_HOST, newHost, room);
       if (room) {
         const newRoom = { ...room, host: newHost };
         setRoom(newRoom);

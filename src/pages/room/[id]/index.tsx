@@ -30,6 +30,7 @@ import {
   REMOVE_VIDEO_FROM_QUEUE,
   VIDEO_QUEUE_REORDERED,
   GET_ROOM_INFO,
+  SET_HOST,
 } from "../../../constants/socketActions";
 import { ServerMessageType, type ChatMessage, type Messages, type VideoQueueItem } from "@/types/interfaces";
 
@@ -131,6 +132,15 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
     socket.on(GET_ROOM_INFO, (newRoom) => {
       setStoredRoom(newRoom);
+    });
+
+    socket.on(SET_HOST, (newHost: string) => {
+      console.log(SET_HOST, newHost, room);
+      if (room) {
+        const newRoom = { ...room, host: newHost };
+        console.log(newRoom);
+        setStoredRoom(newRoom);
+      }
     });
 
     socket.on(SERVER_MESSAGE, (newMessage) => {

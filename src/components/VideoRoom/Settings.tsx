@@ -20,6 +20,7 @@ const Settings: React.FC<SettingsProps> = () => {
   const { toast } = useToast();
   const { socket, room } = useSocket();
 
+  const [isUserModalOpen, setIsUserModalOpen] = useState<string | null>(null);
   const [maxRoomSize, setMaxRoomSize] = useState<number>(room?.maxRoomSize ?? 10);
   const [roomPasscode, setRoomPasscode] = useState<string>(room?.passcode ?? "");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -79,6 +80,10 @@ const Settings: React.FC<SettingsProps> = () => {
     }
   };
 
+  const handleCloseUserModal = (userId: string | null) => {
+    setIsUserModalOpen(userId);
+  };
+
   const generateUserIcon = (member: User, host: string) => {
     if (!member || !host) return null;
     return member.id === host && "👑";
@@ -97,22 +102,27 @@ const Settings: React.FC<SettingsProps> = () => {
           <div className="mt-2 flex flex-col gap-2">
             {room &&
               Array.isArray(room?.members) &&
-              room.members.map((member) => (
-                <UserModal
-                  key={`user-modal-button-${member.id}`}
-                  buttonText={
-                    <div>
-                      <span className="mr-1">{generateUserIcon(member, room.host)}</span>
-                      {member.username}
-                    </div>
-                  }
-                  headerText={
-                    <div>
-                      User: <span className="text-primary">{member.username}</span>
-                    </div>
-                  }
-                  disabled={!isAuthorized || member.id === socket?.userId}
-                />
+              room.members.map((member, index) => (
+                <React.Fragment key={`user-modal-button-${member.id}`}>
+                  <UserModal
+                    key={`user-modal-button-${member.id}-${index}`}
+                    userId={member.id}
+                    buttonText={
+                      <div>
+                        <span className="mr-1">{generateUserIcon(member, room.host)}</span>
+                        {member.username}
+                      </div>
+                    }
+                    headerText={
+                      <div>
+                        User: <span className="text-primary">{member.username}</span>
+                      </div>
+                    }
+                    disabled={!isAuthorized || member.id === socket?.userId}
+                    open={isUserModalOpen === member.id}
+                    handleToggle={handleCloseUserModal}
+                  />
+                </React.Fragment>
               ))}
           </div>
         </div>
