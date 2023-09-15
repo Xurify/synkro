@@ -1,4 +1,4 @@
-import { ServerMessageType } from "@/types/interfaces";
+import { ServerMessageType, User } from "@/types/interfaces";
 
 export const isServerMessage = (messageType: ServerMessageType | "USER"): boolean => {
   return Object.values(ServerMessageType).includes(messageType as ServerMessageType);
@@ -29,4 +29,9 @@ export const getMessageClassname = (type: ServerMessageType | "USER"): string | 
     default:
       return `${defaultMessageClassname}`;
   }
+};
+
+export const generateUserIcon = (member: string, host: string, _user?: User) => {
+  if (!member || !host) return null;
+  return member === host && "👑";
 };

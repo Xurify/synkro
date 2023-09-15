@@ -155,23 +155,23 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
 
   return (
     <div className="flex flex-col flex-grow w-full h-full relative hide-scrollbar md:max-h-[calc(100vh-158px)]">
-      {isAuthorized && (
-        <div className="flex items-center p-2">
-          <Input
-            className="h-10 rounded-l rounded-r-none"
-            type="text"
-            value={newVideoInQueueUrl}
-            onChange={handleOnChangeVideoUrl}
-            onKeyDown={handleOnKeyDown}
-            placeholder="Add video"
-          />
-          <Button onClick={handleAddVideoToQueue} className="w-12 h-10 rounded-r rounded-l-none">
-            <span>
-              <PlusIcon color="#FFFFFF" size="1.25rem" />
-            </span>
-          </Button>
-        </div>
-      )}
+      <div className="flex items-center p-2">
+        <Input
+          className="h-10 rounded-l rounded-r-none"
+          type="text"
+          value={newVideoInQueueUrl}
+          onChange={handleOnChangeVideoUrl}
+          onKeyDown={handleOnKeyDown}
+          placeholder={!isAuthorized ? "Only the host can add videos" : "Add video"}
+          disabled={!isAuthorized}
+        />
+        <Button onClick={handleAddVideoToQueue} className="w-12 h-10 rounded-r rounded-l-none" disabled={!isAuthorized}>
+          <span>
+            <PlusIcon color="#FFFFFF" size="1.25rem" />
+          </span>
+        </Button>
+      </div>
+
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable" isDropDisabled={!isAuthorized || isMobile}>
           {(provided) => (

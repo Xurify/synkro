@@ -446,14 +446,14 @@ const handleUserDisconnect = (userId: string) => {
       const updatedUsers = users.filter((user) => user.id !== userId);
       users = updatedUsers;
 
-      if (userWasHost && room.members.length > 0) {
-        updatedRoom.host = room.members[0].id;
-        console.log(`TESTING - NEW HOST ${updatedRoom.host} ${room.members}`);
+      if (userWasHost && newMembers.length > 0) {
+        updatedRoom.host = newMembers[0].id;
+        console.log(`TESTING - NEW HOST ${updatedRoom.host} ${newMembers.length}`);
         rooms[user.roomId] = updatedRoom;
 
         io.in(room.id).emit(SERVER_MESSAGE, {
           type: ServerMessageType.NEW_HOST,
-          message: `${room.members[0].username} is now the host. 👑`,
+          message: `${newMembers[0].username} is now the host. 👑`,
         });
       }
 

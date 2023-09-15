@@ -6,19 +6,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChatMessage, Messages } from "@/types/interfaces";
 import { USER_MESSAGE } from "@/constants/socketActions";
-import { CustomSocket } from "@/types/socketCustomTypes";
-import { getMessageClassname } from "@/libs/utils/chat";
+import { generateUserIcon, getMessageClassname } from "@/libs/utils/chat";
+import { useSocket } from "@/context/SocketContext";
 
 interface ChatProps {
   messages: Messages;
-  socket: CustomSocket | null;
   roomId: string;
 }
 
-const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
+const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
   const [chatMessage, setChatMessage] = useState<string>("");
   const [isNewMessagePopupShown, setIsNewMessagePopupShown] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement & { maxScrollTop?: number }>(null);
+
+  const { socket, room } = useSocket();
 
   const scrollToBottom = (force = false, smooth = true) => {
     const chatContainer = chatContainerRef.current;
@@ -106,12 +107,13 @@ const Chat: React.FC<ChatProps> = ({ messages, socket, roomId }) => {
         {messages.map((message, index) => (
           <div className={`${getMessageClassname(message.type)} rounded p-1 px-2`} key={index}>
             {message.type === "USER" && (
-              <span
+              <div
                 className={`${message.userId === socket?.userId ? "text-red-500" : "text-green-500"}`}
                 style={{ color: message.userId === socket?.userId ? undefined : message.color }}
               >
+                {room?.host && <span className="mr-1">{generateUserIcon(message?.userId, room.host)}</span>}
                 {message.username}
-              </span>
+              </div>
             )}
             <p className="text-sm text-inherit">{message.message}</p>
           </div>

@@ -10,9 +10,9 @@ import { useSocket } from "@/context/SocketContext";
 import { runIfAuthorized } from "@/libs/utils/socket";
 
 import { UserModal } from "../Modals/UserModal";
-import { User } from "@/types/interfaces";
 import { Label } from "../ui/label";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { generateUserIcon } from "@/libs/utils/chat";
 
 interface SettingsProps {}
 
@@ -84,11 +84,6 @@ const Settings: React.FC<SettingsProps> = () => {
     setIsUserModalOpen(userId);
   };
 
-  const generateUserIcon = (member: User, host: string) => {
-    if (!member || !host) return null;
-    return member.id === host && "👑";
-  };
-
   return (
     <div className="flex flex-col flex-grow w-full h-full p-3 gap-4 hide-scrollbar">
       <div>
@@ -109,7 +104,7 @@ const Settings: React.FC<SettingsProps> = () => {
                     userId={member.id}
                     buttonText={
                       <div>
-                        <span className="mr-1">{generateUserIcon(member, room.host)}</span>
+                        <span className="mr-1">{generateUserIcon(member.id, room.host)}</span>
                         {member.username}
                       </div>
                     }

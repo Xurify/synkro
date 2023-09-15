@@ -254,7 +254,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     const currentTime = player?.getCurrentTime();
     if (currentTime < time - 0.6 || currentTime > time + 0.6) {
       player.seekTo(time);
-      setIsPlaying(true);
     }
   };
 
@@ -357,7 +356,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const currentVideoId = convertURLToCorrectProviderVideoId(currentVideoUrl) as string;
 
   const views: { [key in SidebarViews]: JSX.Element } = {
-    chat: <Chat messages={messages} socket={socket} roomId={roomId} />,
+    chat: <Chat messages={messages} roomId={roomId} />,
     queue: <Queue currentVideoId={currentVideoId} videoQueue={videoQueue} onClickPlayerButton={handleClickPlayerButton} />,
     settings: <Settings />,
   };
