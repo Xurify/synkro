@@ -104,20 +104,23 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
   return (
     <div className="flex flex-col flex-grow w-full h-full relative hide-scrollbar">
       <div className="flex-grow overflow-y-auto p-4 h-full gap-y-4 flex flex-col" ref={chatContainerRef}>
-        {messages.map((message, index) => (
-          <div className={`${getMessageClassname(message.type)} rounded p-1 px-2`} key={index}>
-            {message.type === "USER" && (
-              <div
-                className={`${message.userId === socket?.userId ? "text-red-500" : "text-green-500"}`}
-                style={{ color: message.userId === socket?.userId ? undefined : message.color }}
-              >
-                {room?.host && <span className="mr-1">{generateUserIcon(message?.userId, room.host)}</span>}
-                {message.username}
-              </div>
-            )}
-            <p className="text-sm text-inherit">{message.message}</p>
-          </div>
-        ))}
+        {messages.map((message, index) => {
+          const userIcon = message.type === "USER" && room?.host && generateUserIcon(message?.userId, room.host);
+          return (
+            <div className={`${getMessageClassname(message.type)} rounded p-1 px-2`} key={index}>
+              {message.type === "USER" && (
+                <div
+                  className={`${message.userId === socket?.userId ? "text-red-500" : "text-green-500"}`}
+                  style={{ color: message.userId === socket?.userId ? undefined : message.color }}
+                >
+                  {userIcon && <span className="mr-1">{userIcon}</span>}
+                  {message.username}
+                </div>
+              )}
+              <p className="text-sm text-inherit">{message.message}</p>
+            </div>
+          );
+        })}
       </div>
       {isNewMessagePopupShown && (
         <div className="cursor-pointer absolute w-full bottom-[40.25px]" onClick={handleSeeNewMessages}>

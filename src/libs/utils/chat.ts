@@ -33,5 +33,5 @@ export const getMessageClassname = (type: ServerMessageType | "USER"): string | 
 
 export const generateUserIcon = (member: string, host: string, _user?: User) => {
   if (!member || !host) return null;
-  return member === host && "👑";
+  return member === host ? "👑" : null;
 };
