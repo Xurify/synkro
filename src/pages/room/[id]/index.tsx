@@ -223,7 +223,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
   const onReady = (player: ReactPlayerType) => {
     setPlayer(player);
-    player?.seekTo(0);
+    if (sessionToken === room?.host) {
+      player?.seekTo(0);
+    }
     setIsLoading(false);
     setIsPlaying(true);
     socket?.emit(GET_VIDEO_INFORMATION);
