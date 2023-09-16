@@ -60,13 +60,18 @@ let activeConnections = 0;
 io.on('connection', (socket: CustomSocketServer) => {
   activeConnections++;
 
+  const userId = socket.handshake.auth.token;
   //const roomId = socket.handshake.query.roomId as string | undefined;
-  const userId = socket.handshake.query.userId as string | undefined;
+  //const userId = socket.handshake.query.userId as string | undefined;
   //const username = socket.handshake.query.username as string | undefined;
   //const roomName = socket.handshake.query.roomName as string | undefined;
 
-  socket.userId = userId ?? socket.id;
+  if (!userId) {
+    socket.disconnect();
+    return;
+  }
 
+  socket.userId = userId;
   console.log(`⚡️ New user connected - User Id: ${userId}`);
 
   socket.on(CHECK_IF_ROOM_EXISTS, (roomId, callback) => {

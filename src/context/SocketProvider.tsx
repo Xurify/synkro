@@ -30,8 +30,8 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
     }
     const newSocket = io(socketURL, {
       transports: ["websocket"],
-      query: {
-        userId: sessionToken,
+      auth: {
+        token: sessionToken,
       },
     }) as unknown as CustomSocket;
 
