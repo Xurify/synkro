@@ -29,14 +29,15 @@ export const UserModal: React.FC<ModalProps> = ({ buttonText, disabled = false, 
     }
   };
 
-  const handleOpenChange = () => handleToggle(userId);
+  const handleOpen = () => handleToggle(userId);
+  const handleClose = () => handleToggle(null);
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild disabled={disabled}>
+    <Dialog open={open}>
+      <DialogTrigger onClick={handleOpen} asChild disabled={disabled}>
         <button className="text-primary-foreground text-left">{buttonText}</button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" handleClose={handleClose}>
         <DialogHeader>
           <DialogTitle className="text-secondary-foreground">{headerText}</DialogTitle>
           <DialogDescription>Make changes to the room here. Click save when you're done.</DialogDescription>

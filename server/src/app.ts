@@ -400,7 +400,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (!socket.roomId) return;
 
     const user = getUser(userId, users);
-    if (!user) return;
+    if (!user || user.isAdmin) return;
 
     handleUserDisconnect(userId);
     io.sockets.sockets.get(user.socketId)?.emit(KICK_USER);
