@@ -13,7 +13,7 @@ export default function App({ Component, pageProps }: AppProps) {
   //useDarkMode();
   return (
     <>
-      <SocketProvider sessionToken={pageProps?.sessionToken || null} adminToken={pageProps?.adminToken}>
+      <SocketProvider sessionToken={pageProps?.sessionToken || null} adminToken={pageProps?.adminToken || null}>
         <Page navigationHeaderProps={pageProps.navigationHeaderProps}>
           <Component {...pageProps} />
           <Analytics />

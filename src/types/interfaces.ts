@@ -38,6 +38,7 @@ export interface ChatMessage {
   timestamp: string;
   color: string;
   type: "USER";
+  isAdmin: boolean;
 }
 
 export enum ServerMessageType {

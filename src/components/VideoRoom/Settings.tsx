@@ -27,7 +27,7 @@ const Settings: React.FC<SettingsProps> = () => {
 
   const [_value, copy] = useCopyToClipboard();
 
-  const isAuthorized = room?.host === socket?.userId;
+  const isAuthorized = socket?.isAdmin || room?.host === socket?.userId;
 
   const handleOnChangeMaxRoomSize = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMaxRoomSize(Number(e.target.value));
@@ -104,7 +104,7 @@ const Settings: React.FC<SettingsProps> = () => {
                     userId={member.id}
                     buttonText={
                       <div>
-                        <span className="mr-1">{generateUserIcon(member.id, room.host, socket?.isAdmin)}</span>
+                        <span className="mr-1">{generateUserIcon(member.id, room.host, member?.isAdmin)}</span>
                         {member.username}
                       </div>
                     }

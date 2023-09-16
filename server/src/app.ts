@@ -78,12 +78,14 @@ io.on('connection', (socket: CustomSocketServer) => {
     return;
   }
 
+  socket.userId = userId;
+  socket.isAdmin = false;
+
   if (adminToken === adminTokenHandshake) {
     socket.isAdmin = true;
     socket.emit(SET_ADMIN);
   }
 
-  socket.userId = userId;
   console.log(`⚡️ New user connected - User Id: ${userId}`);
 
   socket.on(CHECK_IF_ROOM_EXISTS, (roomId, callback) => {
@@ -230,6 +232,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         timestamp,
         color: user.color,
         type: 'USER',
+        isAdmin: socket.isAdmin,
       });
     }
   });
