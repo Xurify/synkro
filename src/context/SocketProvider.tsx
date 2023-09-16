@@ -55,7 +55,6 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
     });
 
     newSocket.on(SET_ADMIN, () => {
-      console.log(SET_ADMIN);
       newSocket.isAdmin = true;
     });
 

@@ -72,6 +72,8 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [_isSyncing, setIsSyncing] = useState(false);
 
   const [playUserJoinedSound] = useSound("/next-assets/audio/mixkit-alert-quick-chime-766.wav", { volume: 0.1 });
+  const [playUserKickedSound] = useSound("/next-assets/audio/ElevenLabs_Mimi_You_Have_Been_Kicked.mp3", { volume: 0.5 });
+  //const [playUserKickedSound] = useSound("/next-assets/audio/disconnected.mp3", { volume: 0.5 });
 
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
   const isSocketAvailable = !!socket;
@@ -196,6 +198,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     socket.on(KICK_USER, () => {
       socket.disconnect();
       setStoredRoom(null);
+      playUserKickedSound();
       toast({
         variant: "destructive",
         Icon: () => <span>😢</span>,
