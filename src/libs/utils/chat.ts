@@ -1,4 +1,4 @@
-import { ServerMessageType, User } from "@/types/interfaces";
+import { ServerMessageType } from "@/types/interfaces";
 
 export const isServerMessage = (messageType: ServerMessageType | "USER"): boolean => {
   return Object.values(ServerMessageType).includes(messageType as ServerMessageType);
