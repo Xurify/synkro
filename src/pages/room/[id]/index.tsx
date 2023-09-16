@@ -222,7 +222,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
   const onReady = (player: ReactPlayerType) => {
     setPlayer(player);
+    player?.seekTo(0);
     setIsLoading(false);
+    setIsPlaying(true);
     socket?.emit(GET_VIDEO_INFORMATION);
   };
 
@@ -275,7 +277,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     const currentTime = player.getCurrentTime();
     const newTime = currentTime - 5 < 0 ? 0 : currentTime - 5;
     player.seekTo(newTime);
-
     runIfAuthorized(() => socket?.emit(REWIND_VIDEO, newTime));
   };
 
@@ -285,7 +286,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     const endTime = player.getDuration();
     const newTime = currentTime + 5 > endTime ? endTime : currentTime + 5;
     player.seekTo(newTime);
-
     runIfAuthorized(() => socket?.emit(FASTFORWARD_VIDEO, newTime));
   };
 

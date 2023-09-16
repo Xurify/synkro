@@ -238,7 +238,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(GET_VIDEO_INFORMATION, () => {
-    if (!requestIsNotFromHost(socket, rooms)) return;
+    if (!requestIsNotFromHost(socket, rooms, false)) return;
     if (!socket?.roomId) return;
 
     const room: Room = getRoomById(socket.roomId, rooms);
