@@ -68,7 +68,6 @@ io.on('connection', (socket: CustomSocketServer) => {
   const adminTokenHandshake = socket.handshake.auth.adminToken;
   const adminToken = process.env.ADMIN_TOKEN;
 
-  console.log('adminToken', adminToken);
   //const roomId = socket.handshake.query.roomId as string | undefined;
   //const userId = socket.handshake.query.userId as string | undefined;
   //const username = socket.handshake.query.username as string | undefined;
