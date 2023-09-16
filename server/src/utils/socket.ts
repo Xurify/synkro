@@ -6,12 +6,12 @@ import { assignUsernameChatColor } from './chat';
 export const getUser = (id: string, users: User[]): User | undefined => users.find((user) => user.id === id);
 
 export const addUser = (
-  { id, username, roomId, socketId }: { id: string; username: string; roomId: string; socketId: string },
+  { id, username, roomId, socketId, isAdmin }: { id: string; username: string; roomId: string; socketId: string; isAdmin?: boolean },
   users: User[],
 ): User => {
   const created = new Date().toISOString();
   const usersInSameRoom = users.filter((user) => user.roomId === roomId);
-  const user: User = { id, username, roomId, created, socketId, color: assignUsernameChatColor(usersInSameRoom) };
+  const user: User = { id, username, roomId, created, socketId, color: assignUsernameChatColor(usersInSameRoom), isAdmin };
   const existingUser = getUser(id, users);
   if (!existingUser) users.push(user);
   return user;
@@ -63,6 +63,7 @@ export const getRoomByInviteCode = (inviteCode: string, rooms: Rooms): Room | un
 };
 
 export const requestIsNotFromHost = (socket: CustomSocket, rooms: Rooms): boolean => {
+  if (socket.isAdmin) return false;
   const room = !!socket?.roomId && getRoomById(socket.roomId, rooms);
   return room && socket.userId !== room.host;
 };

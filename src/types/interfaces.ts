@@ -8,6 +8,7 @@ export interface User {
   roomId: RoomId;
   created: string;
   color: string;
+  isAdmin?: boolean;
 }
 
 export interface Room {

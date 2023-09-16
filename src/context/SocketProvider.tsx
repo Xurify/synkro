@@ -9,9 +9,10 @@ import { Room, User } from "@/types/interfaces";
 
 interface SocketProviderProps {
   sessionToken: string | null;
+  adminToken?: string;
 }
 
-export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProps>> = ({ children, sessionToken }) => {
+export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProps>> = ({ children, sessionToken, adminToken }) => {
   const [socket, setSocket] = React.useState<CustomSocket | null>(null);
   const [room, setRoom] = React.useState<Room | null | undefined>(undefined);
   const [user, setUser] = React.useState<User | null>(null);
@@ -32,6 +33,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
       transports: ["websocket"],
       auth: {
         token: sessionToken,
+        adminToken,
       },
     }) as unknown as CustomSocket;
 

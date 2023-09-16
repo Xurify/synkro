@@ -107,4 +107,5 @@ export type CustomSocketServer = Socket<ClientToServerEvents, ServerToClientEven
 type CustomSocketProperties = {
   userId?: string;
   roomId?: string;
+  isAdmin?: boolean;
 };

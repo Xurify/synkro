@@ -44,6 +44,8 @@ import {
   KICK_USER,
 } from '../../src/constants/socketActions';
 
+require('dotenv').config();
+
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
 const app: Application = express();
 const server: HttpServer = createServer(app);
@@ -61,6 +63,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   activeConnections++;
 
   const userId = socket.handshake.auth.token;
+  const adminTokenHandshake = socket.handshake.auth.adminToken;
+  const adminToken = process.env.ADMIN_TOKEN;
+
+  console.log('adminToken', adminToken);
   //const roomId = socket.handshake.query.roomId as string | undefined;
   //const userId = socket.handshake.query.userId as string | undefined;
   //const username = socket.handshake.query.username as string | undefined;
@@ -69,6 +75,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   if (!userId) {
     socket.disconnect();
     return;
+  }
+
+  if (adminToken === adminTokenHandshake) {
+    socket.isAdmin = true;
   }
 
   socket.userId = userId;
@@ -87,7 +97,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         typeof callback === 'function' && callback({ error: 'Room already exists' });
       } else {
         if (!socket.userId) return;
-        const user = addUser({ id: socket.userId, username, roomId: newRoomId, socketId: socket.id }, users);
+        const user = addUser({ id: socket.userId, username, roomId: newRoomId, socketId: socket.id, isAdmin: socket.isAdmin }, users);
         socket.join(newRoomId);
         socket.roomId = newRoomId;
 
@@ -172,6 +182,7 @@ io.on('connection', (socket: CustomSocketServer) => {
             username: previouslyConnectedUser.username,
             roomId: roomId,
             socketId: socket.id,
+            isAdmin: socket.isAdmin,
           },
           users,
         );
@@ -486,7 +497,7 @@ const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: strin
     //return room;
   }
 
-  const user = addUser({ id: userId, username, roomId, socketId: socket.id }, users);
+  const user = addUser({ id: userId, username, roomId, socketId: socket.id, isAdmin: socket.isAdmin }, users);
 
   const userExistsInRoomMembers = room.members.find((member) => member.id === user.id);
   const newMembers = userExistsInRoomMembers ? room.members : [...room.members, user];

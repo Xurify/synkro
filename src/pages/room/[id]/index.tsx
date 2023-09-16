@@ -411,9 +411,11 @@ export default RoomPage;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const sessionToken = context.req.cookies["session_token"] || null;
+  const adminToken = context.req.cookies["admin_token"] || null;
   return {
     props: {
       sessionToken,
+      adminToken,
       navigationHeaderProps: {
         page: "video_room",
       },
