@@ -30,7 +30,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
   const { toast } = useToast();
   const { socket, room } = useSocket();
 
-  const isAuthorized = room?.host === socket?.userId;
+  const isAuthorized = socket?.isAdmin || room?.host === socket?.userId;
   const isMobile = new UAParser().getDevice().type === "mobile";
 
   const getIndexOfVideoInQueue = (videoId: string): number => {

@@ -74,7 +74,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
 
   const defaultButtonClassName = "w-9 h-9 min-w-[2.25rem]";
 
-  const isAuthorized = room?.host === socket?.userId;
+  const isAuthorized = socket?.isAdmin || room?.host === socket?.userId;
 
   return (
     <div className="max-w-[80rem] w-full bg-card shadow-md p-2.5 rounded flex">

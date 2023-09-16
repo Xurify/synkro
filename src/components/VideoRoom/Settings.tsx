@@ -104,7 +104,7 @@ const Settings: React.FC<SettingsProps> = () => {
                     userId={member.id}
                     buttonText={
                       <div>
-                        <span className="mr-1">{generateUserIcon(member.id, room.host)}</span>
+                        <span className="mr-1">{generateUserIcon(member.id, room.host, socket?.isAdmin)}</span>
                         {member.username}
                       </div>
                     }
