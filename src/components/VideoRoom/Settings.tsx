@@ -113,7 +113,7 @@ const Settings: React.FC<SettingsProps> = () => {
                         User: <span className="text-primary">{member.username}</span>
                       </div>
                     }
-                    disabled={!isAuthorized || member.id === socket?.userId}
+                    disabled={member.isAdmin || !isAuthorized || member.id === socket?.userId}
                     open={isUserModalOpen === member.id}
                     handleToggle={handleCloseUserModal}
                   />
