@@ -25,7 +25,7 @@ export const usernameChatColors = [
   '#d84727',
   '#c0fdfb',
   '#c05299',
-  '#ea698b',
+  '#d2de32',
   '#fcf300',
   '#5bdb70',
 ];

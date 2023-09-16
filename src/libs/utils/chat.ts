@@ -8,12 +8,15 @@ export const isClientMessage = (messageType: string): boolean => {
   return messageType === "USER";
 };
 
-export const getMessageClassname = (type: ServerMessageType | "USER"): string | undefined => {
+export const getMessageClassname = (type: ServerMessageType | "USER" | "ADMIN"): string | undefined => {
   const defaultMessageClassname = "bg-[#171923] border border-gray-600 text-primary-foreground";
 
   switch (type) {
     case "USER":
       return `user-message ${defaultMessageClassname}`;
+    case "ADMIN":
+      //`user-message border border-[#b54eff] bg-[#431961] text-primary-foreground text-[#ffec87]`;
+      return `user-message admin border border-[#b54eff] bg-[#431961] text-primary-foreground`;
     case ServerMessageType.ALERT:
       return "border border-orange-600 bg-[#67340f] text-primary-foreground";
     case ServerMessageType.USER_JOINED:

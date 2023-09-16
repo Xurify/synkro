@@ -111,7 +111,7 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
               {message.type === "USER" && (
                 <div
                   className={`${message.userId === socket?.userId ? "text-red-500" : "text-green-500"}`}
-                  style={{ color: message.userId === socket?.userId ? undefined : message.color }}
+                  style={{ color: message?.isAdmin ? "#ff45ef" : message.userId === socket?.userId ? undefined : message.color }}
                 >
                   {userIcon && <span className="mr-1">{userIcon}</span>}
                   {message.username}
