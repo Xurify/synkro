@@ -145,6 +145,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     });
 
     socket.on(GET_HOST_VIDEO_INFORMATION, (callback: (playing: boolean, videoUrl: string, time: number) => void) => {
+      if (sessionToken !== room?.host) return;
       const currentTime = player?.getCurrentTime();
       const currentVideoUrl = player?.props?.url as string;
       const isCurrentlyPlaying = player?.props?.playing as boolean;

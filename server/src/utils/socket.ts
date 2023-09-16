@@ -62,7 +62,7 @@ export const getRoomByInviteCode = (inviteCode: string, rooms: Rooms): Room | un
   return room;
 };
 
-export const requestIsNotFromHost = (socket: CustomSocket, rooms: Rooms, adminCheck?: boolean): boolean => {
+export const requestIsNotFromHost = (socket: CustomSocket, rooms: Rooms, adminCheck: boolean = true): boolean => {
   if (adminCheck && socket.isAdmin) return false;
   const room = !!socket?.roomId && getRoomById(socket.roomId, rooms);
   return room && socket.userId !== room.host;
