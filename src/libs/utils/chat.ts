@@ -16,7 +16,7 @@ export const getMessageClassname = (type: ServerMessageType | "USER" | "ADMIN"):
       return `user-message ${defaultMessageClassname}`;
     case "ADMIN":
       //`user-message border border-[#b54eff] bg-[#431961] text-primary-foreground text-[#ffec87]`;
-      return `user-message admin border border-[#b54eff] bg-[#431961] text-primary-foreground`;
+      return "user-message admin border border-[#b54eff] bg-[#431961] text-primary-foreground";
     case ServerMessageType.ALERT:
       return "border border-orange-600 bg-[#67340f] text-primary-foreground";
     case ServerMessageType.USER_JOINED:
