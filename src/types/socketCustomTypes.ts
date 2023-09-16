@@ -29,6 +29,7 @@ import {
   CHANGE_SETTINGS,
   JOIN_ROOM_BY_INVITE,
   KICK_USER,
+  SET_ADMIN,
 } from "../constants/socketActions";
 import { ChatMessage, Room, ServerMessage, User, VideoQueueItem } from "./interfaces";
 
@@ -73,6 +74,7 @@ export interface ServerToClientEvents {
   [JOIN_ROOM]: (roomId: string, username: string, callback: (value: { success: boolean; error: string }) => void) => void;
   [LEAVE_ROOM]: () => void;
   [KICK_USER]: () => void;
+  [SET_ADMIN]: () => void;
   [SERVER_MESSAGE]: ({ message, type }: ServerMessage) => void;
   [USER_MESSAGE]: (message: ChatMessage, roomId: string) => void;
   [CHECK_IF_ROOM_IS_FULL]: (roomId: string, callback: any) => void;

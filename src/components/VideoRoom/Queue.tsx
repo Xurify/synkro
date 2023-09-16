@@ -106,7 +106,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
 
   const handleChangeVideo = (newVideoUrl: string, newVideoId: string) => {
     if (socket?.userId && room) {
-      runIfAuthorized(room.host, socket.userId, () => {
+      runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
         const newVideoIndex = getIndexOfVideoInQueue(newVideoId);
         onClickPlayerButton("change-video", { videoUrl: newVideoUrl, videoIndex: newVideoIndex });
       });
@@ -115,7 +115,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
 
   const handleRemoveVideoFromQueue = (videoUrl: string) => {
     if (socket?.userId && room) {
-      runIfAuthorized(room.host, socket.userId, () => {
+      runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
         socket.emit(REMOVE_VIDEO_FROM_QUEUE, videoUrl);
         videoQueue.removeItem("url", videoUrl);
       });
@@ -131,7 +131,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
 
   const onDragEnd = (result: DropResult) => {
     if (socket?.userId && room) {
-      runIfAuthorized(room.host, socket.userId, () => {
+      runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
         if (!result.destination) return;
         const items = handleReorder(videoQueue.queue, result.source.index, result.destination.index);
         videoQueue.set(items);

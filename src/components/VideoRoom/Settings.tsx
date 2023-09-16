@@ -50,7 +50,7 @@ const Settings: React.FC<SettingsProps> = () => {
 
   const handleSaveSettings = (newSettings: { maxRoomSize?: number; roomPasscode?: string }) => {
     if (socket?.userId && room) {
-      runIfAuthorized(room.host, socket.userId, () => {
+      runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
         errorMessage && setErrorMessage(null);
 
         if (!newSettings.maxRoomSize && !newSettings.roomPasscode) return;

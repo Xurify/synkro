@@ -229,7 +229,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   }, [player]);
 
   const runIfAuthorized = (callback?: () => void) => {
-    if (room?.host === socket?.userId) {
+    if (socket?.isAdmin || room?.host === socket?.userId) {
       typeof callback === "function" && callback();
     }
   };

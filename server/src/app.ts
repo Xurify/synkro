@@ -42,9 +42,11 @@ import {
   JOIN_ROOM_BY_INVITE,
   CHANGE_SETTINGS,
   KICK_USER,
+  SET_ADMIN,
 } from '../../src/constants/socketActions';
 
-require('dotenv').config();
+import { config } from 'dotenv';
+config();
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
 const app: Application = express();
@@ -79,6 +81,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   if (adminToken === adminTokenHandshake) {
     socket.isAdmin = true;
+    socket.emit(SET_ADMIN);
   }
 
   socket.userId = userId;

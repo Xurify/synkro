@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { SocketContext } from "./SocketContext";
 import { CustomSocket } from "@/types/socketCustomTypes";
 import { socketURL } from "@/constants/constants";
-import { GET_ROOM_INFO, GET_USER_INFO } from "@/constants/socketActions";
+import { GET_ROOM_INFO, GET_USER_INFO, SET_ADMIN } from "@/constants/socketActions";
 import { Room, User } from "@/types/interfaces";
 
 interface SocketProviderProps {
@@ -52,6 +52,10 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
     newSocket.on("disconnect", () => {
       setIsConnecting(false);
       setRoom(null);
+    });
+
+    newSocket.on(SET_ADMIN, () => {
+      newSocket.isAdmin = true;
     });
 
     newSocket.on(GET_ROOM_INFO, (newRoom) => {
