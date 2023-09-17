@@ -46,8 +46,8 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
       if (value === null) {
         toast({
           variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: "Sorry, this room doesn't exist 😥",
+          title: "Uh oh! Something went wrong",
+          description: "Sorry, this room doesn't exist. 😥",
           action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       } else {

@@ -13,12 +13,14 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 import { runIfAuthorized } from "@/libs/utils/socket";
 import { useSocket } from "@/context/SocketContext";
 
 import { Separator } from "../Separator";
 import { PlayPauseButton } from "./PlayPauseButton";
+import ReactPlayer from "react-player";
 
 export type ButtonActions =
   | SidebarViews
@@ -43,6 +45,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
   const [newVideoUrl, setNewVideoUrl] = useState<string>("");
 
   const { socket, room } = useSocket();
+  const { toast } = useToast();
 
   const handleChangeNewVideoUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -50,6 +53,14 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
   };
 
   const handleChangeVideo = () => {
+    if (!ReactPlayer.canPlay(newVideoUrl)) {
+      toast({
+        variant: "destructive",
+        title: "Incorrect video URL",
+        description: "Sorry, this video cannot be played",
+      });
+      return;
+    }
     if (socket?.userId && room?.host) {
       runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
         onClickPlayerButton("change-video", { videoUrl: newVideoUrl });

@@ -314,6 +314,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(CHANGE_VIDEO, (url, newIndex) => {
+    // TODO: Check if video URL is valid
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {

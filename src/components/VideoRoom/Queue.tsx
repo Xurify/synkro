@@ -17,6 +17,7 @@ import Image from "next/image";
 import { useSocket } from "@/context/SocketContext";
 import { runIfAuthorized } from "@/libs/utils/socket";
 import { ButtonActions } from "./RoomToolbar";
+import ReactPlayer from "react-player";
 
 interface QueueProps {
   currentVideoId: string;
@@ -47,12 +48,12 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
   };
 
   const handleAddVideoToQueue = () => {
-    if (!isAuthorized) return;
-    if (!socket || newVideoInQueueUrl.trim() === "") return;
+    if (!isAuthorized || !socket) return;
+    if (!ReactPlayer.canPlay(newVideoInQueueUrl)) return;
     if (!YOUTUBE_VIDEO_URL_REGEX.test(newVideoInQueueUrl)) {
       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
+        title: "Uh oh! Something went wrong",
         description: "This URL seems to be invalid.",
       });
       return;
@@ -64,7 +65,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
     if (!!videoExist) {
       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
+        title: "Uh oh! Something went wrong",
         description: "This video is already in the current queue",
       });
       setNewVideoInQueueUrl("");

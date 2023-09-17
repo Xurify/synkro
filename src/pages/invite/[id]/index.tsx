@@ -44,7 +44,7 @@ export const InvitePage: React.FC<InvitePageProps> = () => {
     if (!username.trim() || !inviteCode.trim()) {
       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
+        title: "Uh oh! Something went wrong",
         description: "There seem to be missing fields",
         action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
@@ -57,8 +57,8 @@ export const InvitePage: React.FC<InvitePageProps> = () => {
       } else {
         toast({
           variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: "Sorry, this room doesn't exist 😥",
+          title: "Uh oh! Something went wrong",
+          description: "Sorry, this room doesn't exist. 😥",
           action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       }
