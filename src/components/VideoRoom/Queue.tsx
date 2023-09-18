@@ -83,6 +83,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
 
         if (!videoInfo) {
           console.error("No video info available", videoId);
+          return;
         }
 
         const id = videoInfo.id;

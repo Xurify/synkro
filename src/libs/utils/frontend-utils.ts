@@ -38,7 +38,7 @@ export const truncate = (value: string, length: number): string => {
 
 export const convertURLToYoutubeVideoId = (url: string): string | null => {
   const match = url.match(YOUTUBE_VIDEO_URL_REGEX);
-  return match && match[2].length === 11 ? match[2] : null;
+  return match && match[3].length === 11 ? match[3] : null;
 };
 
 export const convertURLToCorrectProviderVideoId = (url: string): string | null => {
