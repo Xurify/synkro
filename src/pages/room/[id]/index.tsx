@@ -48,7 +48,7 @@ import { useSocket } from "@/context/SocketContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useQueue } from "@/hooks/useQueue";
 
-import { convertURLToCorrectProviderVideoId, isValidUrl } from "@/libs/utils/frontend-utils";
+import { convertURLToCorrectProviderVideoId } from "@/libs/utils/frontend-utils";
 import { Spinner } from "@/components/Spinner";
 
 const ReactPlayerLazy = dynamic(() => import("react-player/lazy"), {
