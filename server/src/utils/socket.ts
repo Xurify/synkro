@@ -28,7 +28,7 @@ export const addRoom = (id: string, name: string, user: User): Room | null => {
     id,
     inviteCode,
     videoInfo: {
-      currentVideoUrl: null,
+      currentVideoUrl: 'https://youtu.be/QdKhuEnkwiY',
       currentQueueIndex: -1,
       queue: [],
     },
