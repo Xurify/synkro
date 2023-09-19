@@ -22,7 +22,7 @@ export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       url: videoUrl,
       title: contentDisposition?.split("filename=")?.[1]?.split(";")?.[0] ?? "Untitled",
       id: videoUrl,
-      thumbnail: `https://synkro.vercel.app/next-assets/images/synkro_placeholder.svg`,
+      thumbnail: `/next-assets/images/synkro_placeholder.svg`,
       "content-type": videoResponse.headers.get("content-type"),
     };
     return res.status(200).json(metadata);

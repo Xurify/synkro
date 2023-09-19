@@ -188,12 +188,7 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
                             </Button>
                           </div>
                         )}
-                        <Image
-                          alt=""
-                          src={video.thumbnail || "https://synkro.vercel.app/next-assets/images/synkro_placeholder.svg"}
-                          layout="fill"
-                          quality={25}
-                        />
+                        <Image alt="" src={video.thumbnail || "/next-assets/images/synkro_placeholder.svg"} layout="fill" quality={25} />
                       </div>
                       <p className="text-primary-foreground mt-2 text-sm">{video.title}</p>
                     </div>
