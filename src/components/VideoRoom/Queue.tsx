@@ -10,14 +10,13 @@ import { VideoQueueItem } from "@/types/interfaces";
 import { ADD_VIDEO_TO_QUEUE, REMOVE_VIDEO_FROM_QUEUE, VIDEO_QUEUE_REORDERED } from "@/constants/socketActions";
 
 import { Queue } from "@/hooks/useQueue";
-import { YOUTUBE_VIDEO_URL_REGEX } from "@/constants/constants";
 import { useToast } from "@/components/ui/use-toast";
-import { convertURLToYoutubeVideoId } from "@/libs/utils/frontend-utils";
 import Image from "next/image";
 import { useSocket } from "@/context/SocketContext";
 import { runIfAuthorized } from "@/libs/utils/socket";
 import { ButtonActions } from "./RoomToolbar";
 import ReactPlayer from "react-player";
+import { fetchMediaData } from "@/libs/utils/video-fetch-lib";
 
 interface QueueProps {
   currentVideoId: string;
@@ -47,21 +46,11 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
     if (e.key === "Enter") handleAddVideoToQueue();
   };
 
-  const handleAddVideoToQueue = () => {
+  const handleAddVideoToQueue = async () => {
     if (!isAuthorized || !socket) return;
     if (!ReactPlayer.canPlay(newVideoInQueueUrl)) return;
-    if (!YOUTUBE_VIDEO_URL_REGEX.test(newVideoInQueueUrl)) {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong",
-        description: "This URL seems to be invalid.",
-      });
-      return;
-    }
 
-    const videoId = convertURLToYoutubeVideoId(newVideoInQueueUrl);
-
-    const videoExist = videoQueue.queue.find((video) => video.id === videoId);
+    const videoExist = videoQueue.queue.find((video) => video.url === newVideoInQueueUrl);
     if (!!videoExist) {
       toast({
         variant: "destructive",
@@ -72,38 +61,19 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
       return;
     }
 
-    const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
+    const newVideo = await fetchMediaData(newVideoInQueueUrl);
 
-    const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${YOUTUBE_API_KEY}&part=snippet,contentDetails,statistics`;
-
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        const videoInfo = data.items?.[0];
-
-        if (!videoInfo) {
-          console.error("No video info available", videoId);
-          return;
-        }
-
-        const id = videoInfo.id;
-        const title = videoInfo.snippet.title;
-        const thumbnail = videoInfo.snippet.thumbnails.maxres.url;
-
-        const newVideo = {
-          url: newVideoInQueueUrl,
-          name: title,
-          thumbnail: thumbnail || "",
-          id,
-        };
-
-        videoQueue.add(newVideo);
-        socket.emit(ADD_VIDEO_TO_QUEUE, newVideo);
-        setNewVideoInQueueUrl("");
-      })
-      .catch((error) => {
-        console.error("Error fetching video details:", error);
+    if (newVideo?.url) {
+      videoQueue.add(newVideo);
+      socket.emit(ADD_VIDEO_TO_QUEUE, newVideo);
+      setNewVideoInQueueUrl("");
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong",
+        description: "This URL seems to be invalid or is not from an accepted provider",
       });
+    }
   };
 
   const handleChangeVideo = (newVideoUrl: string, newVideoId: string) => {
@@ -218,9 +188,14 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
                             </Button>
                           </div>
                         )}
-                        <Image alt="" src={video.thumbnail} layout="fill" quality={25} />
+                        <Image
+                          alt=""
+                          src={video.thumbnail || "https://synkro.vercel.app/next-assets/images/synkro_placeholder.svg"}
+                          layout="fill"
+                          quality={25}
+                        />
                       </div>
-                      <p className="text-primary-foreground mt-2 text-sm">{video.name}</p>
+                      <p className="text-primary-foreground mt-2 text-sm">{video.title}</p>
                     </div>
                   )}
                 </Draggable>

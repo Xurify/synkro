@@ -64,7 +64,7 @@ export type Messages = Message[];
 
 export interface VideoQueueItem {
   id: string;
-  name: string;
+  title: string;
   url: string;
   thumbnail: string;
 }

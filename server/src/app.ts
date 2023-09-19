@@ -3,6 +3,7 @@ import { createServer, Server as HttpServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
 import { nanoid } from 'nanoid';
 import { Server } from 'socket.io';
+import ReactPlayer from 'react-player';
 import { Room, Rooms, ServerMessageType, User } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
 import {
@@ -314,7 +315,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(CHANGE_VIDEO, (url, newIndex) => {
-    // TODO: Check if video URL is valid
+    if (!ReactPlayer.canPlay(url)) return;
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {

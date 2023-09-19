@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import useSound from "use-sound";
 
+import ReactPlayer from "react-player";
 import type ReactPlayerType from "react-player";
 //import { OnProgressProps } from "react-player/base";
 import screenfull from "screenfull";
@@ -50,7 +51,7 @@ import { useQueue } from "@/hooks/useQueue";
 import { convertURLToCorrectProviderVideoId, isValidUrl } from "@/libs/utils/frontend-utils";
 import { Spinner } from "@/components/Spinner";
 
-const ReactPlayer = dynamic(() => import("react-player/lazy"), {
+const ReactPlayerLazy = dynamic(() => import("react-player/lazy"), {
   loading: () => {
     return <div className="w-full h-full flex text-white items-center justify-center">LOADING</div>;
   },
@@ -333,7 +334,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
         handleLeaveRoom();
         return;
       case "change-video":
-        if (typeof payload?.videoUrl === "string" && isValidUrl(payload.videoUrl)) {
+        if (typeof payload?.videoUrl === "string" && ReactPlayer.canPlay(payload.videoUrl)) {
           setCurrentVideoUrl(payload.videoUrl);
           socket?.emit(CHANGE_VIDEO, payload.videoUrl, payload.videoIndex);
           setIsPlaying(true);
@@ -386,7 +387,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
         <div className="w-full">
           <div className="bg-card mb-2">
             <AspectRatio ratio={16 / 9}>
-              <ReactPlayer
+              <ReactPlayerLazy
                 className="react-player"
                 url={currentVideoUrl}
                 width="100%"
