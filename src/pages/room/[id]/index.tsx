@@ -157,7 +157,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, time) => {
       setCurrentVideoUrl(hostVideoUrl);
       setIsPlaying(playing);
-      handleSyncTime(time + 0.6);
+      handleSyncTime(time);
       setIsSyncing(false);
     });
 
@@ -269,6 +269,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       return;
     }
     const currentTime = player?.getCurrentTime();
+    console.log("handleSyncTime", time, currentTime, currentTime < time - 0.6, currentTime > time + 0.6);
     if (currentTime < time - 0.6 || currentTime > time + 0.6) {
       player.seekTo(time);
     }
