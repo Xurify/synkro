@@ -157,7 +157,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, time) => {
       setCurrentVideoUrl(hostVideoUrl);
       setIsPlaying(playing);
-      handleSyncTime(time + 0.5);
+      handleSyncTime(time + 0.6);
       setIsSyncing(false);
     });
 
