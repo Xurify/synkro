@@ -259,7 +259,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (user && user.roomId) {
       socket.to(user.roomId).emit(PLAY_VIDEO);
 
-      io.sockets.sockets.get(user.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string, time: number) => {
+      socket.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string, time: number) => {
         socket.to(user.roomId).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, time);
       });
     }
@@ -327,8 +327,8 @@ io.on('connection', (socket: CustomSocketServer) => {
         }
       }
       socket.in(user.roomId).emit(CHANGE_VIDEO, url);
-      io.sockets.sockets.get(user.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string, time: number) => {
-        io.to(room.id).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, time);
+      socket.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string) => {
+        io.to(room.id).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, 0);
       });
     }
   });
