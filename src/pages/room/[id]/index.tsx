@@ -50,6 +50,7 @@ import { useQueue } from "@/hooks/useQueue";
 
 import { convertURLToCorrectProviderVideoId } from "@/libs/utils/frontend-utils";
 import { Spinner } from "@/components/Spinner";
+import { AUDIO_FILE_URL_REGEX, VIDEO_FILE_URL_REGEX } from "@/constants/constants";
 
 const ReactPlayerLazy = dynamic(() => import("react-player/lazy"), {
   loading: () => {
@@ -222,15 +223,22 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     };
   }, [socket, player]);
 
-  const onReady = (player: ReactPlayerType) => {
-    setPlayer(player);
-    if (sessionToken === room?.host) {
-      player?.seekTo(0);
-    }
-    setIsLoading(false);
-    setIsPlaying(true);
-    socket?.emit(GET_VIDEO_INFORMATION);
-  };
+  const onReady = React.useCallback(
+    (player: ReactPlayerType) => {
+      setPlayer(player);
+      if (sessionToken === room?.host) {
+        if (!currentVideoUrl.match(VIDEO_FILE_URL_REGEX) && !currentVideoUrl.match(AUDIO_FILE_URL_REGEX)) {
+          player?.seekTo(0);
+        }
+        setIsPlaying(true);
+      }
+      setIsLoading(false);
+      if (sessionToken !== room?.host) {
+        socket?.emit(GET_VIDEO_INFORMATION);
+      }
+    },
+    [currentVideoUrl, player, sessionToken, room?.host, socket]
+  );
 
   useEffect(() => {
     if (!player && !isLoading) return;
