@@ -308,7 +308,8 @@ io.on('connection', (socket: CustomSocketServer) => {
 
       if (nextVideo) {
         const nextIndex = room.videoInfo.currentQueueIndex + 1;
-        room.videoInfo.currentQueueIndex = nextIndex < room.videoInfo.queue.length ? nextIndex : 0;
+        room.videoInfo.currentQueueIndex = nextIndex < room.videoInfo.queue.length - 1 ? nextIndex : 0;
+        room.videoInfo.currentVideoUrl = nextVideo.url;
         io.to(user.roomId).emit(CHANGE_VIDEO, nextVideo.url);
       }
     }
@@ -412,10 +413,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   socket.on(LEAVE_ROOM, () => {
     if (socket.userId) {
       handleUserDisconnect(socket.userId);
+      socket.roomId && socket?.emit(LEAVE_ROOM);
       socket.roomId && socket.leave(socket.roomId);
       socket.userId = undefined;
       socket.roomId = undefined;
-      socket.roomId && socket?.emit(LEAVE_ROOM);
     }
   });
 
@@ -573,7 +574,13 @@ app.get('/api/users', (_req, res) => {
 app.get('/api/connections', (_req, res) => {
   res.json({
     activeConnections,
-    users: users.length,
-    rooms: Object.values(rooms).length,
+    users: {
+      ids: users.map((user) => user.id),
+      length: users.length,
+    },
+    rooms: {
+      ids: Object.keys(rooms),
+      length: Object.keys(rooms).length,
+    },
   });
 });
