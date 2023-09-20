@@ -226,7 +226,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const onReady = React.useCallback(
     (player: ReactPlayerType) => {
       setPlayer(player);
-      if (sessionToken === room?.host) {
+      if (sessionToken === room?.host || sessionToken === process.env.NEXT_PUBLIC_ADMIN_TOKEN) {
         if (!currentVideoUrl.match(VIDEO_FILE_URL_REGEX) && !currentVideoUrl.match(AUDIO_FILE_URL_REGEX)) {
           player?.seekTo(0);
         }
