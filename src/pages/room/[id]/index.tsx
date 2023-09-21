@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { findDOMNode } from "react-dom";
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
+import Head from "next/head";
 import { useRouter, useSearchParams } from "next/navigation";
 import useSound from "use-sound";
 
@@ -151,10 +152,13 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
       const currentTime = player?.getCurrentTime();
       const currentVideoUrl = player?.props?.url as string;
       const isCurrentlyPlaying = player?.props?.playing as boolean;
+
+      console.log(GET_HOST_VIDEO_INFORMATION, currentTime, currentVideoUrl, currentVideoId, isCurrentlyPlaying);
       typeof callback === "function" && callback(isCurrentlyPlaying, currentVideoUrl, currentTime ?? 0);
     });
 
     socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, time) => {
+      console.log(SYNC_VIDEO_INFORMATION, playing, hostVideoUrl, time, currentVideoId);
       setCurrentVideoUrl(hostVideoUrl);
       setIsPlaying(playing);
       handleSyncTime(time);
@@ -391,35 +395,41 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   }
 
   return (
-    <main className="mx-auto h-full flex flex-col md:flex-row justify-center mt-[-1rem] md:mt-0">
-      <div className="flex flex-col max-w-[80rem] w-full">
-        <div className="w-full">
-          <div className="bg-card mb-2">
-            <AspectRatio ratio={16 / 9}>
-              <ReactPlayerLazy
-                className="react-player"
-                url={currentVideoUrl}
-                width="100%"
-                height="100%"
-                playing={isPlaying}
-                onReady={onReady}
-                onBuffer={handleBuffer}
-                onPlay={handlePlay}
-                onPause={handlePause}
-                controls={true}
-                //onProgress={onProgress}
-                onEnded={handleEnded}
-                fallback={<div>LOADING</div>}
-              />
-            </AspectRatio>
+    <>
+      <Head>
+        <title>Synkro - {room.name ?? "Unknown"}</title>
+      </Head>
+
+      <main className="mx-auto h-full flex flex-col md:flex-row justify-center mt-[-1rem] md:mt-0">
+        <div className="flex flex-col max-w-[80rem] w-full">
+          <div className="w-full">
+            <div className="bg-card mb-2">
+              <AspectRatio ratio={16 / 9}>
+                <ReactPlayerLazy
+                  className="react-player"
+                  url={currentVideoUrl}
+                  width="100%"
+                  height="100%"
+                  playing={isPlaying}
+                  onReady={onReady}
+                  onBuffer={handleBuffer}
+                  onPlay={handlePlay}
+                  onPause={handlePause}
+                  controls={true}
+                  //onProgress={onProgress}
+                  onEnded={handleEnded}
+                  fallback={<div>LOADING</div>}
+                />
+              </AspectRatio>
+            </div>
+          </div>
+          <div className="w-full flex items-center justify-center p-2 md:p-0">
+            <RoomToolbar activeView={activeView} onClickPlayerButton={handleClickPlayerButton} isPlaying={isPlaying} roomId={roomId} />
           </div>
         </div>
-        <div className="w-full flex items-center justify-center p-2 md:p-0">
-          <RoomToolbar activeView={activeView} onClickPlayerButton={handleClickPlayerButton} isPlaying={isPlaying} roomId={roomId} />
-        </div>
-      </div>
-      <Sidebar activeView={activeView} views={views} />
-    </main>
+        <Sidebar activeView={activeView} views={views} />
+      </main>
+    </>
   );
 };
 
