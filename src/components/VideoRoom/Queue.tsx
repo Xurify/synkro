@@ -97,8 +97,10 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
   const handleClearQueue = () => {
     if (socket?.userId && room) {
       runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
-        socket.emit(VIDEO_QUEUE_CLEARED);
-        videoQueue.clear();
+        if (videoQueue.queue.length > 0) {
+          socket.emit(VIDEO_QUEUE_CLEARED);
+          videoQueue.clear();
+        }
       });
     }
   };

@@ -371,8 +371,10 @@ io.on('connection', (socket: CustomSocketServer) => {
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
       const room: Room = getRoomById(user.roomId, rooms);
-      room.videoInfo.queue = [];
-      socket.to(user.roomId).emit(VIDEO_QUEUE_REORDERED, []);
+      if (room.videoInfo.queue.length > 0) {
+        room.videoInfo.queue = [];
+        socket.to(user.roomId).emit(VIDEO_QUEUE_REORDERED, []);
+      }
     }
   });
 
