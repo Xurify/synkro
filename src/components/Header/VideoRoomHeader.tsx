@@ -10,12 +10,6 @@ export interface NavigationHeaderProps {
   page?: "home" | "video_room";
 }
 
-// background-color: #432b6d;
-// border: 1px solid #614397;
-
-// background-color: #5f566f6e;
-//     border: 1px solid #614397;
-
 const convertInviteCodeToUrl = (inviteCode: string) => `${BASE_URL}/invite/${inviteCode}`;
 
 export const VideoRoomHeader: React.FC<NavigationHeaderProps> = ({}) => {
@@ -39,7 +33,7 @@ export const VideoRoomHeader: React.FC<NavigationHeaderProps> = ({}) => {
         className="h-10 rounded-l rounded-r-none cursor-pointer bg-[#342f3d6e] hover:bg-[#342f3da1] border border-r-0 border-[#614397] font-normal"
         type="text"
         onClick={handleCopyInviteCode}
-        value={room?.inviteCode ?? ""}
+        value={room?.inviteCode ?? "No invite code"}
         readOnly={true}
       />
       <Button
