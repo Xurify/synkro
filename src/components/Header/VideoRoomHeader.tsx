@@ -1,10 +1,12 @@
-import { UserPlusIcon } from "lucide-react";
+import { useState } from "react";
+import { QrCodeIcon, UserPlusIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSocket } from "@/context/SocketContext";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { BASE_URL } from "@/constants/constants";
+import { QRCodeModal } from "./QRCodeModal";
 
 export interface NavigationHeaderProps {
   page?: "home" | "video_room";
@@ -16,6 +18,7 @@ export const VideoRoomHeader: React.FC<NavigationHeaderProps> = ({}) => {
   const { room } = useSocket();
   const [_value, copy] = useCopyToClipboard();
   const { toast } = useToast();
+  const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState<boolean>(false);
 
   const handleCopyInviteCode = () => {
     room?.inviteCode &&
@@ -27,8 +30,13 @@ export const VideoRoomHeader: React.FC<NavigationHeaderProps> = ({}) => {
       });
   };
 
+  const handleOpenQRCodeModal = () => {
+    setIsQRCodeModalOpen(!isQRCodeModalOpen);
+  };
+
   return (
     <div className="flex items-center p-2">
+      <QRCodeModal open={isQRCodeModalOpen} toggle={handleOpenQRCodeModal} code={room?.inviteCode || ""} />
       <Input
         className="h-10 rounded-l rounded-r-none cursor-pointer bg-[#342f3d6e] hover:bg-[#342f3da1] border border-r-0 border-[#614397] font-normal"
         type="text"
@@ -36,6 +44,15 @@ export const VideoRoomHeader: React.FC<NavigationHeaderProps> = ({}) => {
         value={room?.inviteCode ?? "No invite code"}
         readOnly={true}
       />
+      <Button
+        onClick={handleOpenQRCodeModal}
+        className="w-12 h-10 rounded-r-none rounded-l-none bg-[#342f3d6e] hover:bg-[#342f3da1] border border-[#614397] border-r-0"
+        variant="secondary"
+      >
+        <span>
+          <QrCodeIcon color="#ffffff" size="1.25rem" />
+        </span>
+      </Button>
       <Button
         onClick={handleCopyInviteCode}
         className="w-12 h-10 rounded-r rounded-l-none bg-[#342f3d6e] hover:bg-[#342f3da1] border border-[#614397]"

@@ -37,10 +37,10 @@ export const UserModal: React.FC<ModalProps> = ({ buttonText, disabled = false, 
       <DialogTrigger onClick={handleOpen} asChild disabled={disabled}>
         <button className="text-primary-foreground text-left">{buttonText}</button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]" handleClose={handleClose}>
+      <DialogContent className="sm:max-w-[425px]" onClose={handleClose}>
         <DialogHeader>
           <DialogTitle className="text-secondary-foreground">{headerText}</DialogTitle>
-          <DialogDescription>Make changes to the room here. Click save when you're done.</DialogDescription>
+          <DialogDescription>Make changes to the room here. Click save when you&apos;re done.</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button type="submit" variant="default" onClick={handleChangeAdmin}>
