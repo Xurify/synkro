@@ -44,6 +44,7 @@ import {
   CHANGE_SETTINGS,
   KICK_USER,
   SET_ADMIN,
+  VIDEO_QUEUE_CLEARED,
 } from '../../src/constants/socketActions';
 
 import { config } from 'dotenv';
@@ -365,6 +366,16 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
   });
 
+  socket.on(VIDEO_QUEUE_CLEARED, () => {
+    if (requestIsNotFromHost(socket, rooms)) return;
+    const user = socket?.userId && getUser(socket.userId, users);
+    if (user && user?.roomId) {
+      const room: Room = getRoomById(user.roomId, rooms);
+      room.videoInfo.queue = [];
+      socket.to(user.roomId).emit(VIDEO_QUEUE_REORDERED, []);
+    }
+  });
+
   socket.on(CHANGE_SETTINGS, (newSettings) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
@@ -534,7 +545,7 @@ const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: strin
   return updatedRoom;
 };
 
-const CLEANUP_INTERVAL = 10 * 60 * 1000;
+const CLEANUP_INTERVAL = 4 * 60 * 1000;
 let cleanupInterval: NodeJS.Timeout | null = null;
 
 const startCleanupInterval = () => {

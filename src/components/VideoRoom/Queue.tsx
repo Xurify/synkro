@@ -7,7 +7,7 @@ import UAParser from "ua-parser-js";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { VideoQueueItem } from "@/types/interfaces";
-import { ADD_VIDEO_TO_QUEUE, REMOVE_VIDEO_FROM_QUEUE, VIDEO_QUEUE_REORDERED } from "@/constants/socketActions";
+import { ADD_VIDEO_TO_QUEUE, REMOVE_VIDEO_FROM_QUEUE, VIDEO_QUEUE_REORDERED, VIDEO_QUEUE_CLEARED } from "@/constants/socketActions";
 
 import { Queue } from "@/hooks/useQueue";
 import { useToast } from "@/components/ui/use-toast";
@@ -90,6 +90,15 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
       runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
         socket.emit(REMOVE_VIDEO_FROM_QUEUE, videoUrl);
         videoQueue.removeItem("url", videoUrl);
+      });
+    }
+  };
+
+  const handleClearQueue = () => {
+    if (socket?.userId && room) {
+      runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
+        socket.emit(VIDEO_QUEUE_CLEARED);
+        videoQueue.clear();
       });
     }
   };
@@ -199,6 +208,14 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
           )}
         </Droppable>
       </DragDropContext>
+
+      {isAuthorized && (
+        <div className="w-full flex p-2">
+          <Button onClick={handleClearQueue} className="w-full h-10 rounded" disabled={!isAuthorized} variant="destructive">
+            <span className="uppercase">Clear queue</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

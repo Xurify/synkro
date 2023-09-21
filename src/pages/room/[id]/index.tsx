@@ -31,6 +31,7 @@ import {
   END_OF_VIDEO,
   REMOVE_VIDEO_FROM_QUEUE,
   VIDEO_QUEUE_REORDERED,
+  VIDEO_QUEUE_CLEARED,
   GET_ROOM_INFO,
   KICK_USER,
 } from "../../../constants/socketActions";
@@ -196,6 +197,10 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
     socket.on(VIDEO_QUEUE_REORDERED, (newVideoQueue: VideoQueueItem[]) => {
       videoQueue.set(newVideoQueue);
+    });
+
+    socket.on(VIDEO_QUEUE_CLEARED, () => {
+      videoQueue.set([]);
     });
 
     socket.on(SYNC_TIME, (currentTime: number) => {

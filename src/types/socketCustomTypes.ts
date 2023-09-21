@@ -30,6 +30,7 @@ import {
   JOIN_ROOM_BY_INVITE,
   KICK_USER,
   SET_ADMIN,
+  VIDEO_QUEUE_CLEARED,
 } from "../constants/socketActions";
 import { ChatMessage, Room, ServerMessage, User, VideoQueueItem } from "./interfaces";
 
@@ -60,6 +61,7 @@ export interface ClientToServerEvents {
   [ADD_VIDEO_TO_QUEUE]: (video: VideoQueueItem) => void;
   [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
   [VIDEO_QUEUE_REORDERED]: (videoQueue: VideoQueueItem[]) => void;
+  [VIDEO_QUEUE_CLEARED]: () => void;
   [CHANGE_SETTINGS]: (newSettings: { maxRoomSize?: number; roomPasscode?: string }) => void;
   [JOIN_ROOM_BY_INVITE]: (
     inviteCode: string,
@@ -96,6 +98,7 @@ export interface ServerToClientEvents {
   [ADD_VIDEO_TO_QUEUE]: (video: VideoQueueItem) => void;
   [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
   [VIDEO_QUEUE_REORDERED]: (videoQueue: VideoQueueItem[]) => void;
+  [VIDEO_QUEUE_CLEARED]: () => void;
   [JOIN_ROOM_BY_INVITE]: (
     inviteCode: string,
     username: string,
