@@ -61,11 +61,9 @@ const rooms: { [roomId: string]: Room } = {};
 
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 
-let activeConnections = 0;
+const activeConnections = io.sockets.sockets.size;
 
 io.on('connection', (socket: CustomSocketServer) => {
-  activeConnections++;
-
   const userId = socket.handshake.auth.token;
   const adminTokenHandshake = socket.handshake.auth.adminToken;
   const adminToken = process.env.ADMIN_TOKEN;
@@ -446,7 +444,6 @@ io.on('connection', (socket: CustomSocketServer) => {
 const handleUserDisconnect = (userId: string) => {
   if (!userId) return;
 
-  activeConnections > 0 && activeConnections--;
   console.log(`👻 User disconnected - User Id: ${userId}`);
   const user = userId && getUser(userId, users);
   if (user) {
