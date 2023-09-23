@@ -52,8 +52,6 @@ const rooms: Map<string, Room> = new Map();
 
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 
-const activeConnections = io.sockets.sockets.size;
-
 io.on('connection', (socket: CustomSocketServer) => {
   const userId = socket.handshake.auth.token;
   const adminTokenHandshake = socket.handshake.auth.adminToken;
@@ -499,6 +497,7 @@ const handleUserDisconnect = (userId: string) => {
     }
 
     const roomInfo = rooms.get(user.roomId);
+    const activeConnections = io.sockets.sockets.size;
     console.log(LEAVE_ROOM, user.roomId, roomInfo?.members?.length, users.length, activeConnections);
   }
 };
@@ -593,6 +592,7 @@ app.get('/api/users', (_req, res) => {
 });
 
 app.get('/api/connections', (_req, res) => {
+  const activeConnections = io.sockets.sockets.size;
   res.json({
     activeConnections,
     users: {
