@@ -4,18 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { nanoid } from 'nanoid';
 import { Server } from 'socket.io';
 import ReactPlayer from 'react-player';
-import { Room, Rooms, ServerMessageType, User } from '../../src/types/interfaces';
+import { Room, ServerMessageType, User } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
-import {
-  addRoom,
-  addUser,
-  getPreviouslyConnectedUser,
-  getRoomById,
-  getRoomByInviteCode,
-  getUser,
-  requestIsNotFromHost,
-  updateRoom,
-} from './utils/socket';
+import { addRoom, addUser, getPreviouslyConnectedUser, getRoomByInviteCode, getUser, requestIsNotFromHost, updateRoom } from './utils/socket';
 import {
   LEAVE_ROOM,
   USER_MESSAGE,
@@ -57,7 +48,7 @@ const server: HttpServer = createServer(app);
 const io: Server = new Server(server);
 
 let users: User[] = [];
-const rooms: { [roomId: string]: Room } = {};
+const rooms: Map<string, Room> = new Map();
 
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 
@@ -78,6 +69,11 @@ io.on('connection', (socket: CustomSocketServer) => {
     return;
   }
 
+  if (!userId) {
+    socket.disconnect();
+    return;
+  }
+
   socket.userId = userId;
   socket.isAdmin = false;
 
@@ -89,14 +85,14 @@ io.on('connection', (socket: CustomSocketServer) => {
   console.log(`⚡️ New user connected - User Id: ${userId}`);
 
   socket.on(CHECK_IF_ROOM_EXISTS, (roomId, callback) => {
-    const room = getRoomById(roomId, rooms);
-    typeof callback === 'function' && callback(room);
+    const room = rooms.get(roomId);
+    typeof callback === 'function' && callback(room ?? null);
   });
 
   socket.on(CREATE_ROOM, async (username, roomName, callback) => {
     const newRoomId = nanoid(6);
     if (userId) {
-      const room: Room = getRoomById(newRoomId, rooms);
+      const room = rooms.get(newRoomId);
       if (room) {
         typeof callback === 'function' && callback({ error: 'Room already exists' });
       } else {
@@ -108,7 +104,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         const newRoom = addRoom(newRoomId, roomName, user);
         startCleanupInterval();
         if (newRoom) {
-          rooms[newRoomId] = newRoom;
+          rooms.set(newRoomId, newRoom);
           typeof callback === 'function' && callback({ result: newRoom });
           console.log(`👀 New user joined in room: ${user.roomId} - User Id: ${userId}`);
           socket.emit(GET_ROOM_INFO, newRoom);
@@ -125,7 +121,7 @@ io.on('connection', (socket: CustomSocketServer) => {
       return;
     }
 
-    const existingRoom = getRoomById(roomId, rooms);
+    const existingRoom = rooms.has(roomId);
     if (!existingRoom) {
       typeof callback === 'function' && callback({ success: false, error: `Failed to find room: ${roomId}` });
       return;
@@ -161,7 +157,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(RECONNECT_USER, (roomId, userId, callback) => {
     if (roomId && userId) {
-      const existingRoom: Room = getRoomById(roomId, rooms);
+      const existingRoom = rooms.get(roomId);
 
       if (!existingRoom) {
         typeof callback === 'function' && callback({ success: false, error: `Failed to find room: ${roomId}` });
@@ -206,7 +202,7 @@ io.on('connection', (socket: CustomSocketServer) => {
           });
         }
 
-        rooms[roomId] = updatedRoom;
+        rooms.set(roomId, updatedRoom);
         if (roomTimeouts[roomId]) {
           clearTimeout(roomTimeouts[roomId]);
           delete roomTimeouts[roomId];
@@ -241,9 +237,10 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (!requestIsNotFromHost(socket, rooms, false)) return;
     if (!socket?.roomId) return;
 
-    const room: Room = getRoomById(socket.roomId, rooms);
-    const host = getUser(room.host, users);
+    const room = rooms.get(socket.roomId);
+    if (!room) return;
 
+    const host = getUser(room.host, users);
     if (!host) return;
 
     io.sockets.sockets.get(host.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string, time: number) => {
@@ -302,9 +299,10 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
-      const room: Room = getRoomById(user.roomId, rooms);
-      const nextVideo = room.videoInfo.queue[room.videoInfo.currentQueueIndex + 1] ?? room.videoInfo.queue[0];
+      const room = rooms.get(user.roomId);
+      if (!room) return;
 
+      const nextVideo = room.videoInfo.queue[room.videoInfo.currentQueueIndex + 1] ?? room.videoInfo.queue[0];
       if (nextVideo) {
         const nextIndex = room.videoInfo.currentQueueIndex + 1;
         room.videoInfo.currentQueueIndex = nextIndex < room.videoInfo.queue.length - 1 ? nextIndex : 0;
@@ -319,17 +317,17 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
-      const room: Room = getRoomById(user.roomId, rooms);
+      const room = rooms.get(user.roomId);
       if (room) {
         room.videoInfo.currentVideoUrl = url;
         if (typeof newIndex === 'number' && newIndex > -1) {
           room.videoInfo.currentQueueIndex = newIndex;
         }
+        socket.in(user.roomId).emit(CHANGE_VIDEO, url);
+        socket.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string) => {
+          io.to(room.id).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, 0);
+        });
       }
-      socket.in(user.roomId).emit(CHANGE_VIDEO, url);
-      socket.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string) => {
-        io.to(room.id).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, 0);
-      });
     }
   });
 
@@ -337,7 +335,8 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
-      const room: Room = getRoomById(user.roomId, rooms);
+      const room = rooms.get(user.roomId);
+      if (!room) return;
       room.videoInfo.queue = [...room.videoInfo.queue, newVideo];
       socket.to(user.roomId).emit(ADD_VIDEO_TO_QUEUE, newVideo);
     }
@@ -347,7 +346,8 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
-      const room: Room = getRoomById(user.roomId, rooms);
+      const room = rooms.get(user.roomId);
+      if (!room) return;
       const newVideoQueue = room.videoInfo.queue.filter((videoItem) => videoItem.url !== url);
       room.videoInfo.queue = newVideoQueue;
       socket.to(user.roomId).emit(REMOVE_VIDEO_FROM_QUEUE, url);
@@ -358,7 +358,8 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
-      const room: Room = getRoomById(user.roomId, rooms);
+      const room = rooms.get(user.roomId);
+      if (!room) return;
       room.videoInfo.queue = newVideoQueue;
       socket.to(user.roomId).emit(VIDEO_QUEUE_REORDERED, newVideoQueue);
     }
@@ -368,7 +369,8 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
-      const room: Room = getRoomById(user.roomId, rooms);
+      const room = rooms.get(user.roomId);
+      if (!room) return;
       if (room.videoInfo.queue.length > 0) {
         room.videoInfo.queue = [];
         socket.to(user.roomId).emit(VIDEO_QUEUE_REORDERED, []);
@@ -380,7 +382,8 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     const user = socket?.userId && getUser(socket.userId, users);
     if (user && user?.roomId) {
-      const room: Room = getRoomById(user.roomId, rooms);
+      const room = rooms.get(user.roomId);
+      if (!room) return;
       if (newSettings.maxRoomSize && newSettings.maxRoomSize <= 20) {
         room.maxRoomSize = newSettings.maxRoomSize;
       }
@@ -398,9 +401,10 @@ io.on('connection', (socket: CustomSocketServer) => {
     const user = getUser(userId, users);
     if (!user) return;
 
-    const room: Room = getRoomById(socket.roomId, rooms);
+    const room = rooms.get(user.roomId);
+    if (!room) return;
     room.host = userId;
-    rooms[socket.roomId] = room;
+    rooms.set(socket.roomId, room);
     //io.in(room.id).emit(SET_HOST, room.host);
     io.in(room.id).emit(GET_ROOM_INFO, room);
     io.in(room.id).emit(SERVER_MESSAGE, {
@@ -452,14 +456,14 @@ const handleUserDisconnect = (userId: string) => {
       message: `${user.username} has disconnected`,
     });
 
-    const room: Room = getRoomById(user.roomId, rooms);
+    const room = rooms.get(user.roomId);
 
     if (room) {
       const userWasHost = userId === room.host;
 
       const newMembers = room.members.filter((member) => member.id !== userId);
       const updatedRoom = updateRoom(user.roomId, rooms, { members: newMembers });
-      rooms[user.roomId] = updatedRoom;
+      rooms.set(user.roomId, updatedRoom);
 
       const THREE_MINUTES = 3 * 60 * 1000;
 
@@ -468,11 +472,11 @@ const handleUserDisconnect = (userId: string) => {
       if (newMembers.length === 0) {
         roomTimeouts[user.roomId] = setTimeout(async () => {
           if (updatedRoom.members.length === 0) {
-            delete rooms[user.roomId];
+            rooms.delete(user.roomId);
             console.log(`🧼 Cleanup: Room ${user.roomId} has been deleted.`);
           }
         }, THREE_MINUTES);
-        rooms[user.roomId] = updatedRoom;
+        rooms.set(user.roomId, updatedRoom);
       } else {
         roomTimeouts[user.roomId] && clearTimeout(roomTimeouts[user.roomId]);
       }
@@ -483,7 +487,7 @@ const handleUserDisconnect = (userId: string) => {
       if (userWasHost && newMembers.length > 0) {
         updatedRoom.host = newMembers[0].id;
         console.log(`TESTING - NEW HOST ${updatedRoom.host} ${newMembers.length}`);
-        rooms[user.roomId] = updatedRoom;
+        rooms.set(user.roomId, updatedRoom);
 
         io.in(room.id).emit(SERVER_MESSAGE, {
           type: ServerMessageType.NEW_HOST,
@@ -494,13 +498,20 @@ const handleUserDisconnect = (userId: string) => {
       io.to(room.id).emit(GET_ROOM_INFO, updatedRoom);
     }
 
-    const roomInfo = getRoomById(user.roomId, rooms);
+    const roomInfo = rooms.get(user.roomId);
     console.log(LEAVE_ROOM, user.roomId, roomInfo?.members?.length, users.length, activeConnections);
   }
 };
 
-const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: string, username: string, rooms: Rooms, users: User[]): Room | null => {
-  const room = getRoomById(roomId, rooms);
+const addUserToRoom = (
+  socket: CustomSocketServer,
+  userId: string,
+  roomId: string,
+  username: string,
+  rooms: Map<string, Room>,
+  users: User[],
+): Room | null => {
+  const room = rooms.get(roomId);
   if (!room) return null;
 
   socket.join(roomId);
@@ -529,7 +540,7 @@ const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: strin
     updatedRoom.host = userId;
   }
 
-  rooms[roomId] = updatedRoom;
+  rooms.set(roomId, updatedRoom);
   if (roomTimeouts[roomId]) {
     clearTimeout(roomTimeouts[roomId]);
     roomTimeouts[roomId] = undefined;
@@ -551,8 +562,8 @@ const startCleanupInterval = () => {
   if (!cleanupInterval && Object.keys(rooms).length > 0) {
     cleanupInterval = setInterval(() => {
       for (const roomId in rooms) {
-        if (rooms[roomId].members.length === 0) {
-          delete rooms[roomId];
+        if (rooms.get(roomId)?.members.length === 0) {
+          rooms.delete(roomId);
           console.log(`🧼 Cleanup: Room ${roomId} has been deleted.`);
         }
       }
@@ -574,7 +585,7 @@ app.get('/api/healthz', (_req, res) => {
 });
 
 app.get('/api/rooms', (_req, res) => {
-  res.json({ rooms });
+  res.json({ rooms: [...rooms] });
 });
 
 app.get('/api/users', (_req, res) => {
@@ -589,7 +600,7 @@ app.get('/api/connections', (_req, res) => {
       length: users.length,
     },
     rooms: {
-      ids: Object.keys(rooms),
+      ids: [...rooms].map((room) => room[0]),
       length: Object.keys(rooms).length,
     },
   });

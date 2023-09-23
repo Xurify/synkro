@@ -40,8 +40,8 @@ export const addRoom = (id: string, name: string, user: User): Room | null => {
   return room;
 };
 
-export const updateRoom = (id: string, rooms: Rooms, newRoom: Partial<Room>): Room => {
-  const room = getRoomById(id, rooms);
+export const updateRoom = (id: string, rooms: Map<string, Room>, newRoom: Partial<Room>): Room => {
+  const room = rooms.get(id) as Room;
   if (!newRoom) return room;
 
   const updatedRoom = {
@@ -52,20 +52,15 @@ export const updateRoom = (id: string, rooms: Rooms, newRoom: Partial<Room>): Ro
   return updatedRoom;
 };
 
-export const getRoomById = (roomId: string, rooms: Rooms): Room => {
-  const room = rooms[roomId];
-  return room;
-};
-
-export const getRoomByInviteCode = (inviteCode: string, rooms: Rooms): Room | undefined => {
+export const getRoomByInviteCode = (inviteCode: string, rooms: Map<string, Room>): Room | undefined => {
   const room = Object.values(rooms).find((room) => room.inviteCode === inviteCode);
   return room;
 };
 
-export const requestIsNotFromHost = (socket: CustomSocket, rooms: Rooms, adminCheck: boolean = true): boolean => {
+export const requestIsNotFromHost = (socket: CustomSocket, rooms: Map<string, Room>, adminCheck: boolean = true): boolean => {
   if (adminCheck && socket.isAdmin) return false;
-  const room = !!socket?.roomId && getRoomById(socket.roomId, rooms);
-  return room && socket.userId !== room.host;
+  const room = !!socket?.roomId && rooms.get(socket.roomId);
+  return Boolean(room && socket.userId !== room.host);
 };
 
 export const getPreviouslyConnectedUser = (userId: UserId, room: Room): { userId: string; username: string } | null => {
