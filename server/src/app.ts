@@ -585,7 +585,7 @@ app.get('/api/healthz', (_req, res) => {
 });
 
 app.get('/api/rooms', (_req, res) => {
-  res.json({ rooms: [...rooms] });
+  res.json({ rooms: Object.fromEntries(rooms.entries()) });
 });
 
 app.get('/api/users', (_req, res) => {
