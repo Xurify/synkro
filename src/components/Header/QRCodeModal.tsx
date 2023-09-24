@@ -16,7 +16,7 @@ export const QRCodeModal: React.FC<ModalProps> = ({ open, toggle, code }) => {
         <DialogHeader>
           <DialogTitle className="text-secondary-foreground">QR Code</DialogTitle>
         </DialogHeader>
-        <div className="w-full flex items-center justify-center">
+        <div className="w-full flex items-center justify-center h-[300px]">
           <Canvas
             text={code}
             options={{
