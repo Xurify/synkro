@@ -36,7 +36,11 @@ export const VideoRoomHeader: React.FC<NavigationHeaderProps> = ({}) => {
 
   return (
     <div className="flex items-center p-2">
-      <QRCodeModal open={isQRCodeModalOpen} toggle={handleOpenQRCodeModal} code={room?.inviteCode || ""} />
+      <QRCodeModal
+        open={isQRCodeModalOpen}
+        toggle={handleOpenQRCodeModal}
+        code={room?.inviteCode ? convertInviteCodeToUrl(room.inviteCode) : ""}
+      />
       <Input
         className="h-10 rounded-l rounded-r-none cursor-pointer bg-[#342f3d6e] hover:bg-[#342f3da1] border border-r-0 border-[#614397] font-normal"
         type="text"
