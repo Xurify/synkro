@@ -6,7 +6,7 @@ import { Server } from 'socket.io';
 import ReactPlayer from 'react-player';
 import { Room, ServerMessageType, User } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
-import { addRoom, addUser, getPreviouslyConnectedUser, getRoomByInviteCode, getUser, requestIsNotFromHost, updateRoom } from './utils/socket';
+import { addRoom, addUser, getPreviouslyConnectedUser, getRoomByInviteCode, requestIsNotFromHost, updateRoom } from './utils/socket';
 import {
   LEAVE_ROOM,
   USER_MESSAGE,
@@ -47,7 +47,7 @@ const server: HttpServer = createServer(app);
 
 const io: Server = new Server(server);
 
-let users: User[] = [];
+let users: Map<string, User> = new Map();
 const rooms: Map<string, Room> = new Map();
 
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
@@ -67,7 +67,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     return;
   }
 
-  if (!userId) {
+  if (users.has(userId)) {
     socket.disconnect();
     return;
   }
@@ -214,7 +214,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(USER_MESSAGE, (message, roomId) => {
     console.log(`📩 Received message: ${message} in ${roomId} by ${socket.userId}`);
-    const user = socket.userId && getUser(socket.userId, users);
+    const user = socket.userId && users.get(socket.userId);
     if (user) {
       const timestamp = new Date().toISOString();
       const messageID = uuidv4();
@@ -238,7 +238,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     const room = rooms.get(socket.roomId);
     if (!room) return;
 
-    const host = getUser(room.host, users);
+    const host = users.get(room.host);
     if (!host) return;
 
     io.sockets.sockets.get(host.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string, time: number) => {
@@ -249,7 +249,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   socket.on(PLAY_VIDEO, () => {
     if (requestIsNotFromHost(socket, rooms)) return;
 
-    const user = socket.userId && getUser(socket.userId, users);
+    const user = socket.userId && users.get(socket.userId);
     if (user && user.roomId) {
       socket.to(user.roomId).emit(PLAY_VIDEO);
 
@@ -262,14 +262,14 @@ io.on('connection', (socket: CustomSocketServer) => {
   socket.on(PAUSE_VIDEO, () => {
     if (requestIsNotFromHost(socket, rooms)) return;
 
-    const user = socket?.userId && getUser(socket.userId, users);
+    const user = socket?.userId && users.get(socket.userId);
     if (user && user.roomId) {
       socket.to(user.roomId).emit(PAUSE_VIDEO);
     }
   });
 
   socket.on(BUFFERING_VIDEO, (time) => {
-    const user = socket.userId && getUser(socket.userId, users);
+    const user = socket.userId && users.get(socket.userId);
     if (requestIsNotFromHost(socket, rooms) && user && user.roomId) {
       io.to(user.roomId).emit('USER_VIDEO_STATUS', socket.userId, 'BUFFERING');
     } else if (user && user.roomId) {
@@ -279,7 +279,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(REWIND_VIDEO, (time) => {
     if (requestIsNotFromHost(socket, rooms)) return;
-    const user = socket?.userId && getUser(socket.userId, users);
+    const user = socket?.userId && users.get(socket.userId);
     if (user && user.roomId) {
       socket.to(user.roomId).emit(REWIND_VIDEO, time);
     }
@@ -287,7 +287,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(FASTFORWARD_VIDEO, (time) => {
     if (requestIsNotFromHost(socket, rooms)) return;
-    const user = socket?.userId && getUser(socket.userId, users);
+    const user = socket?.userId && users.get(socket.userId);
     if (user && user.roomId) {
       socket.to(user.roomId).emit(FASTFORWARD_VIDEO, time);
     }
@@ -295,7 +295,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(END_OF_VIDEO, () => {
     if (requestIsNotFromHost(socket, rooms)) return;
-    const user = socket?.userId && getUser(socket.userId, users);
+    const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
       const room = rooms.get(user.roomId);
       if (!room) return;
@@ -313,7 +313,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   socket.on(CHANGE_VIDEO, (url, newIndex) => {
     if (!ReactPlayer.canPlay(url)) return;
     if (requestIsNotFromHost(socket, rooms)) return;
-    const user = socket?.userId && getUser(socket.userId, users);
+    const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
       const room = rooms.get(user.roomId);
       if (room) {
@@ -331,7 +331,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(ADD_VIDEO_TO_QUEUE, (newVideo) => {
     if (requestIsNotFromHost(socket, rooms)) return;
-    const user = socket?.userId && getUser(socket.userId, users);
+    const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
       const room = rooms.get(user.roomId);
       if (!room) return;
@@ -342,7 +342,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(REMOVE_VIDEO_FROM_QUEUE, (url) => {
     if (requestIsNotFromHost(socket, rooms)) return;
-    const user = socket?.userId && getUser(socket.userId, users);
+    const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
       const room = rooms.get(user.roomId);
       if (!room) return;
@@ -354,7 +354,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(VIDEO_QUEUE_REORDERED, (newVideoQueue) => {
     if (requestIsNotFromHost(socket, rooms)) return;
-    const user = socket?.userId && getUser(socket.userId, users);
+    const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
       const room = rooms.get(user.roomId);
       if (!room) return;
@@ -365,7 +365,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(VIDEO_QUEUE_CLEARED, () => {
     if (requestIsNotFromHost(socket, rooms)) return;
-    const user = socket?.userId && getUser(socket.userId, users);
+    const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
       const room = rooms.get(user.roomId);
       if (!room) return;
@@ -378,7 +378,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(CHANGE_SETTINGS, (newSettings) => {
     if (requestIsNotFromHost(socket, rooms)) return;
-    const user = socket?.userId && getUser(socket.userId, users);
+    const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
       const room = rooms.get(user.roomId);
       if (!room) return;
@@ -396,7 +396,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     if (!socket.roomId) return;
 
-    const user = getUser(userId, users);
+    const user = users.get(userId);
     if (!user) return;
 
     const room = rooms.get(user.roomId);
@@ -415,7 +415,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (requestIsNotFromHost(socket, rooms)) return;
     if (!socket.roomId) return;
 
-    const user = getUser(userId, users);
+    const user = users.get(userId);
     if (!user || user.isAdmin) return;
 
     handleUserDisconnect(userId);
@@ -447,7 +447,7 @@ const handleUserDisconnect = (userId: string) => {
   if (!userId) return;
 
   console.log(`👻 User disconnected - User Id: ${userId}`);
-  const user = userId && getUser(userId, users);
+  const user = users.get(userId);
   if (user) {
     io.to(user.roomId).emit(SERVER_MESSAGE, {
       type: ServerMessageType.USER_DISCONNECTED,
@@ -479,7 +479,11 @@ const handleUserDisconnect = (userId: string) => {
         roomTimeouts[user.roomId] && clearTimeout(roomTimeouts[user.roomId]);
       }
 
-      const updatedUsers = users.filter((user) => user.id !== userId);
+      const updatedUsers = new Map(
+        Array.from(users.values())
+          .filter((user) => user.id !== userId)
+          .map((user) => [user.id, user]),
+      );
       users = updatedUsers;
 
       if (userWasHost && newMembers.length > 0) {
@@ -498,7 +502,7 @@ const handleUserDisconnect = (userId: string) => {
 
     const roomInfo = rooms.get(user.roomId);
     const activeConnections = io.sockets.sockets.size;
-    console.log(LEAVE_ROOM, user.roomId, roomInfo?.members?.length, users.length, activeConnections);
+    console.log(LEAVE_ROOM, user.roomId, roomInfo?.members?.length, users.keys.length, activeConnections);
   }
 };
 
@@ -508,7 +512,7 @@ const addUserToRoom = (
   roomId: string,
   username: string,
   rooms: Map<string, Room>,
-  users: User[],
+  users: Map<string, User>,
 ): Room | null => {
   const room = rooms.get(roomId);
   if (!room) return null;
@@ -516,7 +520,7 @@ const addUserToRoom = (
   socket.join(roomId);
   socket.roomId = roomId;
 
-  const existingUser = getUser(userId, users);
+  const existingUser = users.get(userId);
   if (existingUser) {
     io.to(roomId).emit(SERVER_MESSAGE, {
       type: ServerMessageType.USER_RECONNECTED,
@@ -588,17 +592,18 @@ app.get('/api/rooms', (_req, res) => {
 });
 
 app.get('/api/users', (_req, res) => {
-  res.json({ users });
+  res.json({ users: Object.fromEntries(users.entries()) });
 });
 
 app.get('/api/connections', (_req, res) => {
   const activeConnections = io.sockets.sockets.size;
   const roomIds = [...rooms].map((room) => room[0]);
+  const usersIds = [...users].map((user) => user[0]);
   res.json({
     activeConnections,
     users: {
-      ids: users.map((user) => user.id),
-      length: users.length,
+      ids: usersIds,
+      length: usersIds.length,
     },
     rooms: {
       ids: [...rooms].map((room) => room[0]),

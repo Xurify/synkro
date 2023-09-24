@@ -3,17 +3,15 @@ import { CustomSocket } from '../../../src/types/socketCustomTypes';
 import { nanoid } from 'nanoid';
 import { assignUsernameChatColor } from './chat';
 
-export const getUser = (id: string, users: User[]): User | undefined => users.find((user) => user.id === id);
-
 export const addUser = (
   { id, username, roomId, socketId, isAdmin }: { id: string; username: string; roomId: string; socketId: string; isAdmin?: boolean },
-  users: User[],
+  users: Map<string, User>,
 ): User => {
   const created = new Date().toISOString();
-  const usersInSameRoom = users.filter((user) => user.roomId === roomId);
+  const usersInSameRoom = Array.from(users.values()).filter((user) => user.roomId === roomId);
   const user: User = { id, username, roomId, created, socketId, color: assignUsernameChatColor(usersInSameRoom), isAdmin };
-  const existingUser = getUser(id, users);
-  if (!existingUser) users.push(user);
+  const existingUser = users.get(id);
+  if (!existingUser) users.set(id, user);
   return user;
 };
 
@@ -76,6 +74,5 @@ export const getPreviouslyConnectedUsers = (roomId: RoomId, rooms: Rooms): { use
   const result = rooms[roomId].members.map((user) => {
     return { userId: user.id, username: user.username };
   });
-
   return result;
 };
