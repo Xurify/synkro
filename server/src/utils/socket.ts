@@ -53,7 +53,7 @@ export const updateRoom = (id: string, rooms: Map<string, Room>, newRoom: Partia
 };
 
 export const getRoomByInviteCode = (inviteCode: string, rooms: Map<string, Room>): Room | undefined => {
-  const room = Object.values(rooms).find((room) => room.inviteCode === inviteCode);
+  const room = Array.from(rooms.values()).find((room) => room.inviteCode === inviteCode);
   return room;
 };
 

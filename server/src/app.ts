@@ -558,7 +558,7 @@ const CLEANUP_INTERVAL = 4 * 60 * 1000;
 let cleanupInterval: NodeJS.Timeout | null = null;
 
 const startCleanupInterval = () => {
-  if (!cleanupInterval && Object.keys(rooms).length > 0) {
+  if (!cleanupInterval && Array.from(rooms.keys()).length > 0) {
     cleanupInterval = setInterval(() => {
       for (const roomId in rooms) {
         if (rooms.get(roomId)?.members.length === 0) {
@@ -566,7 +566,7 @@ const startCleanupInterval = () => {
           console.log(`🧼 Cleanup: Room ${roomId} has been deleted.`);
         }
       }
-      if (Object.keys(rooms).length === 0 && cleanupInterval) {
+      if (Array.from(rooms.keys()).length === 0 && cleanupInterval) {
         clearInterval(cleanupInterval);
         cleanupInterval = null;
         console.log('🛑 Cleanup interval stopped as there are no rooms left.');
@@ -593,6 +593,7 @@ app.get('/api/users', (_req, res) => {
 
 app.get('/api/connections', (_req, res) => {
   const activeConnections = io.sockets.sockets.size;
+  const roomIds = [...rooms].map((room) => room[0]);
   res.json({
     activeConnections,
     users: {
@@ -601,7 +602,7 @@ app.get('/api/connections', (_req, res) => {
     },
     rooms: {
       ids: [...rooms].map((room) => room[0]),
-      length: Object.keys(rooms).length,
+      length: roomIds.length,
     },
   });
 });

@@ -51,14 +51,14 @@ export const InvitePage: React.FC<InvitePageProps> = () => {
       return;
     }
 
-    socket?.emit(JOIN_ROOM_BY_INVITE, inviteCode, username, ({ success, roomId }) => {
+    socket?.emit(JOIN_ROOM_BY_INVITE, inviteCode, username, ({ success, roomId, error }) => {
       if (success) {
         router.push(`/room/${roomId}`);
       } else {
         toast({
           variant: "destructive",
           title: "Uh oh! Something went wrong",
-          description: "Sorry, this room doesn't exist. 😥",
+          description: error || "Sorry, this room doesn't exist. 😥",
           action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       }
