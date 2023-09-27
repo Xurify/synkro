@@ -9,15 +9,22 @@ import { SocketProvider } from "@/context/SocketProvider";
 
 import "@/styles/global.css";
 
+import { Noto_Sans, Nunito } from "next/font/google";
+
+const notoSans = Noto_Sans({ weight: ["100", "200", "300", "400", "500", "600", "700"], subsets: ["latin"] });
+const nunito = Nunito({ subsets: ["latin"] });
+
 export default function App({ Component, pageProps }: AppProps) {
   //useDarkMode();
   return (
     <>
       <SocketProvider sessionToken={pageProps?.sessionToken || null} adminToken={pageProps?.adminToken || null}>
         <Page navigationHeaderProps={pageProps.navigationHeaderProps}>
-          <Component {...pageProps} />
-          <Analytics />
-          <Toaster />
+          <div className={`${notoSans.className} ${nunito.className}`}>
+            <Component {...pageProps} />
+            <Analytics />
+            <Toaster />
+          </div>
         </Page>
       </SocketProvider>
     </>

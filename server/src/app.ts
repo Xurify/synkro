@@ -47,9 +47,17 @@ const server: HttpServer = createServer(app);
 
 const io: Server = new Server(server);
 
+io.use((socket, next) => {
+  const userId = socket.handshake.auth.token;
+  if (userId) {
+    next();
+  } else {
+    next(new Error('Missing session token'));
+  }
+});
+
 let users: Map<string, User> = new Map();
 const rooms: Map<string, Room> = new Map();
-
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 
 io.on('connection', (socket: CustomSocketServer) => {
