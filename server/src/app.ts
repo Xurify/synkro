@@ -216,7 +216,9 @@ io.on('connection', (socket: CustomSocketServer) => {
         io.to(roomId).emit(GET_ROOM_INFO, updatedRoom);
       }
     } else {
-      typeof callback === 'function' && callback({ success: false, error: 'An invalid input was provided' });
+      console.log('INVALIDINPUT', roomId, userId);
+      const errorMessage = !roomId && !userId ? 'No room or user id was provided' : !roomId ? 'No room id was provided' : 'No user id was provided';
+      typeof callback === 'function' && callback({ success: false, error: errorMessage });
     }
   });
 

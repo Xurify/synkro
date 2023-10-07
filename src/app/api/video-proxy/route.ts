@@ -1,10 +1,14 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextRequest, NextResponse } from "next/server";
 
-export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const videoUrl = req.query.url as string;
+export const GET = async (req: NextRequest, res: NextResponse) => {
+  const searchParams = req.nextUrl.searchParams;
+  const videoUrl = searchParams.get("url") as string;
 
   if (!videoUrl) {
-    return res.status(400).json({ error: "url parameter is required." });
+    return new Response("url parameter is required.", {
+      status: 400,
+      statusText: "url parameter is required.",
+    });
   }
 
   try {
@@ -25,10 +29,16 @@ export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       thumbnail: `/next-assets/images/synkro_placeholder.svg`,
       "content-type": videoResponse.headers.get("content-type"),
     };
-    return res.status(200).json(metadata);
+
+    return new Response(JSON.stringify(metadata), {
+      status: 200,
+    });
   } catch (error) {
-    return res.status(500).json({ error: "Failed to fetch video." });
+    return new Response("Failed to fetch video.", {
+      status: 500,
+      statusText: "Failed to fetch video.",
+    });
   }
 };
 
-export default handler;
+export default GET;

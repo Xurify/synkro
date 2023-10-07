@@ -1,6 +1,8 @@
+"use client";
+
 import React from "react";
 import io from "socket.io-client";
-import { useRouter } from "next/router";
+import { useRouter, usePathname } from "next/navigation";
 import { SocketContext } from "./SocketContext";
 import { CustomSocket } from "@/types/socketCustomTypes";
 import { socketURL } from "@/constants/constants";
@@ -9,7 +11,7 @@ import { Room, User } from "@/types/interfaces";
 
 interface SocketProviderProps {
   sessionToken: string | null;
-  adminToken?: string;
+  adminToken: string | null;
 }
 
 export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProps>> = ({ children, sessionToken, adminToken }) => {
@@ -20,12 +22,13 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
   const [retries, setRetries] = React.useState(3);
 
   const router = useRouter();
+  const pathname = usePathname();
 
   React.useEffect(() => {
-    if (!sessionToken && router.pathname !== "/404") {
-      if (retries > 0) {
+    if (!sessionToken && pathname !== "/404") {
+      if (retries > 0 && pathname) {
         setRetries((prevRetries) => prevRetries - 1);
-        router.replace(router.asPath);
+        router.replace(pathname);
       }
       return;
     }
@@ -71,7 +74,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
     };
   }, [sessionToken]);
 
-  return <SocketContext.Provider value={{ socket, room, user, isConnecting }}>{children}</SocketContext.Provider>;
+  return <SocketContext.Provider value={{ socket, room, user, isConnecting, sessionToken }}>{children}</SocketContext.Provider>;
 };
 
 export default SocketContext;

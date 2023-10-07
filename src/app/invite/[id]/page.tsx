@@ -1,27 +1,33 @@
+"use client";
+
 import React, { useState } from "react";
 
 import { useSocket } from "@/context/SocketContext";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 import { DicesIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { generateName } from "@/libs/utils/names";
-import { GetServerSideProps } from "next";
 import { JOIN_ROOM_BY_INVITE } from "@/constants/socketActions";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 
 export interface InvitePageProps {
   sessionToken: string;
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export const InvitePage: React.FC<InvitePageProps> = () => {
+export const InvitePage: React.FC<InvitePageProps> = ({ params }) => {
   const [username, setUsername] = useState("");
 
   const router = useRouter();
-  const [inviteCode, setInviteCode] = useState((router.query["id"] as string) ?? "");
+
+  const inviteCodeParam = params?.["id"] as string;
+
+  const [inviteCode, setInviteCode] = useState(inviteCodeParam ?? "");
 
   const { socket } = useSocket();
   const { toast } = useToast();
@@ -96,14 +102,3 @@ export const InvitePage: React.FC<InvitePageProps> = () => {
 };
 
 export default InvitePage;
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const sessionToken = context.req.cookies["session_token"] || null;
-  const adminToken = context.req.cookies["admin_token"] || null;
-  return {
-    props: {
-      sessionToken,
-      adminToken,
-    },
-  };
-};

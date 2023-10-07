@@ -39,7 +39,7 @@ export interface ClientToServerEvents {
   disconnect: () => void;
   [JOIN_ROOM]: (roomId: string, username: string, callback: (value: { success: boolean; error?: string }) => void) => void;
   [LEAVE_ROOM]: (roomId: string) => void;
-  [RECONNECT_USER]: (roomId: string, userId: string, callback: (value: { success: boolean; error?: string }) => void) => void;
+  [RECONNECT_USER]: (roomId: string, userId: string | null, callback: (value: { success: boolean; error?: string }) => void) => void;
   [USER_MESSAGE]: (message: string, roomId: string) => void;
   [SERVER_MESSAGE]: ({ message, type }: ServerMessage) => void;
   [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room | null) => void) => void;

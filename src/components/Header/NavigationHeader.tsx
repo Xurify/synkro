@@ -1,11 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import VideoRoomHeader from "./VideoRoomHeader";
+import { usePathname } from "next/navigation";
 
-export interface NavigationHeaderProps {
-  page?: "home" | "video_room";
-}
-
-export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ page }) => {
+export const NavigationHeader: React.FC = () => {
+  const pathname = usePathname();
   return (
     <nav className="bg-card w-full flex p-4 mb-4 shadow">
       <div className="text-2xl font-bold text-brand-blue-600 flex justify-between w-full">
@@ -15,7 +15,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ page }) => {
           </div>
           <span className="mt-[6px] font-bold text-foreground">Synkro</span>
         </Link>
-        {page === "video_room" && <VideoRoomHeader />}
+        {pathname.includes("/room") && <VideoRoomHeader />}
       </div>
     </nav>
   );

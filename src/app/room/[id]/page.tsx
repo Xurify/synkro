@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { findDOMNode } from "react-dom";
-import { GetServerSideProps } from "next";
+"use client";
+
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import Head from "next/head";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import useSound from "use-sound";
+import { findDOMNode } from "react-dom";
 
 import ReactPlayer from "react-player";
 import type ReactPlayerType from "react-player";
@@ -63,13 +63,15 @@ const ReactPlayerLazy = dynamic(() => import("react-player/lazy"), {
 
 export interface RoomPageProps {
   sessionToken: string;
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
+export const RoomPage: React.FC<RoomPageProps> = ({ params }) => {
   const [activeView, setActiveView] = useState<SidebarViews>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
   const [messages, setMessages] = useState<Messages>([]);
-  const { socket, room, isConnecting } = useSocket();
+  const { socket, room, isConnecting, sessionToken } = useSocket();
   const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(room?.videoInfo.currentVideoUrl || "https://youtu.be/QdKhuEnkwiY");
   const [isLoading, setIsLoading] = useState(false);
@@ -82,12 +84,16 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
   const isSocketAvailable = !!socket;
 
-  const router = useRouter();
   const { toast } = useToast();
-  const searchParams = useSearchParams();
-  const roomId = searchParams.get("id") as string;
+
+  const router = useRouter();
+  const roomId = params?.["id"] as string;
 
   const videoQueue = useQueue<VideoQueueItem>();
+
+  useLayoutEffect(() => {
+    window.document.title = `Synkro - ${room?.name ?? "Unknown"}`;
+  }, []);
 
   useEffect(() => {
     setStoredRoom(room);
@@ -110,12 +116,14 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     if (!isConnecting && socket?.connected && !room) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (result) => {
         if (!result.success) {
+          console.error(result.error);
           handleGoBackToHome();
         }
       });
     } else if (!room && storedRoom && !!socket) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (result) => {
         if (!result.success) {
+          console.error(result.error);
           handleGoBackToHome();
         }
       });
@@ -401,10 +409,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
   return (
     <>
-      <Head>
-        <title>Synkro - {room.name ?? "Unknown"}</title>
-      </Head>
-
       <main className="mx-auto h-full flex flex-col md:flex-row justify-center mt-[-1rem] md:mt-0">
         <div className="flex flex-col max-w-[80rem] w-full">
           <div className="w-full">
@@ -439,17 +443,3 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 };
 
 export default RoomPage;
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const sessionToken = context.req.cookies["session_token"] || null;
-  const adminToken = context.req.cookies["admin_token"] || null;
-  return {
-    props: {
-      sessionToken,
-      adminToken,
-      navigationHeaderProps: {
-        page: "video_room",
-      },
-    },
-  };
-};

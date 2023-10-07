@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import { DicesIcon } from "lucide-react";
 
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useSocket } from "@/context/SocketContext";
 import { useToast } from "@/components/ui/use-toast";
 
