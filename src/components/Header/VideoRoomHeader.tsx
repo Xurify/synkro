@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { QrCodeIcon, UserPlusIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -8,13 +10,9 @@ import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { BASE_URL } from "@/constants/constants";
 import { QRCodeModal } from "./QRCodeModal";
 
-export interface NavigationHeaderProps {
-  page?: "home" | "video_room";
-}
-
 const convertInviteCodeToUrl = (inviteCode: string) => `${BASE_URL}/invite/${inviteCode}`;
 
-export const VideoRoomHeader: React.FC<NavigationHeaderProps> = ({}) => {
+export const VideoRoomHeader: React.FC = () => {
   const { room } = useSocket();
   const [_value, copy] = useCopyToClipboard();
   const { toast } = useToast();
@@ -35,14 +33,14 @@ export const VideoRoomHeader: React.FC<NavigationHeaderProps> = ({}) => {
   };
 
   return (
-    <div className="flex items-center p-2">
+    <div className="flex items-center">
       <QRCodeModal
         open={isQRCodeModalOpen}
         toggle={handleOpenQRCodeModal}
         code={room?.inviteCode ? convertInviteCodeToUrl(room.inviteCode) : ""}
       />
       <Input
-        className="h-10 rounded-l rounded-r-none cursor-pointer bg-[#342f3d6e] hover:bg-[#342f3da1] border border-r-0 border-[#614397] font-normal"
+        className="h-10 w-28 md:w-auto rounded-l rounded-r-none cursor-pointer bg-[#342f3d6e] hover:bg-[#342f3da1] border border-r-0 border-[#614397] font-normal"
         type="text"
         onClick={handleCopyInviteCode}
         value={room?.inviteCode ?? "No invite code"}

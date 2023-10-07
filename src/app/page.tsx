@@ -1,5 +1,6 @@
+"use client";
+
 import { useState } from "react";
-import { GetServerSideProps } from "next";
 import CreateRoomBox from "@/components/CreateRoomBox";
 import JoinRoomBox from "@/components/JoinRoomBox";
 
@@ -18,14 +19,3 @@ export const HomePage: React.FC<{ sessionToken: string | null }> = () => {
 };
 
 export default HomePage;
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const sessionToken = context.req.cookies["session_token"] || null;
-  const adminToken = context.req.cookies["admin_token"] || null;
-  return {
-    props: {
-      sessionToken,
-      adminToken,
-    },
-  };
-};
