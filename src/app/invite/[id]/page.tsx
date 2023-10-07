@@ -15,7 +15,6 @@ import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 
 export interface InvitePageProps {
-  sessionToken: string;
   params: { id: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }
