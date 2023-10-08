@@ -7,7 +7,6 @@ import { DicesIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 
 import { CHECK_IF_ROOM_EXISTS, JOIN_ROOM } from "@/constants/socketActions";
 import { useSocket } from "@/context/SocketContext";

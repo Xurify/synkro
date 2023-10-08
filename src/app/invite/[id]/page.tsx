@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { generateName } from "@/libs/utils/names";
 import { JOIN_ROOM_BY_INVITE } from "@/constants/socketActions";
-import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 
 export interface InvitePageProps {
