@@ -2,7 +2,7 @@ import { type NextRequest } from "next/server";
 
 export const runtime = "edge";
 
-export const GET = async (req: NextRequest) => {
+export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const videoUrl = searchParams.get("url") as string;
 
@@ -41,6 +41,6 @@ export const GET = async (req: NextRequest) => {
       statusText: "Failed to fetch video.",
     });
   }
-};
+}
 
 export default GET;

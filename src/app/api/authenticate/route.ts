@@ -2,7 +2,7 @@ import { type NextRequest } from "next/server";
 
 export const runtime = "edge";
 
-export const GET = async (req: NextRequest) => {
+export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const adminToken = searchParams.get("admin_token");
 
@@ -29,6 +29,6 @@ export const GET = async (req: NextRequest) => {
       "Set-Cookie": cookieValue,
     },
   });
-};
+}
 
 export default GET;
