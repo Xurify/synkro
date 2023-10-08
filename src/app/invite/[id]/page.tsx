@@ -51,7 +51,6 @@ export default function InvitePage({ params }: InvitePageProps) {
         variant: "destructive",
         title: "Uh oh! Something went wrong",
         description: "There seem to be missing fields",
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
       return;
     }
@@ -64,7 +63,6 @@ export default function InvitePage({ params }: InvitePageProps) {
           variant: "destructive",
           title: "Uh oh! Something went wrong",
           description: error || "Sorry, this room doesn't exist. 😥",
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       }
     });
