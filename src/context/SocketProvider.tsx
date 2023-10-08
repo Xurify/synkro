@@ -25,7 +25,6 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
   const pathname = usePathname();
 
   React.useEffect(() => {
-    console.log("sessionToken", sessionToken);
     if (!sessionToken && pathname !== "/404") {
       if (retries > 0 && pathname) {
         setRetries((prevRetries) => prevRetries - 1);
