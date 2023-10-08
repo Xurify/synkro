@@ -4,7 +4,7 @@ import { useState } from "react";
 import CreateRoomBox from "@/components/CreateRoomBox";
 import JoinRoomBox from "@/components/JoinRoomBox";
 
-export const HomePage: React.FC<{ sessionToken: string | null }> = () => {
+export default function HomePage() {
   const [isCreateBoxShown, setIsCreateBoxShown] = useState(true);
 
   const handleToggle = () => setIsCreateBoxShown(!isCreateBoxShown);
@@ -16,6 +16,4 @@ export const HomePage: React.FC<{ sessionToken: string | null }> = () => {
       </div>
     </main>
   );
-};
-
-export default HomePage;
+}

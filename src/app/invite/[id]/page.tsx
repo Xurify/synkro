@@ -19,7 +19,7 @@ export interface InvitePageProps {
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export const InvitePage: React.FC<InvitePageProps> = ({ params }) => {
+export default function InvitePage({ params }: InvitePageProps) {
   const [username, setUsername] = useState("");
 
   const router = useRouter();
@@ -98,6 +98,4 @@ export const InvitePage: React.FC<InvitePageProps> = ({ params }) => {
       </div>
     </main>
   );
-};
-
-export default InvitePage;
+}

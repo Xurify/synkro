@@ -1,8 +1,8 @@
-import { type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
-export async function GET(req: NextRequest) {
+export function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const adminToken = searchParams.get("admin_token");
 
@@ -30,5 +30,3 @@ export async function GET(req: NextRequest) {
     },
   });
 }
-
-export default GET;

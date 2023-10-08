@@ -62,12 +62,11 @@ const ReactPlayerLazy = dynamic(() => import("react-player/lazy"), {
 });
 
 export interface RoomPageProps {
-  sessionToken: string;
   params: { id: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export const RoomPage: React.FC<RoomPageProps> = ({ params }) => {
+export default function RoomPage({ params }: RoomPageProps) {
   const [activeView, setActiveView] = useState<SidebarViews>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
   const [messages, setMessages] = useState<Messages>([]);
@@ -440,6 +439,4 @@ export const RoomPage: React.FC<RoomPageProps> = ({ params }) => {
       </main>
     </>
   );
-};
-
-export default RoomPage;
+}

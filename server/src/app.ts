@@ -607,8 +607,8 @@ app.get('/api/users', (_req, res) => {
 
 app.get('/api/connections', (_req, res) => {
   const activeConnections = io.sockets.sockets.size;
-  const roomIds = [...rooms].map((room) => room[0]);
-  const usersIds = [...users].map((user) => user[0]);
+  const roomIds = Array.from(rooms).map((room) => room[0]);
+  const usersIds = Array.from(users).map((user) => user[0]);
   res.json({
     activeConnections,
     users: {
@@ -616,7 +616,7 @@ app.get('/api/connections', (_req, res) => {
       length: usersIds.length,
     },
     rooms: {
-      ids: [...rooms].map((room) => room[0]),
+      ids: Array.from(rooms).map((room) => room[0]),
       length: roomIds.length,
     },
   });
