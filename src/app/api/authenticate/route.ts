@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest } from "next/server";
 
-export const GET = (req: NextRequest, res: NextResponse) => {
+export const GET = async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
   const adminToken = searchParams.get("admin_token");
 
