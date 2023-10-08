@@ -8,7 +8,6 @@ import { useToast } from "@/components/ui/use-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ToastAction } from "@/components/ui/toast";
 import { JoinRoomBoxProps } from "./JoinRoomBox";
 
 import { generateName } from "../libs/utils/names";
@@ -52,7 +51,6 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
           variant: "destructive",
           title: "Uh oh! Something went wrong",
           description: error,
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       }
     });

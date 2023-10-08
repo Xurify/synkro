@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { generateName } from "@/libs/utils/names";
 import { GetServerSideProps } from "next";
 import { JOIN_ROOM_BY_INVITE } from "@/constants/socketActions";
-import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 
 export interface InvitePageProps {
@@ -46,7 +45,6 @@ export const InvitePage: React.FC<InvitePageProps> = () => {
         variant: "destructive",
         title: "Uh oh! Something went wrong",
         description: "There seem to be missing fields",
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
       return;
     }
@@ -59,7 +57,6 @@ export const InvitePage: React.FC<InvitePageProps> = () => {
           variant: "destructive",
           title: "Uh oh! Something went wrong",
           description: error || "Sorry, this room doesn't exist. 😥",
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       }
     });
