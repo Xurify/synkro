@@ -10,7 +10,7 @@ const DialogTrigger = DialogPrimitive.Trigger;
 
 const DialogPortal = ({ className, ...props }: DialogPrimitive.DialogPortalProps) => {
   const onClick = () => console.log("DADASDAS");
-  return <DialogPrimitive.Portal className={cn(className)} {...props} onClick={onClick} />;
+  return <DialogPrimitive.Portal className={cn(className)} {...props} />;
 };
 DialogPortal.displayName = DialogPrimitive.Portal.displayName;
 

@@ -110,12 +110,14 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     if (!isConnecting && socket?.connected && !room) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (result) => {
         if (!result.success) {
+          console.error(result.error);
           handleGoBackToHome();
         }
       });
     } else if (!room && storedRoom && !!socket) {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (result) => {
         if (!result.success) {
+          console.error(result.error);
           handleGoBackToHome();
         }
       });
@@ -147,6 +149,8 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     socket.on(USER_MESSAGE, (newMessage: ChatMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
+
+    const currentVideoId = convertURLToCorrectProviderVideoId(currentVideoUrl) as string;
 
     socket.on(GET_HOST_VIDEO_INFORMATION, (callback: (playing: boolean, videoUrl: string, time: number) => void) => {
       if (sessionToken !== room?.host) return;
@@ -254,8 +258,8 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     socketMethods();
   }, [player]);
 
-  const runIfAuthorized = (callback?: () => void) => {
-    if (socket?.isAdmin || room?.host === socket?.userId) {
+  const runIfAuthorized = (callback?: () => void, disableAdminCheck = false) => {
+    if ((socket?.isAdmin && !disableAdminCheck) || room?.host === socket?.userId) {
       typeof callback === "function" && callback();
     }
   };
@@ -274,7 +278,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
   const handleSyncTime = (time: number) => {
     if (!player) {
-      console.log("Failed to sync time");
+      console.error("Failed to sync time");
       return;
     }
     const currentTime = player?.getCurrentTime();
@@ -322,7 +326,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const handleEnded = () => {
     runIfAuthorized(() => {
       socket?.emit(END_OF_VIDEO);
-    });
+    }, false);
   };
 
   const handleToggleFullscreen = () =>
