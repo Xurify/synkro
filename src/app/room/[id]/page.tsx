@@ -155,6 +155,8 @@ export default function RoomPage({ params }: RoomPageProps) {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
+    const currentVideoId = convertURLToCorrectProviderVideoId(currentVideoUrl) as string;
+
     socket.on(GET_HOST_VIDEO_INFORMATION, (callback: (playing: boolean, videoUrl: string, time: number) => void) => {
       if (sessionToken !== room?.host) return;
       const currentTime = player?.getCurrentTime();
@@ -261,8 +263,8 @@ export default function RoomPage({ params }: RoomPageProps) {
     socketMethods();
   }, [player]);
 
-  const runIfAuthorized = (callback?: () => void) => {
-    if (socket?.isAdmin || room?.host === socket?.userId) {
+  const runIfAuthorized = (callback?: () => void, disabledAdmin = false) => {
+    if ((socket?.isAdmin && !disabledAdmin) || room?.host === socket?.userId) {
       typeof callback === "function" && callback();
     }
   };
@@ -281,7 +283,7 @@ export default function RoomPage({ params }: RoomPageProps) {
 
   const handleSyncTime = (time: number) => {
     if (!player) {
-      console.log("Failed to sync time");
+      console.error("Failed to sync time");
       return;
     }
     const currentTime = player?.getCurrentTime();
@@ -329,7 +331,7 @@ export default function RoomPage({ params }: RoomPageProps) {
   const handleEnded = () => {
     runIfAuthorized(() => {
       socket?.emit(END_OF_VIDEO);
-    });
+    }, false);
   };
 
   const handleToggleFullscreen = () =>

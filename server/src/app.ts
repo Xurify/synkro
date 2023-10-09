@@ -303,16 +303,20 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(END_OF_VIDEO, () => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, rooms, false)) return;
     const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
       const room = rooms.get(user.roomId);
       if (!room) return;
 
-      const nextVideo = room.videoInfo.queue[room.videoInfo.currentQueueIndex + 1] ?? room.videoInfo.queue[0];
+      const nextIndex = room.videoInfo.currentQueueIndex + 1;
+      const nextVideo = room.videoInfo.queue[nextIndex] ?? room.videoInfo.queue[0];
+
+      console.log('nextVideo1', nextVideo, nextIndex);
       if (nextVideo) {
-        const nextIndex = room.videoInfo.currentQueueIndex + 1;
-        room.videoInfo.currentQueueIndex = nextIndex < room.videoInfo.queue.length - 1 ? nextIndex : 0;
+        console.log('nextVideo2', nextVideo, nextIndex, room.videoInfo.queue.length);
+        room.videoInfo.currentQueueIndex = nextIndex < room.videoInfo.queue.length ? nextIndex : 0;
+        console.log('nextVideo3', nextVideo, nextIndex, room.videoInfo.queue.length);
         room.videoInfo.currentVideoUrl = nextVideo.url;
         io.to(user.roomId).emit(CHANGE_VIDEO, nextVideo.url);
       }
