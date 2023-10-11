@@ -75,8 +75,12 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [_isSyncing, setIsSyncing] = useState(false);
 
-  const [playUserJoinedSound] = useSound("/next-assets/audio/mixkit-alert-quick-chime-766.wav", { volume: 0.1 });
-  const [playUserKickedSound] = useSound("/next-assets/audio/ElevenLabs_Mimi_You_Have_Been_Kicked.mp3", { volume: 0.5 });
+  // Mixkit.co
+  const [playUserJoinedSound] = useSound("/next-assets/audio/user-joined.wav", { volume: 0.1 });
+  // ElevenLabs
+  const [playUserKickedSound] = useSound("/next-assets/audio/ElevenLabs_Mimi_Kicked.mp3", { volume: 0.5 });
+  const [playUserConnectedSound] = useSound("/next-assets/audio/ElevenLabs_Mimi_Connected.mp3", { volume: 0.5 });
+  const [playUserDisconnectedSound] = useSound("/next-assets/audio/ElevenLabs_Mimi_Disconnected.mp3", { volume: 0.5 });
   //const [playUserKickedSound] = useSound("/next-assets/audio/disconnected.mp3", { volume: 0.5 });
 
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
