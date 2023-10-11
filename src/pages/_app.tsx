@@ -19,13 +19,13 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <SocketProvider sessionToken={pageProps?.sessionToken || null} adminToken={pageProps?.adminToken || null}>
-        <Page navigationHeaderProps={pageProps.navigationHeaderProps}>
-          <div className={`${notoSans.className} ${nunito.className}`}>
+        <div className={`${notoSans.className} ${nunito.className}`}>
+          <Page navigationHeaderProps={pageProps.navigationHeaderProps}>
             <Component {...pageProps} />
             <Analytics />
             <Toaster />
-          </div>
-        </Page>
+          </Page>
+        </div>
       </SocketProvider>
     </>
   );

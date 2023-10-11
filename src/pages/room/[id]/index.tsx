@@ -3,7 +3,7 @@ import { findDOMNode } from "react-dom";
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/router";
 import useSound from "use-sound";
 
 import ReactPlayer from "react-player";
@@ -77,19 +77,19 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
   // Mixkit.co
   const [playUserJoinedSound] = useSound("/next-assets/audio/user-joined.wav", { volume: 0.1 });
+  const [playUserDisconnectedSound] = useSound("/next-assets/audio/user_disconnected.mp3", { volume: 0.5 });
+
   // ElevenLabs
   const [playUserKickedSound] = useSound("/next-assets/audio/ElevenLabs_Mimi_Kicked.mp3", { volume: 0.5 });
-  const [playUserConnectedSound] = useSound("/next-assets/audio/ElevenLabs_Mimi_Connected.mp3", { volume: 0.5 });
-  const [playUserDisconnectedSound] = useSound("/next-assets/audio/ElevenLabs_Mimi_Disconnected.mp3", { volume: 0.5 });
-  //const [playUserKickedSound] = useSound("/next-assets/audio/disconnected.mp3", { volume: 0.5 });
 
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
+
   const isSocketAvailable = !!socket;
 
   const router = useRouter();
   const { toast } = useToast();
-  const searchParams = useSearchParams();
-  const roomId = searchParams.get("id") as string;
+
+  const roomId = router.query["id"] as string;
 
   const videoQueue = useQueue<VideoQueueItem>();
 
@@ -146,6 +146,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     socket.on(SERVER_MESSAGE, (newMessage) => {
       if ([ServerMessageType.USER_JOINED, ServerMessageType.USER_RECONNECTED].includes(newMessage.type)) {
         playUserJoinedSound();
+      }
+      if (newMessage.type === ServerMessageType.USER_DISCONNECTED) {
+        playUserDisconnectedSound();
       }
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
@@ -229,12 +232,14 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
     });
 
     socket.on(LEAVE_ROOM, () => {
+      playUserDisconnectedSound();
       socket.disconnect();
       setStoredRoom(null);
       router.push("/");
     });
 
     return () => {
+      playUserDisconnectedSound();
       socket.offAnyOutgoing();
       socket.disconnect();
     };
