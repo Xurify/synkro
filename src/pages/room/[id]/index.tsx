@@ -76,7 +76,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
   const [_isSyncing, setIsSyncing] = useState(false);
 
   // Mixkit.co
-  const [playUserJoinedSound] = useSound("/next-assets/audio/user-joined.wav", { volume: 0.1 });
+  const [playUserJoinedSound] = useSound("/next-assets/audio/user_joined.wav", { volume: 0.1 });
   const [playUserDisconnectedSound] = useSound("/next-assets/audio/user_disconnected.mp3", { volume: 0.5 });
 
   // ElevenLabs
