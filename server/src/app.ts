@@ -45,7 +45,18 @@ const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
 const app: Application = express();
 const server: HttpServer = createServer(app);
 
-const io: Server = new Server(server);
+const io: Server = new Server(server, {
+  allowRequest: (req, callback) => {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'https://synkro.vercel.app',
+      'https://synkro-synkro.vercel.app',
+      'https://synkro-git-master-synkro.vercel.app',
+    ];
+    const isAllowedOrigin = req?.headers?.origin ? allowedOrigins.includes(req.headers.origin) : false;
+    callback(null, isAllowedOrigin);
+  },
+});
 
 io.use((socket, next) => {
   const userId = socket.handshake.auth.token;
