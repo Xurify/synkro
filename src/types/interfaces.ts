@@ -16,7 +16,7 @@ export interface Room {
   name: string;
   host: string;
   inviteCode: string | null;
-  passcode?: string;
+  passcode: string | null;
   videoInfo: {
     currentVideoUrl: string | null;
     currentQueueIndex: number;
@@ -25,7 +25,7 @@ export interface Room {
   members: User[];
   previouslyConnectedMembers: { userId: UserId; username: string }[];
   maxRoomSize: number;
-  created: string;
+  created: Date | string;
 }
 
 export type Rooms = { [roomId: RoomId]: Room };

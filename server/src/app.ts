@@ -6,7 +6,8 @@ import { Server } from 'socket.io';
 import ReactPlayer from 'react-player';
 import { Room, ServerMessageType, User } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
-import { addRoom, addUser, getPreviouslyConnectedUser, getRoomByInviteCode, requestIsNotFromHost, updateRoom } from './utils/socket';
+import { addRoom, getRoomByInviteCode, updateRoom } from './utils/room-management';
+import { addUser, getPreviouslyConnectedUser, requestIsNotFromHost } from './utils/user-management';
 import {
   LEAVE_ROOM,
   USER_MESSAGE,
@@ -71,6 +72,9 @@ let users: Map<string, User> = new Map();
 const rooms: Map<string, Room> = new Map();
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 io.on('connection', (socket: CustomSocketServer) => {
   const userId = socket.handshake.auth.token;
   const adminTokenHandshake = socket.handshake.auth.adminToken;
@@ -109,8 +113,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   socket.on(CREATE_ROOM, async (username, roomName, callback) => {
     const newRoomId = nanoid(6);
     if (userId) {
-      const room = rooms.get(newRoomId);
-      if (room) {
+      const existingRoom = await prisma.room.findUnique({
+        where: { id: newRoomId },
+      });
+      if (existingRoom) {
         typeof callback === 'function' && callback({ error: 'Room already exists' });
       } else {
         if (!socket.userId) return;
@@ -119,26 +125,44 @@ io.on('connection', (socket: CustomSocketServer) => {
         socket.roomId = newRoomId;
 
         const newRoom = addRoom(newRoomId, roomName, user);
+
         startCleanupInterval();
+
         if (newRoom) {
-          rooms.set(newRoomId, newRoom);
-          typeof callback === 'function' && callback({ result: newRoom });
-          console.log(`👀 New user joined in room: ${user.roomId} - User Id: ${userId}`);
-          socket.emit(GET_ROOM_INFO, newRoom);
+          await prisma.room.create({
+            data: {
+              id: newRoom.id,
+              name: newRoom.name,
+              host: newRoom.host,
+              inviteCode: newRoom.inviteCode,
+              passcode: newRoom.passcode ?? null,
+              maxRoomSize: newRoom.maxRoomSize,
+              currentQueueIndex: newRoom.videoInfo.currentQueueIndex,
+            },
+          });
         }
+
+        rooms.set(newRoomId, newRoom);
+
+        typeof callback === 'function' && callback({ result: newRoom });
+        console.log(`👀 New user joined in room: ${user.roomId} - User Id: ${userId}`);
+        socket.emit(GET_ROOM_INFO, newRoom);
       }
     } else {
       typeof callback === 'function' && callback({ error: 'Failed to create room' });
     }
   });
 
-  socket.on(JOIN_ROOM, (roomId, username, callback) => {
+  socket.on(JOIN_ROOM, async (roomId, username, callback) => {
     if (!roomId || !username || !socket.userId) {
       typeof callback === 'function' && callback({ success: false, error: 'An invalid input was provided' });
       return;
     }
 
-    const existingRoom = rooms.has(roomId);
+    const existingRoom = await prisma.room.findUnique({
+      where: { id: roomId },
+    });
+
     if (!existingRoom) {
       typeof callback === 'function' && callback({ success: false, error: `Failed to find room: ${roomId}` });
       return;
@@ -172,9 +196,11 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
   });
 
-  socket.on(RECONNECT_USER, (roomId, userId, callback) => {
+  socket.on(RECONNECT_USER, async (roomId, userId, callback) => {
     if (roomId && userId) {
-      const existingRoom = rooms.get(roomId);
+      const existingRoom = await prisma.room.findUnique({
+        where: { id: roomId },
+      });
 
       if (!existingRoom) {
         typeof callback === 'function' && callback({ success: false, error: `Failed to find room: ${roomId}` });
@@ -218,6 +244,18 @@ io.on('connection', (socket: CustomSocketServer) => {
             message: `${previouslyConnectedUser.username} is now the host. 👑`,
           });
         }
+
+        await prisma.room.create({
+          data: {
+            id: updatedRoom.id,
+            name: updatedRoom.name,
+            host: updatedRoom.host,
+            inviteCode: updatedRoom.inviteCode,
+            passcode: updatedRoom.passcode ?? null,
+            maxRoomSize: updatedRoom.maxRoomSize,
+            currentQueueIndex: updatedRoom.videoInfo.currentQueueIndex,
+          },
+        });
 
         rooms.set(roomId, updatedRoom);
         if (roomTimeouts[roomId]) {
@@ -495,6 +533,9 @@ const handleUserDisconnect = (userId: string) => {
         roomTimeouts[user.roomId] = setTimeout(async () => {
           if (updatedRoom.members.length === 0) {
             rooms.delete(user.roomId);
+            await prisma.room.delete({
+              where: { id: user.roomId },
+            });
             console.log(`🧼 Cleanup: Room ${user.roomId} has been deleted.`);
           }
         }, THREE_MINUTES);
@@ -587,10 +628,13 @@ let cleanupInterval: NodeJS.Timeout | null = null;
 
 const startCleanupInterval = () => {
   if (!cleanupInterval && Array.from(rooms.keys()).length > 0) {
-    cleanupInterval = setInterval(() => {
+    cleanupInterval = setInterval(async () => {
       for (const roomId in rooms) {
         if (rooms.get(roomId)?.members.length === 0) {
           rooms.delete(roomId);
+          await prisma.room.delete({
+            where: { id: roomId },
+          });
           console.log(`🧼 Cleanup: Room ${roomId} has been deleted.`);
         }
       }
@@ -630,8 +674,61 @@ app.get('/api/connections', (_req, res) => {
       length: usersIds.length,
     },
     rooms: {
-      ids: Array.from(rooms).map((room) => room[0]),
+      ids: roomIds,
       length: roomIds.length,
     },
   });
+});
+
+app.get('/api/v2/rooms', async (_req, res) => {
+  try {
+    const rooms = await prisma.room.findMany();
+    res.json({ rooms: rooms || [] });
+  } catch (error) {
+    res.json({ rooms: [] });
+  }
+});
+
+app.get('/api/v2/users', async (_req, res) => {
+  try {
+    const users = await prisma.user.findMany();
+    res.json({ rooms: users || [] });
+  } catch (error) {
+    res.json({ users: [] });
+  }
+});
+
+app.get('/api/v2/connections', async (_req, res) => {
+  const activeConnections = io.sockets.sockets.size;
+
+  try {
+    const users = await prisma.user.findMany();
+    const rooms = await prisma.room.findMany();
+    const roomIds = rooms.map((room) => room.id);
+    const usersIds = users.map((user) => user.id);
+
+    res.json({
+      activeConnections,
+      users: {
+        ids: usersIds,
+        length: usersIds.length,
+      },
+      rooms: {
+        ids: roomIds,
+        length: roomIds.length,
+      },
+    });
+  } catch (error) {
+    res.json({
+      activeConnections,
+      users: {
+        ids: null,
+        length: 0,
+      },
+      rooms: {
+        ids: null,
+        length: 0,
+      },
+    });
+  }
 });
