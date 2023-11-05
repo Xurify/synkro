@@ -66,7 +66,7 @@ body {
   background-color: #f1f6f9;
   color: #212a3e;
   height: 100%;
-  font-family: "Nunito", sans-serif;
+  font-family: "Rubik", sans-serif;
 
   background-image: url("/next-assets/images/background-gradient.png");
   background-position: 10px;
@@ -106,10 +106,4 @@ body.dark {
 .star-field-canvas-wrappercanvas {
   height: 100%;
   max-height: 100%;
-}
-
-.user-message.admin {
-  /* box-shadow: rgba(248, 75, 185, 0.4) 0px 5px, rgba(245, 66, 179, 0.3) 0px 10px, rgba(233, 64, 171, 0.2) 0px 15px,
-    rgba(238, 68, 176, 0.1) 0px 20px, rgba(219, 63, 162, 0.05) 0px 25px; */
-  /* margin: 0.5rem 0; */
 }

@@ -3,14 +3,15 @@ import React, { useState } from "react";
 import { useSocket } from "@/context/SocketContext";
 import { useRouter } from "next/router";
 
-import { DicesIcon } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { generateName } from "@/libs/utils/names";
 import { GetServerSideProps } from "next";
 import { JOIN_ROOM_BY_INVITE } from "@/constants/socketActions";
 import { useToast } from "@/components/ui/use-toast";
+
+import useSound from "use-sound";
+import DiceButton from "@/components/DiceButton";
 
 export interface InvitePageProps {
   sessionToken: string;
@@ -25,6 +26,8 @@ export const InvitePage: React.FC<InvitePageProps> = () => {
   const { socket } = useSocket();
   const { toast } = useToast();
 
+  const [playUserDisconnectedSound] = useSound("/next-assets/audio/button_press.mp3", { volume: 0.5 });
+
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setUsername(value);
@@ -36,6 +39,7 @@ export const InvitePage: React.FC<InvitePageProps> = () => {
   };
 
   const handleGenerateRandomUsername = () => {
+    playUserDisconnectedSound();
     setUsername(generateName());
   };
 
@@ -71,18 +75,10 @@ export const InvitePage: React.FC<InvitePageProps> = () => {
           </div>
           <div className="flex mt-3">
             <Input placeholder="Username" onChange={handleChangeUsername} value={username} />
-            <Button
-              className="w-9 h-9 min-w-[2.25rem] text-primary hover:bg-primary hover:text-white ml-2"
-              onClick={handleGenerateRandomUsername}
-              variant="secondary"
-            >
-              <span>
-                <DicesIcon size="1.4rem" />
-              </span>
-            </Button>
+            <DiceButton className="ml-2" onClick={handleGenerateRandomUsername} />
           </div>
           <div className="mt-4 flex flex-col items-center justify-end">
-            <Button className="w-full h-9 py-1 px-2 border" onClick={handleJoinRoom} variant="default">
+            <Button className="w-full h-9 py-1 px-2 border uppercase" onClick={handleJoinRoom} variant="default">
               Join Room
             </Button>
           </div>

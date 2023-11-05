@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 
-import { DicesIcon } from "lucide-react";
-
 import { useRouter } from "next/router";
 import { useSocket } from "@/context/SocketContext";
 import { useToast } from "@/components/ui/use-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DiceButton } from "@/components/DiceButton";
 import { JoinRoomBoxProps } from "./JoinRoomBox";
 
 import { generateName } from "../libs/utils/names";
@@ -60,30 +59,14 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
     <div className="max-w-[30rem] w-full bg-card p-4 rounded">
       <div className="flex mb-3">
         <Input placeholder="Room name" onChange={handleChangeRoomName} value={roomName} />
-        <Button
-          className="w-9 h-9 min-w-[2.25rem] text-primary hover:bg-primary hover:text-white ml-2"
-          onClick={handleGenerateRandomRoomName}
-          variant="secondary"
-        >
-          <span>
-            <DicesIcon size="1.4rem" />
-          </span>
-        </Button>
+        <DiceButton className="ml-2" onClick={handleGenerateRandomRoomName} />
       </div>
       <div className="flex">
         <Input placeholder="Username" onChange={handleChangeUsername} value={username} />
-        <Button
-          className="w-9 h-9 min-w-[2.25rem] text-primary hover:bg-primary hover:text-white ml-2"
-          onClick={handleGenerateRandomUsername}
-          variant="secondary"
-        >
-          <span>
-            <DicesIcon size="1.4rem" />
-          </span>
-        </Button>
+        <DiceButton className="ml-2" onClick={handleGenerateRandomUsername} />
       </div>
       <div className="mt-4 flex flex-col items-center justify-end">
-        <Button className="w-full h-9 py-1 px-2 border" onClick={handleCreateRoom}>
+        <Button className="w-full h-9 py-1 px-2 border uppercase" onClick={handleCreateRoom}>
           Create Room
         </Button>
         <div className="flex items-center justify-center my-4 max-w-[10rem] w-full">
@@ -91,7 +74,7 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
           <span className="px-4 text-gray-500">or</span>
           <div className="flex-grow border-b border-gray-500"></div>
         </div>
-        <Button className="w-full h-9 py-1 px-2 border" onClick={toggleShowJoin} variant="secondary">
+        <Button className="w-full h-9 py-1 px-2 border uppercase" onClick={toggleShowJoin} variant="secondary">
           Join Room
         </Button>
       </div>

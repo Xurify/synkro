@@ -8,7 +8,7 @@ module.exports = {
       padding: "2rem",
     },
     fontFamily: {
-      noto: ["Noto Sans", "sans-serif"],
+      inter: ["Inter", "system-ui"],
       sans: ["ui-sans-serif", "system-ui"],
     },
     extend: {

@@ -2,10 +2,9 @@ import React, { useState } from "react";
 
 import { useRouter } from "next/router";
 
-import { DicesIcon } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import DiceButton from "@/components/DiceButton";
 import { useToast } from "@/components/ui/use-toast";
 
 import { CHECK_IF_ROOM_EXISTS, JOIN_ROOM } from "@/constants/socketActions";
@@ -63,18 +62,10 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
       </div>
       <div className="flex mt-3">
         <Input placeholder="Username" onChange={handleChangeUsername} value={username} />
-        <Button
-          className="w-9 h-9 min-w-[2.25rem] text-primary hover:bg-primary hover:text-white ml-2"
-          onClick={handleGenerateRandomUsername}
-          variant="secondary"
-        >
-          <span>
-            <DicesIcon size="1.4rem" />
-          </span>
-        </Button>
+        <DiceButton className="ml-2" onClick={handleGenerateRandomUsername} />
       </div>
       <div className="mt-4 flex flex-col items-center justify-end">
-        <Button className="w-full h-9 py-1 px-2 border" onClick={handleJoinRoom} variant="default">
+        <Button className="w-full h-9 py-1 px-2 border uppercase" onClick={handleJoinRoom} variant="default">
           Join Room
         </Button>
         <div className="flex items-center justify-center my-4 max-w-[10rem] w-full">
@@ -82,7 +73,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
           <span className="px-4 text-gray-500">or</span>
           <div className="flex-grow border-b border-gray-500"></div>
         </div>
-        <Button className="w-full h-9 py-1 px-2 border" onClick={toggleShowCreate} variant="secondary">
+        <Button className="w-full h-9 py-1 px-2 border uppercase" onClick={toggleShowCreate} variant="secondary">
           Create Room
         </Button>
       </div>

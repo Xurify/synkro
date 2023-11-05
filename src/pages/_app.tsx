@@ -9,17 +9,17 @@ import { SocketProvider } from "@/context/SocketProvider";
 
 import "@/styles/global.css";
 
-import { Noto_Sans, Nunito } from "next/font/google";
+import { Inter, Rubik } from "next/font/google";
 
-const notoSans = Noto_Sans({ weight: ["100", "200", "300", "400", "500", "600", "700"], subsets: ["latin"] });
-const nunito = Nunito({ subsets: ["latin"] });
+const rubik = Rubik({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700", "800", "900"] });
+const inter = Inter({ weight: ["100", "200", "300", "400", "500", "600", "700"], subsets: ["latin"] });
 
 export default function App({ Component, pageProps }: AppProps) {
   //useDarkMode();
   return (
     <>
       <SocketProvider sessionToken={pageProps?.sessionToken || null} adminToken={pageProps?.adminToken || null}>
-        <div className={`${notoSans.className} ${nunito.className}`}>
+        <div className={`${rubik.className} ${inter.className}`}>
           <Page navigationHeaderProps={pageProps.navigationHeaderProps}>
             <Component {...pageProps} />
             <Analytics />
