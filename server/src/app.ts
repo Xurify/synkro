@@ -6,7 +6,9 @@ import { Server } from 'socket.io';
 import ReactPlayer from 'react-player';
 import { Room, ServerMessageType, User } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
-import { addRoom, addUser, getPreviouslyConnectedUser, getRoomByInviteCode, requestIsNotFromHost, updateRoom } from './utils/socket';
+import { addRoom, getRoomByInviteCode, updateRoom } from './utils/room-management';
+import { addUser, getPreviouslyConnectedUser, requestIsNotFromHost } from './utils/user-management';
+
 import {
   LEAVE_ROOM,
   USER_MESSAGE,
@@ -75,11 +77,6 @@ io.on('connection', (socket: CustomSocketServer) => {
   const userId = socket.handshake.auth.token;
   const adminTokenHandshake = socket.handshake.auth.adminToken;
   const adminToken = process.env.ADMIN_TOKEN;
-
-  //const roomId = socket.handshake.query.roomId as string | undefined;
-  //const userId = socket.handshake.query.userId as string | undefined;
-  //const username = socket.handshake.query.username as string | undefined;
-  //const roomName = socket.handshake.query.roomName as string | undefined;
 
   if (!userId) {
     socket.disconnect();
@@ -630,7 +627,7 @@ app.get('/api/connections', (_req, res) => {
       length: usersIds.length,
     },
     rooms: {
-      ids: Array.from(rooms).map((room) => room[0]),
+      ids: roomIds,
       length: roomIds.length,
     },
   });

@@ -16,7 +16,7 @@ export interface Room {
   name: string;
   host: string;
   inviteCode: string | null;
-  passcode?: string;
+  passcode: string | null;
   videoInfo: {
     currentVideoUrl: string | null;
     currentQueueIndex: number;

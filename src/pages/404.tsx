@@ -6,7 +6,7 @@ const Error: NextPage = () => {
   return (
     <main className="flex flex-col h-full text-primary-foreground">
       <div className="w-full h-full flex flex-col items-center justify-center px-2 text-center">
-        <h2 className="text-7xl font-bold mb-3">404</h2>
+        <h1 className="text-7xl font-bold mb-3">404</h1>
         <p className="mb-3">Um. You shouldn&apos;t be here 😅</p>
         <Image alt="" src={"/next-assets/images/tv-stand-by.gif"} width={400} height={300} loading="lazy" />
         <Link
