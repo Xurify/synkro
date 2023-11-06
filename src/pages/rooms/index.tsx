@@ -8,6 +8,7 @@ import { cn } from "@/libs/utils/frontend-utils";
 import { Room } from "@/types/interfaces";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/Spinner";
+import { serverURL } from "@/constants/constants";
 
 interface RoomsPageProps {
   rooms: Room[];
@@ -17,13 +18,10 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
   const [rooms, setRooms] = useState(initialRooms ?? []);
   const [sort, setSort] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState(true);
-  //const [error, setError] = useState(null);
   const [playButtonPressSound] = useSound("/next-assets/audio/button_press.mp3", { volume: 0.5 });
 
   useEffect(() => {
-    const eventSource = new EventSource(`http://localhost:8000/api/public-rooms`);
-
-    console.log("eventSource.url", eventSource.CONNECTING, eventSource.CLOSED, eventSource.OPEN, eventSource);
+    const eventSource = new EventSource(`${serverURL}/api/public-rooms`);
 
     eventSource.onopen = () => {
       setLoading(false);
@@ -51,8 +49,6 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
     playButtonPressSound();
     setSort((currentSort) => (currentSort === "asc" ? "desc" : "asc"));
   };
-
-  console.log("TESTING", rooms);
 
   const sortedRooms: Room[] = rooms.sort((roomA, roomB) => {
     if (sort === "asc") {
