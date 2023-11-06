@@ -19,6 +19,7 @@ export const DiceButton: React.FC<DiceButtonProps> = ({ className, onClick }) =>
 
   return (
     <Button
+      aria-label="Generate Random Name"
       className={cn("w-9 h-9 min-w-[2.25rem] text-primary hover:bg-primary hover:text-white ml-2", { [`${className}`]: !!className })}
       onClick={handleOnClick}
       variant="secondary"
