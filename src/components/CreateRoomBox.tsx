@@ -93,7 +93,7 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
           <div className="flex-grow border-b border-gray-500"></div>
         </div>
         <Link
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 w-full h-9 py-1 px-2 border uppercase"
+          className="inline-flex items-center justify-center rounded-md text-xs font-medium transition-colors bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 w-full h-9 py-1 px-2 border uppercase"
           href="/rooms"
         >
           Check out the Room Browser!
