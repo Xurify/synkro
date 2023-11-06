@@ -4,6 +4,9 @@ export const BASE_URL = process.env.NODE_ENV === "production" ? PRODUCTION_SITE_
 export const socketURL: string =
   process.env.NODE_ENV === "development" ? "ws://localhost:8000" : (process.env.NEXT_PUBLIC_SERVER_API as string);
 
+export const serverURL: string =
+  process.env.NODE_ENV === "development" ? "http://localhost:8000" : `https://${process.env.SERVER_BASE_API}`;
+
 export const YOUTUBE_VIDEO_URL_REGEX = /(youtu.*be.*)\/(watch\?v=|embed\/|v|shorts|)(.*?((?=[&#?])|$))/;
 export const SOUNDCLOUD_TRACK_URL_REGEX = /^https?:\/\/(soundcloud\.com|snd\.sc)\/(.*)$/;
 export const SOUNDCLOUD_TRACK_SHORT_URL_REGEX = /^https?:\/\/(on.soundcloud\.com|snd\.sc)\/(.*)$/;

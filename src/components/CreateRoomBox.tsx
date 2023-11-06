@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 
 import { useRouter } from "next/router";
+import Link from "next/link";
+
 import { useSocket } from "@/context/SocketContext";
 import { useToast } from "@/components/ui/use-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DiceButton } from "@/components/DiceButton";
-import { JoinRoomBoxProps } from "./JoinRoomBox";
+import { JoinRoomBoxProps } from "@/components/JoinRoomBox";
 
 import { generateName } from "../libs/utils/names";
 import { CREATE_ROOM } from "@/constants/socketActions";
@@ -82,14 +84,20 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
         <Button className="w-full h-9 py-1 px-2 border uppercase" onClick={handleCreateRoom}>
           Create Room
         </Button>
+        <Button className="w-full h-9 py-1 px-2 border uppercase mt-2" onClick={toggleShowJoin} variant="secondary">
+          Join Room
+        </Button>
         <div className="flex items-center justify-center my-4 max-w-[10rem] w-full">
           <div className="flex-grow border-b border-gray-500"></div>
           <span className="px-4 text-gray-500 text-sm">or</span>
           <div className="flex-grow border-b border-gray-500"></div>
         </div>
-        <Button className="w-full h-9 py-1 px-2 border uppercase" onClick={toggleShowJoin} variant="secondary">
-          Join Room
-        </Button>
+        <Link
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 w-full h-9 py-1 px-2 border uppercase"
+          href="/rooms"
+        >
+          Check out the Room Browser!
+        </Link>
       </div>
     </div>
   );

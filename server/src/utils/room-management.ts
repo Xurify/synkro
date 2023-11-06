@@ -2,7 +2,7 @@ import { Room, User } from '../../../src/types/interfaces';
 import { nanoid } from 'nanoid';
 
 export const addRoom = (id: string, name: string, user: User): Room => {
-  const trimmedName = (name ?? '')?.trim();
+  const trimmedName = (name ?? 'Unnamed')?.trim();
   const created = new Date().toISOString();
   const inviteCode = nanoid(5);
   const room: Room = {

@@ -10,10 +10,10 @@ export interface DiceButtonProps {
 }
 
 export const DiceButton: React.FC<DiceButtonProps> = ({ className, onClick }) => {
-  const [playUserDisconnectedSound] = useSound("/next-assets/audio/button_press.mp3", { volume: 0.5 });
+  const [playButtonPressSound] = useSound("/next-assets/audio/button_press.mp3", { volume: 0.5 });
 
   const handleOnClick = () => {
-    playUserDisconnectedSound();
+    playButtonPressSound();
     onClick && onClick();
   };
 
