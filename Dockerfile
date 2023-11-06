@@ -1,8 +1,5 @@
 FROM node:18.16.0-alpine as base
 
-# Set working directory
-WORKDIR /server
-
 # Add package file
 COPY server/package.json ./
 COPY server/yarn.lock ./
