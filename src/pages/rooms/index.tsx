@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowDown01Icon, ArrowDown10Icon, ChevronRightIcon, HomeIcon, ServerIcon } from "lucide-react";
 import useSound from "use-sound";
@@ -10,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/Spinner";
 import { serverURL } from "@/constants/constants";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/router";
 
 interface RoomsPageProps {
   rooms: Room[];

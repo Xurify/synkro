@@ -1,24 +1,24 @@
 import React, { useState } from "react";
+import { GetServerSideProps } from "next";
+import { useRouter } from "next/navigation";
 
+import useSound from "use-sound";
 import { useSocket } from "@/context/SocketContext";
-import { useRouter } from "next/router";
+import { useToast } from "@/components/ui/use-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GetServerSideProps } from "next";
-import { JOIN_ROOM_BY_INVITE } from "@/constants/socketActions";
-import { useToast } from "@/components/ui/use-toast";
-
-import useSound from "use-sound";
 import DiceButton from "@/components/DiceButton";
+import { JOIN_ROOM_BY_INVITE } from "@/constants/socketActions";
 
 export interface InvitePageProps {
   sessionToken: string;
+  code: string;
 }
 
-export const InvitePage: React.FC<InvitePageProps> = () => {
+export const InvitePage: React.FC<InvitePageProps> = ({ code }) => {
   const router = useRouter();
-  const [inviteCode, setInviteCode] = useState((router.query["id"] as string) ?? "");
+  const [inviteCode, setInviteCode] = useState(code ?? "");
   const [username, setUsername] = useState("");
 
   const { socket } = useSocket();
@@ -100,8 +100,11 @@ export default InvitePage;
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const sessionToken = context.req.cookies["session_token"] || null;
   const adminToken = context.req.cookies["admin_token"] || null;
+  const code = context.params?.["code"] || null;
+
   return {
     props: {
+      code,
       sessionToken,
       adminToken,
     },

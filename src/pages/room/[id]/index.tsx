@@ -3,7 +3,7 @@ import { findDOMNode } from "react-dom";
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import useSound from "use-sound";
 
 import ReactPlayer from "react-player";
@@ -63,9 +63,10 @@ const ReactPlayerLazy = dynamic(() => import("react-player/lazy"), {
 
 export interface RoomPageProps {
   sessionToken: string;
+  roomId: string;
 }
 
-export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
+export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
   const [activeView, setActiveView] = useState<SidebarViews>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
   const [messages, setMessages] = useState<Messages>([]);
@@ -88,8 +89,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken }) => {
 
   const router = useRouter();
   const { toast } = useToast();
-
-  const roomId = router.query["id"] as string;
 
   const videoQueue = useQueue<VideoQueueItem>();
 
@@ -456,10 +455,13 @@ export default RoomPage;
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const sessionToken = context.req.cookies["session_token"] || null;
   const adminToken = context.req.cookies["admin_token"] || null;
+  const roomId = context.params?.["id"] || null;
+
   return {
     props: {
       sessionToken,
       adminToken,
+      roomId,
       navigationHeaderProps: {
         page: "video_room",
       },
