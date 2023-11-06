@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
-import { ArrowDown01Icon, ArrowDown10Icon, HomeIcon, ServerIcon } from "lucide-react";
+import { ArrowDown01Icon, ArrowDown10Icon, ChevronRightIcon, DoorOpenIcon, HomeIcon, ServerIcon } from "lucide-react";
 import useSound from "use-sound";
 
 import { cn } from "@/libs/utils/frontend-utils";
@@ -9,6 +9,8 @@ import { Room } from "@/types/interfaces";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/Spinner";
 import { serverURL } from "@/constants/constants";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/router";
 
 interface RoomsPageProps {
   rooms: Room[];
@@ -19,6 +21,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
   const [sort, setSort] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState(true);
   const [playButtonPressSound] = useSound("/next-assets/audio/button_press.mp3", { volume: 0.5 });
+  const router = useRouter();
 
   useEffect(() => {
     const eventSource = new EventSource(`${serverURL}/api/public-rooms`);
@@ -44,6 +47,10 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
       eventSource.close();
     };
   }, []);
+
+  const handleCopyPasscode = (room: Room) => {
+    router.push(`/invite/${room.inviteCode}`);
+  };
 
   const handleToggleSort = () => {
     playButtonPressSound();
@@ -87,7 +94,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
             sortedRooms.map((room) => (
               <div
                 className={cn(
-                  "w-full flex justify-between flex-wrap bg-[#6b2ed73d] hover:bg-[#6b2ed766] text-foreground border border-primary box-border cursor-pointer p-2 rounded transition duration-300 ease-in-out",
+                  "w-full flex flex-col gap-2 sm:flex-row justify-between items-center flex-wrap bg-[#6b2ed73d] hover:bg-[#6b2ed766] text-foreground border border-primary box-border cursor-pointer p-2 rounded transition duration-300 ease-in-out",
                   {
                     "[bg-[#170d20]": room.members.length === room.maxRoomSize,
                     "hover:bg-[#170d20]": room.members.length === room.maxRoomSize,
@@ -95,15 +102,22 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
                 )}
                 key={room.id}
               >
-                <h2>{room.name}</h2>
-                <div className="flex items-center">
-                  <span className="mr-2">
-                    {room.members.length} / {room.maxRoomSize}
-                  </span>
-                  <span>
-                    <ServerIcon color="#FFFFFF" size="1.25rem" />
-                  </span>
+                <div className="flex flex-1 w-full">
+                  <h2>{room.name}</h2>
+                  <div className="flex items-center ml-auto">
+                    <span className="mr-2">
+                      {room.members.length} / {room.maxRoomSize}
+                    </span>
+                    <span>
+                      <ServerIcon color="#FFFFFF" size="1.25rem" />
+                    </span>
+                  </div>
                 </div>
+                <Button onClick={() => handleCopyPasscode(room)} className="w-full sm:w-9 rounded-r">
+                  <span>
+                    <ChevronRightIcon color="#FFFFFF" size="1.25rem" />
+                  </span>
+                </Button>
               </div>
             ))}
         </div>
