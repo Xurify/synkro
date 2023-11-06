@@ -2,7 +2,6 @@ FROM node:18.16.0-alpine as base
 
 # Add package file
 COPY server/package.json ./
-COPY server/yarn.lock ./
 
 # Install deps
 RUN yarn install
