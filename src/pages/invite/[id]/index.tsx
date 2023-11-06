@@ -18,10 +18,9 @@ export interface InvitePageProps {
 }
 
 export const InvitePage: React.FC<InvitePageProps> = () => {
-  const [username, setUsername] = useState("");
-
   const router = useRouter();
   const [inviteCode, setInviteCode] = useState((router.query["id"] as string) ?? "");
+  const [username, setUsername] = useState("");
 
   const { socket } = useSocket();
   const { toast } = useToast();

@@ -13,12 +13,11 @@ import { generateName } from "../libs/utils/names";
 import { CREATE_ROOM } from "@/constants/socketActions";
 
 export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJoin }) => {
-  const [username, setUsername] = useState("");
   const [roomName, setRoomName] = useState("");
-
-  const { toast } = useToast();
+  const [username, setUsername] = useState("");
 
   const router = useRouter();
+  const { toast } = useToast();
   const { socket } = useSocket();
 
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
