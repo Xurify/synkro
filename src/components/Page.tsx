@@ -15,6 +15,8 @@ export const Page: React.FC<React.PropsWithChildren<PageProps>> = ({ children, n
       loaded: function (posthog) {
         sessionToken && posthog.identify(sessionToken);
       },
+      enable_recording_console_log: true,
+      secure_cookie: true,
     });
   }, []);
 
