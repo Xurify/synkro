@@ -20,8 +20,8 @@ RUN yarn build
 FROM node:18.16.0-alpine
 
 # Copy node modules and build directory
-COPY --from=base ./server/node_modules ./node_modules
-COPY --from=base ./server/dist /dist
+COPY --from=base ./server/node_modules ./server/node_modules
+COPY --from=base ./server/dist ./server/dist
 
 # Expose port 8000
 EXPOSE 8000
