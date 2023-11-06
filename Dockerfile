@@ -8,7 +8,7 @@ COPY yarn.lock ./
 RUN yarn install
 
 # Copy source
-COPY src ./src
+COPY server/src ./src
 COPY tsconfig.json ./tsconfig.json
 
 # Build dist
