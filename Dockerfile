@@ -10,6 +10,7 @@ RUN yarn install
 # Copy source
 COPY server/src ./src
 COPY src/types ./src/types
+COPY src/constants ./src/constants
 COPY tsconfig.json ./tsconfig.json
 
 # Build dist
