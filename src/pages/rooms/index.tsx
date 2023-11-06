@@ -74,7 +74,10 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms }) => {
             </div>
           ))}
         </div>
-        <Link className="flex items-center justify-center text-white uppercase text-sm w-full mt-4 py-1 rounded" href="/">
+        <Link
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 w-full h-9 py-1 px-2 border uppercase mt-4"
+          href="/"
+        >
           Back Home
           <span className="ml-2">
             <HomeIcon color="#FFFFFF" size="1.25rem" />
