@@ -1,13 +1,14 @@
 import express, { Application } from 'express';
 import { createServer, Server as HttpServer } from 'http';
+import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 import { nanoid } from 'nanoid';
 import { Server } from 'socket.io';
 import ReactPlayer from 'react-player';
 import { Room, ServerMessageType, User } from '../../src/types/interfaces';
 import { CustomSocketServer } from '../../src/types/socketCustomTypes';
-import { addRoom, getRoomByInviteCode, updateRoom } from './utils/room-management';
-import { addUser, getPreviouslyConnectedUser, requestIsNotFromHost } from './utils/user-management';
+import { roomsSource } from './utils/room-management';
+import { addUser, requestIsNotFromHost } from './utils/user-management';
 
 import {
   LEAVE_ROOM,
@@ -47,14 +48,22 @@ const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
 const app: Application = express();
 const server: HttpServer = createServer(app);
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://synkro.vercel.app',
+  'https://synkro-synkro.vercel.app',
+  'https://synkro-git-master-synkro.vercel.app',
+];
+
+const corsOptions = {
+  origin: allowedOrigins,
+  methods: ['GET', 'POST'],
+};
+
+app.use(cors(corsOptions));
+
 const io: Server = new Server(server, {
   allowRequest: (req, callback) => {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'https://synkro.vercel.app',
-      'https://synkro-synkro.vercel.app',
-      'https://synkro-git-master-synkro.vercel.app',
-    ];
     const isAllowedOrigin = req?.headers?.origin ? allowedOrigins.includes(req.headers.origin) : false;
     callback(null, isAllowedOrigin);
   },
@@ -70,7 +79,6 @@ io.use((socket, next) => {
 });
 
 let users: Map<string, User> = new Map();
-const rooms: Map<string, Room> = new Map();
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 
 io.on('connection', (socket: CustomSocketServer) => {
@@ -99,14 +107,14 @@ io.on('connection', (socket: CustomSocketServer) => {
   console.log(`⚡️ New user connected - User Id: ${userId}`);
 
   socket.on(CHECK_IF_ROOM_EXISTS, (roomId, callback) => {
-    const room = rooms.get(roomId);
+    const room = roomsSource.get(roomId);
     typeof callback === 'function' && callback(room ?? null);
   });
 
   socket.on(CREATE_ROOM, async (username, roomName, callback) => {
     const newRoomId = nanoid(6);
     if (userId) {
-      const room = rooms.get(newRoomId);
+      const room = roomsSource.get(newRoomId);
       if (room) {
         typeof callback === 'function' && callback({ error: 'Room already exists' });
       } else {
@@ -115,10 +123,11 @@ io.on('connection', (socket: CustomSocketServer) => {
         socket.join(newRoomId);
         socket.roomId = newRoomId;
 
-        const newRoom = addRoom(newRoomId, roomName, user);
+        const newRoom = roomsSource.create(newRoomId, roomName, user);
         startCleanupInterval();
+
         if (newRoom) {
-          rooms.set(newRoomId, newRoom);
+          roomsSource.set(newRoomId, newRoom);
           typeof callback === 'function' && callback({ result: newRoom });
           console.log(`👀 New user joined in room: ${user.roomId} - User Id: ${userId}`);
           socket.emit(GET_ROOM_INFO, newRoom);
@@ -135,13 +144,13 @@ io.on('connection', (socket: CustomSocketServer) => {
       return;
     }
 
-    const existingRoom = rooms.has(roomId);
+    const existingRoom = roomsSource.has(roomId);
     if (!existingRoom) {
       typeof callback === 'function' && callback({ success: false, error: `Failed to find room: ${roomId}` });
       return;
     }
 
-    const updatedRoom = addUserToRoom(socket, socket.userId, roomId, username, rooms, users);
+    const updatedRoom = addUserToRoom(socket, socket.userId, roomId, username, roomsSource.rooms, users);
     if (updatedRoom && typeof callback === 'function') {
       callback({ success: true });
     }
@@ -153,7 +162,7 @@ io.on('connection', (socket: CustomSocketServer) => {
       return;
     }
 
-    const room = getRoomByInviteCode(inviteCode, rooms);
+    const room = roomsSource.getRoomByInviteCode(inviteCode);
     if (!room) {
       typeof callback === 'function' &&
         callback({
@@ -163,7 +172,7 @@ io.on('connection', (socket: CustomSocketServer) => {
       return;
     }
 
-    const updatedRoom = addUserToRoom(socket, socket.userId, room.id, username, rooms, users);
+    const updatedRoom = addUserToRoom(socket, socket.userId, room.id, username, roomsSource.rooms, users);
     if (updatedRoom && typeof callback === 'function') {
       callback({ success: true, roomId: room.id });
     }
@@ -171,7 +180,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(RECONNECT_USER, (roomId, userId, callback) => {
     if (roomId && userId) {
-      const existingRoom = rooms.get(roomId);
+      const existingRoom = roomsSource.get(roomId);
 
       if (!existingRoom) {
         typeof callback === 'function' && callback({ success: false, error: `Failed to find room: ${roomId}` });
@@ -182,7 +191,7 @@ io.on('connection', (socket: CustomSocketServer) => {
       socket.roomId = roomId;
       socket.join(roomId);
 
-      const previouslyConnectedUser = getPreviouslyConnectedUser(userId, existingRoom);
+      const previouslyConnectedUser = roomsSource.getPreviouslyConnectedUser(userId, roomId);
 
       if (previouslyConnectedUser) {
         io.to(roomId).emit(SERVER_MESSAGE, {
@@ -203,7 +212,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
         const userExistsInRoomMembers = existingRoom.members.find((member) => member.id === user.id);
         const newMembers = userExistsInRoomMembers ? existingRoom.members : [...existingRoom.members, user];
-        const updatedRoom = updateRoom(roomId, rooms, {
+        const updatedRoom = roomsSource.update(roomId, {
           ...existingRoom,
           members: newMembers,
         });
@@ -216,7 +225,7 @@ io.on('connection', (socket: CustomSocketServer) => {
           });
         }
 
-        rooms.set(roomId, updatedRoom);
+        roomsSource.set(roomId, updatedRoom);
         if (roomTimeouts[roomId]) {
           clearTimeout(roomTimeouts[roomId]);
           delete roomTimeouts[roomId];
@@ -249,10 +258,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(GET_VIDEO_INFORMATION, () => {
-    if (!requestIsNotFromHost(socket, rooms, false)) return;
+    if (!requestIsNotFromHost(socket, roomsSource.rooms, false)) return;
     if (!socket?.roomId) return;
 
-    const room = rooms.get(socket.roomId);
+    const room = roomsSource.get(socket.roomId);
     if (!room) return;
 
     const host = users.get(room.host);
@@ -264,7 +273,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(PLAY_VIDEO, () => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
 
     const user = socket.userId && users.get(socket.userId);
     if (user && user.roomId) {
@@ -277,7 +286,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(PAUSE_VIDEO, () => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
 
     const user = socket?.userId && users.get(socket.userId);
     if (user && user.roomId) {
@@ -287,7 +296,7 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(BUFFERING_VIDEO, (time) => {
     const user = socket.userId && users.get(socket.userId);
-    if (requestIsNotFromHost(socket, rooms) && user && user.roomId) {
+    if (requestIsNotFromHost(socket, roomsSource.rooms) && user && user.roomId) {
       io.to(user.roomId).emit('USER_VIDEO_STATUS', socket.userId, 'BUFFERING');
     } else if (user && user.roomId) {
       socket.to(user.roomId).emit(SYNC_TIME, time);
@@ -295,7 +304,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(REWIND_VIDEO, (time) => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     const user = socket?.userId && users.get(socket.userId);
     if (user && user.roomId) {
       socket.to(user.roomId).emit(REWIND_VIDEO, time);
@@ -303,7 +312,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(FASTFORWARD_VIDEO, (time) => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     const user = socket?.userId && users.get(socket.userId);
     if (user && user.roomId) {
       socket.to(user.roomId).emit(FASTFORWARD_VIDEO, time);
@@ -311,10 +320,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(END_OF_VIDEO, () => {
-    if (requestIsNotFromHost(socket, rooms, false)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms, false)) return;
     const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
-      const room = rooms.get(user.roomId);
+      const room = roomsSource.get(user.roomId);
       if (!room) return;
 
       const nextIndex = room.videoInfo.currentQueueIndex + 1;
@@ -333,10 +342,10 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(CHANGE_VIDEO, (url, newIndex) => {
     if (!ReactPlayer.canPlay(url)) return;
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
-      const room = rooms.get(user.roomId);
+      const room = roomsSource.get(user.roomId);
       if (room) {
         room.videoInfo.currentVideoUrl = url;
         if (typeof newIndex === 'number' && newIndex > -1) {
@@ -351,10 +360,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(ADD_VIDEO_TO_QUEUE, (newVideo) => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
-      const room = rooms.get(user.roomId);
+      const room = roomsSource.get(user.roomId);
       if (!room) return;
       room.videoInfo.queue = [...room.videoInfo.queue, newVideo];
       socket.to(user.roomId).emit(ADD_VIDEO_TO_QUEUE, newVideo);
@@ -362,10 +371,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(REMOVE_VIDEO_FROM_QUEUE, (url) => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
-      const room = rooms.get(user.roomId);
+      const room = roomsSource.get(user.roomId);
       if (!room) return;
       const newVideoQueue = room.videoInfo.queue.filter((videoItem) => videoItem.url !== url);
       room.videoInfo.queue = newVideoQueue;
@@ -374,10 +383,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(VIDEO_QUEUE_REORDERED, (newVideoQueue) => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
-      const room = rooms.get(user.roomId);
+      const room = roomsSource.get(user.roomId);
       if (!room) return;
       room.videoInfo.queue = newVideoQueue;
       socket.to(user.roomId).emit(VIDEO_QUEUE_REORDERED, newVideoQueue);
@@ -385,10 +394,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(VIDEO_QUEUE_CLEARED, () => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
-      const room = rooms.get(user.roomId);
+      const room = roomsSource.get(user.roomId);
       if (!room) return;
       if (room.videoInfo.queue.length > 0) {
         room.videoInfo.queue = [];
@@ -398,10 +407,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(CHANGE_SETTINGS, (newSettings) => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     const user = socket?.userId && users.get(socket.userId);
     if (user && user?.roomId) {
-      const room = rooms.get(user.roomId);
+      const room = roomsSource.get(user.roomId);
       if (!room) return;
       if (newSettings.maxRoomSize && newSettings.maxRoomSize <= 20) {
         room.maxRoomSize = newSettings.maxRoomSize;
@@ -414,16 +423,16 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(SET_HOST, (userId) => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     if (!socket.roomId) return;
 
     const user = users.get(userId);
     if (!user) return;
 
-    const room = rooms.get(user.roomId);
+    const room = roomsSource.get(user.roomId);
     if (!room) return;
     room.host = userId;
-    rooms.set(socket.roomId, room);
+    roomsSource.set(socket.roomId, room);
     //io.in(room.id).emit(SET_HOST, room.host);
     io.in(room.id).emit(GET_ROOM_INFO, room);
     io.in(room.id).emit(SERVER_MESSAGE, {
@@ -433,7 +442,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(KICK_USER, (userId) => {
-    if (requestIsNotFromHost(socket, rooms)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     if (!socket.roomId) return;
 
     const user = users.get(userId);
@@ -475,14 +484,14 @@ const handleUserDisconnect = (userId: string) => {
       message: `${user.username} has disconnected`,
     });
 
-    const room = rooms.get(user.roomId);
+    const room = roomsSource.get(user.roomId);
 
     if (room) {
       const userWasHost = userId === room.host;
 
       const newMembers = room.members.filter((member) => member.id !== userId);
-      const updatedRoom = updateRoom(user.roomId, rooms, { members: newMembers });
-      rooms.set(user.roomId, updatedRoom);
+      const updatedRoom = roomsSource.update(user.roomId, { members: newMembers });
+      roomsSource.set(user.roomId, updatedRoom);
 
       const THREE_MINUTES = 3 * 60 * 1000;
 
@@ -491,11 +500,11 @@ const handleUserDisconnect = (userId: string) => {
       if (newMembers.length === 0) {
         roomTimeouts[user.roomId] = setTimeout(async () => {
           if (updatedRoom.members.length === 0) {
-            rooms.delete(user.roomId);
+            roomsSource.delete(user.roomId);
             console.log(`🧼 Cleanup: Room ${user.roomId} has been deleted.`);
           }
         }, THREE_MINUTES);
-        rooms.set(user.roomId, updatedRoom);
+        roomsSource.set(user.roomId, updatedRoom);
       } else {
         roomTimeouts[user.roomId] && clearTimeout(roomTimeouts[user.roomId]);
       }
@@ -510,7 +519,7 @@ const handleUserDisconnect = (userId: string) => {
       if (userWasHost && newMembers.length > 0) {
         updatedRoom.host = newMembers[0].id;
         console.log(`TESTING - NEW HOST ${updatedRoom.host} ${newMembers.length}`);
-        rooms.set(user.roomId, updatedRoom);
+        roomsSource.set(user.roomId, updatedRoom);
 
         io.in(room.id).emit(SERVER_MESSAGE, {
           type: ServerMessageType.NEW_HOST,
@@ -521,7 +530,7 @@ const handleUserDisconnect = (userId: string) => {
       io.to(room.id).emit(GET_ROOM_INFO, updatedRoom);
     }
 
-    const roomInfo = rooms.get(user.roomId);
+    const roomInfo = roomsSource.get(user.roomId);
     const activeConnections = io.sockets.sockets.size;
     console.log(LEAVE_ROOM, user.roomId, roomInfo?.members?.length, users.keys.length, activeConnections);
   }
@@ -535,7 +544,7 @@ const addUserToRoom = (
   rooms: Map<string, Room>,
   users: Map<string, User>,
 ): Room | null => {
-  const room = rooms.get(roomId);
+  const room = roomsSource.get(roomId);
   if (!room) return null;
 
   socket.join(roomId);
@@ -554,7 +563,7 @@ const addUserToRoom = (
 
   const userExistsInRoomMembers = room.members.find((member) => member.id === user.id);
   const newMembers = userExistsInRoomMembers ? room.members : [...room.members, user];
-  const updatedRoom = updateRoom(roomId, rooms, {
+  const updatedRoom = roomsSource.update(roomId, {
     ...room,
     members: newMembers,
     previouslyConnectedMembers: [...room.previouslyConnectedMembers, { userId: user.id, username: user.username }],
@@ -583,15 +592,15 @@ const CLEANUP_INTERVAL = 4 * 60 * 1000;
 let cleanupInterval: NodeJS.Timeout | null = null;
 
 const startCleanupInterval = () => {
-  if (!cleanupInterval && Array.from(rooms.keys()).length > 0) {
+  if (!cleanupInterval && roomsSource.getLength() > 0) {
     cleanupInterval = setInterval(() => {
-      for (const roomId in rooms) {
-        if (rooms.get(roomId)?.members.length === 0) {
-          rooms.delete(roomId);
+      for (const roomId in roomsSource.rooms) {
+        if (roomsSource.get(roomId)?.members.length === 0) {
+          roomsSource.rooms.delete(roomId);
           console.log(`🧼 Cleanup: Room ${roomId} has been deleted.`);
         }
       }
-      if (Array.from(rooms.keys()).length === 0 && cleanupInterval) {
+      if (roomsSource.getLength() === 0 && cleanupInterval) {
         clearInterval(cleanupInterval);
         cleanupInterval = null;
         console.log('🛑 Cleanup interval stopped as there are no rooms left.');
@@ -609,7 +618,7 @@ app.get('/api/healthz', (_req, res) => {
 });
 
 app.get('/api/rooms', (_req, res) => {
-  res.json({ rooms: Object.fromEntries(rooms.entries()) });
+  res.json({ rooms: Object.fromEntries(roomsSource.rooms.entries()) });
 });
 
 app.get('/api/users', (_req, res) => {
@@ -618,7 +627,7 @@ app.get('/api/users', (_req, res) => {
 
 app.get('/api/connections', (_req, res) => {
   const activeConnections = io.sockets.sockets.size;
-  const roomIds = Array.from(rooms).map((room) => room[0]);
+  const roomIds = Array.from(roomsSource.rooms).map((room) => room[0]);
   const usersIds = Array.from(users).map((user) => user[0]);
   res.json({
     activeConnections,
@@ -630,5 +639,40 @@ app.get('/api/connections', (_req, res) => {
       ids: roomIds,
       length: roomIds.length,
     },
+  });
+});
+
+app.get('/api/public-rooms', function (req, res) {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  });
+
+  const rooms = roomsSource.getAllAsArray();
+  res.write(`data: ${JSON.stringify({ type: 'rooms', rooms: rooms })}\n\n`);
+
+  // TODO: MIGHT NOT WANT TO SEND ALL THE ROOMS
+  const onQueueUpdate = () => {
+    const rooms = roomsSource.getAllAsArray();
+    res.write(`data: ${JSON.stringify({ type: 'rooms', rooms: rooms })}\n\n`);
+  };
+
+  roomsSource.on('room:added', () => {
+    onQueueUpdate();
+  });
+
+  roomsSource.on('room:updated', () => {
+    onQueueUpdate();
+  });
+
+  roomsSource.on('room:deleted', () => {
+    onQueueUpdate();
+  });
+
+  req.on('close', () => {
+    roomsSource.removeListener('room:added', onQueueUpdate);
+    roomsSource.removeListener('room:updated', onQueueUpdate);
+    roomsSource.removeListener('room:deleted', onQueueUpdate);
   });
 });
