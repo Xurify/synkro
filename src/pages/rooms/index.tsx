@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
-import { ArrowDown01Icon, ArrowDown10Icon, ChevronRightIcon, DoorOpenIcon, HomeIcon, ServerIcon } from "lucide-react";
+import { ArrowDown01Icon, ArrowDown10Icon, ChevronRightIcon, HomeIcon, ServerIcon } from "lucide-react";
 import useSound from "use-sound";
 
 import { cn } from "@/libs/utils/frontend-utils";
