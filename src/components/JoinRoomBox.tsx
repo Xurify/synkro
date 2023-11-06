@@ -38,7 +38,21 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
   };
 
   const handleJoinRoom = React.useCallback(() => {
-    if (!username.trim() || !roomId.trim()) return;
+    if (!roomId.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong",
+        description: "Room Id is missing.",
+      });
+      return;
+    } else if (!username.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong",
+        description: "Username is missing.",
+      });
+      return;
+    }
 
     socket?.emit(CHECK_IF_ROOM_EXISTS, roomId, (value) => {
       if (value === null) {

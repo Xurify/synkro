@@ -44,11 +44,18 @@ export const InvitePage: React.FC<InvitePageProps> = () => {
   };
 
   const handleJoinRoom = React.useCallback(() => {
-    if (!username.trim() || !inviteCode.trim()) {
+    if (!inviteCode.trim()) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong",
-        description: "There seem to be missing fields",
+        description: "Invite code is missing.",
+      });
+      return;
+    } else if (!username.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong",
+        description: "Username is missing.",
       });
       return;
     }

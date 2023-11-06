@@ -40,7 +40,21 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
   };
 
   const handleCreateRoom = () => {
-    if (!username.trim()) return;
+    if (!roomName.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong",
+        description: "Room name is missing.",
+      });
+      return;
+    } else if (!username.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong",
+        description: "Username is missing.",
+      });
+      return;
+    }
 
     socket?.emit(CREATE_ROOM, username, roomName, ({ result, error }) => {
       if (result && result.id) {
@@ -71,7 +85,7 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
         </Button>
         <div className="flex items-center justify-center my-4 max-w-[10rem] w-full">
           <div className="flex-grow border-b border-gray-500"></div>
-          <span className="px-4 text-gray-500">or</span>
+          <span className="px-4 text-gray-500 text-sm">or</span>
           <div className="flex-grow border-b border-gray-500"></div>
         </div>
         <Button className="w-full h-9 py-1 px-2 border uppercase" onClick={toggleShowJoin} variant="secondary">
