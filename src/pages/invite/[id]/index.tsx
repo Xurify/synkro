@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { generateName } from "@/libs/utils/names";
 import { GetServerSideProps } from "next";
 import { JOIN_ROOM_BY_INVITE } from "@/constants/socketActions";
 import { useToast } from "@/components/ui/use-toast";
@@ -39,7 +38,9 @@ export const InvitePage: React.FC<InvitePageProps> = () => {
 
   const handleGenerateRandomUsername = () => {
     playUserDisconnectedSound();
-    setUsername(generateName());
+    import("@/libs/utils/names").then((module) => {
+      setUsername(module.generateName());
+    });
   };
 
   const handleJoinRoom = React.useCallback(() => {

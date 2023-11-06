@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, useState } from "react";
 import { QrCodeIcon, UserPlusIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,12 @@ import { Button } from "@/components/ui/button";
 import { useSocket } from "@/context/SocketContext";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { BASE_URL } from "@/constants/constants";
-import { QRCodeModal } from "./QRCodeModal";
+
+const QRCodeModal = lazy(() =>
+  import("./QRCodeModal").then((module) => {
+    return { default: module.QRCodeModal };
+  })
+);
 
 const convertInviteCodeToUrl = (inviteCode: string) => `${BASE_URL}/invite/${inviteCode}`;
 

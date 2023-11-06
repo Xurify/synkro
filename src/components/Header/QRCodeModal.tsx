@@ -35,3 +35,5 @@ export const QRCodeModal: React.FC<ModalProps> = ({ open, toggle, code }) => {
     </Dialog>
   );
 };
+
+export default QRCodeModal;

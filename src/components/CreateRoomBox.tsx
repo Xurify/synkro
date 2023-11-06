@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { DiceButton } from "@/components/DiceButton";
 import { JoinRoomBoxProps } from "@/components/JoinRoomBox";
 
-import { generateName } from "../libs/utils/names";
 import { CREATE_ROOM } from "@/constants/socketActions";
 
 export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJoin }) => {
@@ -33,11 +32,15 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
   };
 
   const handleGenerateRandomUsername = () => {
-    setUsername(generateName());
+    import("@/libs/utils/names").then((module) => {
+      setUsername(module.generateName());
+    });
   };
 
   const handleGenerateRandomRoomName = () => {
-    setRoomName(`${generateName().split(" ")[0]} Room`);
+    import("@/libs/utils/names").then((module) => {
+      setRoomName(`${module.generateName().split(" ")[0]} Room`);
+    });
   };
 
   const handleCreateRoom = () => {

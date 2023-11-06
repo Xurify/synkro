@@ -10,7 +10,6 @@ import { useToast } from "@/components/ui/use-toast";
 
 import { CHECK_IF_ROOM_EXISTS, JOIN_ROOM } from "@/constants/socketActions";
 import { useSocket } from "@/context/SocketContext";
-import { generateName } from "@/libs/utils/names";
 
 export interface JoinRoomBoxProps {
   toggle: () => void;
@@ -35,7 +34,9 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
   };
 
   const handleGenerateRandomUsername = () => {
-    setUsername(generateName());
+    import("@/libs/utils/names").then((module) => {
+      setUsername(module.generateName());
+    });
   };
 
   const handleJoinRoom = React.useCallback(() => {
