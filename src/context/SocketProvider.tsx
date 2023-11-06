@@ -71,7 +71,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
     };
   }, [sessionToken]);
 
-  return <SocketContext.Provider value={{ socket, room, user, isConnecting }}>{children}</SocketContext.Provider>;
+  return <SocketContext.Provider value={{ socket, sessionToken, room, user, isConnecting }}>{children}</SocketContext.Provider>;
 };
 
 export default SocketContext;

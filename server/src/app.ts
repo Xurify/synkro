@@ -647,19 +647,14 @@ app.get('/api/public-rooms', function (req, res) {
     res.write(`data: ${JSON.stringify({ type: 'rooms', rooms: rooms })}\n\n`);
   };
 
-  roomsSource.on('room:added', () => {
-    onQueueUpdate();
-  });
+  roomsSource.on('room:added', onQueueUpdate);
+  roomsSource.on('room:updated', onQueueUpdate);
+  roomsSource.on('room:deleted', onQueueUpdate);
 
-  roomsSource.on('room:updated', () => {
-    onQueueUpdate();
-  });
-
-  roomsSource.on('room:deleted', () => {
-    onQueueUpdate();
-  });
+  console.log('roomsSource.listenerCount', roomsSource.listenerCount('room:updated'), roomsSource.listenerCount('room:deleted'));
 
   req.on('close', () => {
+    console.log('ONCLOSE');
     roomsSource.removeListener('room:added', onQueueUpdate);
     roomsSource.removeListener('room:updated', onQueueUpdate);
     roomsSource.removeListener('room:deleted', onQueueUpdate);

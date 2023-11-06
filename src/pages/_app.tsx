@@ -20,7 +20,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <SocketProvider sessionToken={pageProps?.sessionToken || null} adminToken={pageProps?.adminToken || null}>
         <div className={`${rubik.className} ${inter.className}`}>
-          <Page navigationHeaderProps={pageProps.navigationHeaderProps}>
+          <Page sessionToken={pageProps?.sessionToken || null} navigationHeaderProps={pageProps.navigationHeaderProps}>
             <Component {...pageProps} />
             <Analytics />
             <Toaster />
