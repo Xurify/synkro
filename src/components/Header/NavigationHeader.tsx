@@ -1,5 +1,6 @@
 import Link from "next/link";
 import VideoRoomHeader from "./VideoRoomHeader";
+import { cn } from "@/libs/utils/frontend-utils";
 
 export interface NavigationHeaderProps {
   page?: "home" | "video_room";
@@ -13,7 +14,9 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ page }) => {
           <div className="h-[2.5rem] w-[2.5rem] mr-2">
             <SynkroIcon />
           </div>
-          <span className="mt-[6px] font-normal sm:text-xl text-foreground uppercase hidden sm:block">Synkro</span>
+          <span className={cn("mt-[6px] font-normal text-xl text-foreground uppercase sm:block", { hidden: page === "video_room" })}>
+            Synkro
+          </span>
         </Link>
         {page === "video_room" && <VideoRoomHeader />}
       </div>
