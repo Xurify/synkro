@@ -14,6 +14,7 @@ export const PageHead: React.FC = () => {
       <meta property="twitter:card" content="app" />
       <meta property="twitter:title" content="Synkro" />
       <meta property="twitter:description" content="Synkro - Watch Together" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     </Head>
   );
 };
