@@ -31,6 +31,7 @@ export const Page: React.FC<React.PropsWithChildren<PageProps>> = ({ children, n
         src={"/next-assets/images/background-gradient.png"}
         className="z-[-1]"
         quality={20}
+        priority={true}
         fill
         sizes="100vw"
         style={{
