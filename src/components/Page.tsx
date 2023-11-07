@@ -2,7 +2,6 @@ import React from "react";
 import posthog from "posthog-js";
 import PageHead from "./PageHead";
 import NavigationHeader, { NavigationHeaderProps } from "./Header/NavigationHeader";
-import Image from "next/image";
 
 interface PageProps {
   navigationHeaderProps: NavigationHeaderProps;
