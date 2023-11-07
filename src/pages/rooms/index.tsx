@@ -84,42 +84,45 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
       </div>
       <div className="bg-card w-full h-full max-w-[500px] mx-auto p-4 rounded-b">
         <div className="flex flex-col w-full h-[500px] gap-y-4 overflow-y-auto overflow-x-hidden max-h-[calc(100vh-250px)] primary-scrollbar">
-          {loading && (
+          {loading ? (
             <div className="w-full flex items-center justify-center">
               <Spinner />
             </div>
-          )}
-          {!loading && sortedRooms.length === 0 && <div className="text-white text-sm">There are currently no public rooms available</div>}
-          {!loading &&
-            sortedRooms.map((room) => (
-              <div
-                className={cn(
-                  "w-full flex flex-col gap-2 sm:flex-row justify-between items-center flex-wrap bg-[#6b2ed73d] hover:bg-[#6b2ed766] text-foreground border border-primary box-border cursor-pointer p-2 rounded transition duration-300 ease-in-out",
-                  {
-                    "[bg-[#170d20]": room.members.length === room.maxRoomSize,
-                    "hover:bg-[#170d20]": room.members.length === room.maxRoomSize,
-                  }
-                )}
-                key={room.id}
-              >
-                <div className="flex flex-1 w-full">
-                  <h2>{room.name}</h2>
-                  <div className="flex items-center ml-auto">
-                    <span className="mr-2">
-                      {room.members.length} / {room.maxRoomSize}
-                    </span>
-                    <span>
-                      <ServerIcon color="#FFFFFF" size="1.25rem" />
-                    </span>
+          ) : (
+            <>
+              {sortedRooms.length === 0 && <div className="text-white text-sm">There are currently no public rooms available</div>}
+              {sortedRooms.length > 0 &&
+                sortedRooms.map((room) => (
+                  <div
+                    className={cn(
+                      "w-full flex flex-col gap-2 sm:flex-row justify-between items-center flex-wrap bg-[#6b2ed73d] hover:bg-[#6b2ed766] text-foreground border border-primary box-border cursor-pointer p-2 rounded transition duration-300 ease-in-out",
+                      {
+                        "[bg-[#170d20]": room.members.length === room.maxRoomSize,
+                        "hover:bg-[#170d20]": room.members.length === room.maxRoomSize,
+                      }
+                    )}
+                    key={room.id}
+                  >
+                    <div className="flex flex-1 w-full">
+                      <h2>{room.name}</h2>
+                      <div className="flex items-center ml-auto">
+                        <span className="mr-2">
+                          {room.members.length} / {room.maxRoomSize}
+                        </span>
+                        <span>
+                          <ServerIcon color="#FFFFFF" size="1.25rem" />
+                        </span>
+                      </div>
+                    </div>
+                    <Button onClick={() => handleCopyPasscode(room)} className="w-full sm:w-9 rounded-r">
+                      <span>
+                        <ChevronRightIcon color="#FFFFFF" size="1.25rem" />
+                      </span>
+                    </Button>
                   </div>
-                </div>
-                <Button onClick={() => handleCopyPasscode(room)} className="w-full sm:w-9 rounded-r">
-                  <span>
-                    <ChevronRightIcon color="#FFFFFF" size="1.25rem" />
-                  </span>
-                </Button>
-              </div>
-            ))}
+                ))}
+            </>
+          )}
         </div>
         <Link
           className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 w-full h-9 py-1 px-2 border uppercase mt-4"
