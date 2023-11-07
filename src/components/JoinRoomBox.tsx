@@ -88,9 +88,9 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
           Create Room
         </Button>
         <div className="flex items-center justify-center my-4 max-w-[10rem] w-full">
-          <div className="flex-grow border-b border-gray-500"></div>
-          <span className="px-4 text-gray-500">or</span>
-          <div className="flex-grow border-b border-gray-500"></div>
+          <div className="flex-grow border-b border-gray-300"></div>
+          <span className="px-4 text-gray-300 text-sm">or</span>
+          <div className="flex-grow border-b border-gray-300"></div>
         </div>
         <Link
           className="inline-flex items-center justify-center rounded-md text-xs font-medium transition-colors bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 w-full h-9 py-1 px-2 border uppercase"
