@@ -2,6 +2,7 @@ import React from "react";
 import posthog from "posthog-js";
 import PageHead from "./PageHead";
 import NavigationHeader, { NavigationHeaderProps } from "./Header/NavigationHeader";
+import Image from "next/image";
 
 interface PageProps {
   navigationHeaderProps: NavigationHeaderProps;
@@ -25,6 +26,17 @@ export const Page: React.FC<React.PropsWithChildren<PageProps>> = ({ children, n
       <NavigationHeader {...navigationHeaderProps} />
       <PageHead />
       <div className="md:px-2 h-[calc(100vh-106px)] md:h-full relative">{children}</div>
+      <Image
+        alt=""
+        src={"/next-assets/images/background-gradient.png"}
+        className="z-[-1]"
+        quality={20}
+        fill
+        sizes="100vw"
+        style={{
+          objectFit: "cover",
+        }}
+      />
     </>
   );
 };

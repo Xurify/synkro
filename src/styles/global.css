@@ -67,10 +67,6 @@ body {
   color: #212a3e;
   height: 100%;
   font-family: "Rubik", sans-serif;
-
-  background-image: url("/next-assets/images/background-gradient.png");
-  background-position: 10px;
-  background-position-x: center;
 }
 
 body.dark {
