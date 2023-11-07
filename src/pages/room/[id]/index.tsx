@@ -1,7 +1,6 @@
 import React, { startTransition, useEffect, useState } from "react";
 import { findDOMNode } from "react-dom";
 import { GetServerSideProps } from "next";
-import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/navigation";
 import useSound from "use-sound";
