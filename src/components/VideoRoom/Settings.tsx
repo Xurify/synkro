@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { lazy, useState } from "react";
 import { ClipboardCopyIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { useSocket } from "@/context/SocketContext";
 import { runIfAuthorized } from "@/libs/utils/socket";
 
-import { UserModal } from "../Modals/UserModal";
 import { Label } from "../ui/label";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { generateUserIcon } from "@/libs/utils/chat";
+
+const UserModal = lazy(() =>
+  import("../Modals/UserModal").then((module) => {
+    return { default: module.UserModal };
+  })
+);
 
 interface SettingsProps {}
 
