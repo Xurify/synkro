@@ -54,13 +54,6 @@ import { convertURLToCorrectProviderVideoId } from "@/libs/utils/frontend-utils"
 import { Spinner } from "@/components/Spinner";
 import { AUDIO_FILE_URL_REGEX, VIDEO_FILE_URL_REGEX } from "@/constants/constants";
 
-const ReactPlayerLazy = dynamic(() => import("react-player/lazy"), {
-  loading: () => {
-    return <div className="w-full h-full flex text-white items-center justify-center">LOADING</div>;
-  },
-  ssr: false,
-});
-
 export interface RoomPageProps {
   sessionToken: string;
   roomId: string;
@@ -424,7 +417,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
           <div className="w-full">
             <div className="bg-card mb-2">
               <AspectRatio ratio={16 / 9}>
-                <ReactPlayerLazy
+                <ReactPlayer
                   className="react-player"
                   url={currentVideoUrl}
                   width="100%"
