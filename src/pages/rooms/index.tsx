@@ -32,7 +32,6 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
     };
 
     eventSource.onmessage = (event: { data: string }) => {
-      console.log("onmessage", event);
       const data = JSON.parse(event.data) as { type: "room"; rooms: Room[] };
       if (data.type) {
         const newRooms = data.rooms ?? [];
