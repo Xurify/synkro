@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   ArrowRightIcon,
   RefreshCwIcon,
-  ExpandIcon,
   FastForwardIcon,
   ListOrderedIcon,
   MessageSquareIcon,
@@ -115,11 +114,11 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
           <Button
             className={`${defaultButtonClassName}`}
             data-active={activeView}
-            onClick={() => onClickPlayerButton("expand")}
-            variant={activeView === "expand" ? "default" : "secondary"}
+            onClick={() => onClickPlayerButton("settings")}
+            variant={activeView === "settings" ? "default" : "secondary"}
           >
             <span>
-              <ExpandIcon color="#FFFFFF" size="1.25rem" />
+              <SettingsIcon color="#FFFFFF" size="1.25rem" />
             </span>
           </Button>
           <Separator />
@@ -158,22 +157,12 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
           </div>
           <Separator />
           <Button
-            className={`${defaultButtonClassName} bg-red-600 hover:bg-red-500`}
+            className={`${defaultButtonClassName} ml-auto bg-red-600 hover:bg-red-500`}
             onClick={() => onClickPlayerButton("leave-room")}
             variant="secondary"
           >
             <span>
               <DoorOpenIcon color="#FFFFFF" size="1.25rem" />
-            </span>
-          </Button>
-          <Button
-            className={`${defaultButtonClassName}`}
-            data-active={activeView}
-            onClick={() => onClickPlayerButton("settings")}
-            variant={activeView === "settings" ? "default" : "secondary"}
-          >
-            <span>
-              <SettingsIcon color="#FFFFFF" size="1.25rem" />
             </span>
           </Button>
         </div>

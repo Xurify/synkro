@@ -1,5 +1,4 @@
 import React, { startTransition, useEffect, useState } from "react";
-import { findDOMNode } from "react-dom";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useRouter } from "next/navigation";
@@ -7,8 +6,6 @@ import useSound from "use-sound";
 
 import ReactPlayer from "react-player";
 import type ReactPlayerType from "react-player";
-//import { OnProgressProps } from "react-player/base";
-import screenfull from "screenfull";
 import { RefreshCcwIcon } from "lucide-react";
 
 import {
@@ -329,11 +326,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
     }, false);
   };
 
-  const handleToggleFullscreen = () =>
-    runIfPlayerIsReady(() => {
-      screenfull.request(findDOMNode(player as unknown as Element) as Element);
-    });
-
   const handleClickPlayerButton = (buttonAction: ButtonActions, payload?: { videoUrl: string; videoIndex?: number }) => {
     if (["chat", "queue", "settings"].includes(buttonAction)) {
       startTransition(() => {
@@ -375,9 +367,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
           description: "This shouldn't take too long at all!",
           duration: 1000,
         });
-        return;
-      case "expand":
-        handleToggleFullscreen();
         return;
       default:
         break;
