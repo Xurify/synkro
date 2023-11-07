@@ -652,8 +652,6 @@ app.get('/api/public-rooms', function (req, res) {
   roomsSource.on('rooms:cleared', onQueueUpdate);
   roomsSource.on('room:deleted', onQueueUpdate);
 
-  console.log('roomsSource.listenerCount', roomsSource.listenerCount('room:updated'), roomsSource.listenerCount('room:deleted'));
-
   req.on('close', () => {
     console.log('ONCLOSE');
     roomsSource.removeListener('room:added', onQueueUpdate);

@@ -20,6 +20,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
   const [rooms, setRooms] = useState(initialRooms ?? []);
   const [sort, setSort] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState(true);
+  const [isClosed, setIsClosed] = useState(false);
   const [playButtonPressSound] = useSound("/next-assets/audio/button_press.mp3", { volume: 0.5 });
   const router = useRouter();
 
@@ -31,6 +32,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
     };
 
     eventSource.onmessage = (event: { data: string }) => {
+      console.log("onmessage", event);
       const data = JSON.parse(event.data) as { type: "room"; rooms: Room[] };
       if (data.type) {
         const newRooms = data.rooms ?? [];
@@ -38,9 +40,12 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
       }
     };
 
-    eventSource.onerror = (event) => {
-      eventSource.close();
+    eventSource.onerror = (event: Event) => {
       console.error("AN ERROR OCCURED:", event);
+      eventSource.close();
+      if ((event?.target as EventSource)?.readyState === eventSource.CLOSED) {
+        setIsClosed(true);
+      }
     };
 
     return () => {
@@ -90,8 +95,12 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
             </div>
           ) : (
             <>
-              {sortedRooms.length === 0 && <div className="text-white text-sm">There are currently no public rooms available</div>}
-              {sortedRooms.length > 0 &&
+              {isClosed && <div className="text-white text-sm">Connection closed</div>}
+              {!isClosed && sortedRooms.length === 0 && (
+                <div className="text-white text-sm">There are currently no public rooms available</div>
+              )}
+              {!isClosed &&
+                sortedRooms.length > 0 &&
                 sortedRooms.map((room) => (
                   <div
                     className={cn(
