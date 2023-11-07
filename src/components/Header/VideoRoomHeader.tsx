@@ -43,7 +43,7 @@ export const VideoRoomHeader: React.FC = () => {
         code={room?.inviteCode ? convertInviteCodeToUrl(room.inviteCode) : ""}
       />
       <Input
-        className="h-10  w-28 md:w-auto rounded-l rounded-r-none cursor-pointer bg-[#342f3d6e] hover:bg-[#342f3da1] border border-r-0 border-[#614397] font-normal"
+        className="h-10  w-32 md:w-auto rounded-l rounded-r-none cursor-pointer bg-[#342f3d6e] hover:bg-[#342f3da1] border border-r-0 border-[#614397] font-normal"
         type="text"
         onClick={handleCopyInviteCode}
         value={room?.inviteCode ?? "No invite code"}

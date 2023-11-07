@@ -8,12 +8,12 @@ export interface NavigationHeaderProps {
 export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ page }) => {
   return (
     <nav className="bg-card w-full flex p-3 mb-4 shadow">
-      <div className="text-xl font-bold text-brand-blue-600 flex justify-between w-full">
+      <div className="flex justify-between w-full">
         <Link className="flex items-center" href="/">
           <div className="h-[2.5rem] w-[2.5rem] mr-2">
             <SynkroIcon />
           </div>
-          <span className="mt-[6px] font-normal text-foreground uppercase">Synkro</span>
+          <span className="mt-[6px] font-normal sm:text-xl text-foreground uppercase hidden sm:block">Synkro</span>
         </Link>
         {page === "video_room" && <VideoRoomHeader />}
       </div>
