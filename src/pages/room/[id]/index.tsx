@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { startTransition, useEffect, useState } from "react";
 import { findDOMNode } from "react-dom";
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
@@ -344,7 +344,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
 
   const handleClickPlayerButton = (buttonAction: ButtonActions, payload?: { videoUrl: string; videoIndex?: number }) => {
     if (["chat", "queue", "settings"].includes(buttonAction)) {
-      setActiveView(buttonAction as SidebarViews);
+      startTransition(() => {
+        setActiveView(buttonAction as SidebarViews);
+      });
     }
 
     switch (buttonAction) {
