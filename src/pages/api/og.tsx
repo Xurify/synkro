@@ -20,7 +20,7 @@ const Icon = (
       <path fill="#EEFEC1" d="M70.777 171.336H187.38V420.59H70.777zm0 0"></path>
       <path
         fill="none"
-        stroke="#3B4866"
+        stroke="#2e3850"
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="149.91"
@@ -29,7 +29,7 @@ const Icon = (
       ></path>
       <path
         fill="none"
-        stroke="#3B4866"
+        stroke="#2e3850"
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="149.91"
@@ -39,5 +39,7 @@ const Icon = (
     </g>
   </svg>
 );
+
+// ORIGINAL STROKE COLOR - #3B4866
 
 export default OGImageResponse;
