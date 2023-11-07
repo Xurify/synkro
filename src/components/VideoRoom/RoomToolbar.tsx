@@ -133,13 +133,13 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
               <FastForwardIcon color="#FFFFFF" size="1.25rem" />
             </span>
           </Button>
-          <Separator className="hidden md:flex" />
+          <Separator className="hidden min-[1020px]:flex" />
           <Button className="rounded w-12" onClick={handleSyncVideo}>
             <span>
               <RefreshCwIcon color="#FFFFFF" size="1.25rem" />
             </span>
           </Button>
-          <div className="w-full items-center hidden md:flex">
+          <div className="w-full items-center hidden min-[1020px]:flex">
             <Input
               className="min-w-[140px]"
               disabled={!isAuthorized}
@@ -176,7 +176,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
             </span>
           </Button>
         </div>
-        <div className="mt-3 w-full flex md:hidden">
+        <div className="mt-3 w-full flex min-[1020px]:hidden">
           <div className="w-full flex items-center">
             <Input
               className="min-w-[140px]"
