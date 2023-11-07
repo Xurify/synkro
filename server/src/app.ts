@@ -585,7 +585,7 @@ const startCleanupInterval = () => {
     cleanupInterval = setInterval(() => {
       for (const roomId in roomsSource.rooms) {
         if (roomsSource.get(roomId)?.members.length === 0) {
-          roomsSource.rooms.delete(roomId);
+          roomsSource.delete(roomId);
           console.log(`🧼 Cleanup: Room ${roomId} has been deleted.`);
         }
       }
@@ -649,6 +649,7 @@ app.get('/api/public-rooms', function (req, res) {
 
   roomsSource.on('room:added', onQueueUpdate);
   roomsSource.on('room:updated', onQueueUpdate);
+  roomsSource.on('rooms:cleared', onQueueUpdate);
   roomsSource.on('room:deleted', onQueueUpdate);
 
   console.log('roomsSource.listenerCount', roomsSource.listenerCount('room:updated'), roomsSource.listenerCount('room:deleted'));
@@ -657,6 +658,7 @@ app.get('/api/public-rooms', function (req, res) {
     console.log('ONCLOSE');
     roomsSource.removeListener('room:added', onQueueUpdate);
     roomsSource.removeListener('room:updated', onQueueUpdate);
+    roomsSource.removeListener('rooms:cleared', onQueueUpdate);
     roomsSource.removeListener('room:deleted', onQueueUpdate);
   });
 });
