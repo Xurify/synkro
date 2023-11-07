@@ -59,6 +59,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
         title: "Incorrect video URL",
         description: "Sorry, this video cannot be played",
       });
+      console.log("Video URL cannot be played:", newVideoUrl);
       return;
     }
     if (socket?.userId && room?.host) {
