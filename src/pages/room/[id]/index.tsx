@@ -261,12 +261,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
     }
   };
 
-  const runIfPlayerIsReady = (callback?: () => void) => {
-    if (player) {
-      typeof callback === "function" && callback();
-    }
-  };
-
   const handleLeaveRoom = () => {
     if (!socket) return;
     socket.emit(LEAVE_ROOM, roomId);
