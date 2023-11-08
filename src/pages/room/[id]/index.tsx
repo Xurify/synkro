@@ -45,6 +45,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useSocket } from "@/context/SocketContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useQueue } from "@/hooks/useQueue";
+import { useUpdateEffect } from "@/hooks/useUpdateEffect";
 
 import { convertURLToCorrectProviderVideoId } from "@/libs/utils/frontend-utils";
 import { Spinner } from "@/components/Spinner";
@@ -149,19 +150,19 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
 
     socket.on(GET_HOST_VIDEO_INFORMATION, (callback: (playing: boolean, videoUrl: string, time: number) => void) => {
       if (sessionToken !== room?.host) return;
-      const currentTime = player?.getCurrentTime();
+      const currentTime = player?.getCurrentTime() ?? 0;
       const currentVideoUrl = player?.props?.url as string;
       const isCurrentlyPlaying = player?.props?.playing as boolean;
 
       console.log(GET_HOST_VIDEO_INFORMATION, currentTime, currentVideoUrl, currentVideoId, isCurrentlyPlaying);
-      typeof callback === "function" && callback(isCurrentlyPlaying, currentVideoUrl, currentTime ?? 0);
+      typeof callback === "function" && callback(isCurrentlyPlaying, currentVideoUrl, currentTime);
     });
 
     socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, time) => {
       console.log(SYNC_VIDEO_INFORMATION, playing, hostVideoUrl, time, currentVideoId);
       setCurrentVideoUrl(hostVideoUrl);
-      setIsPlaying(playing);
       handleSyncTime(time);
+      setIsPlaying(playing);
       setIsSyncing(false);
     });
 
@@ -183,6 +184,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
 
     socket.on(CHANGE_VIDEO, (newVideoUrl: string) => {
       setCurrentVideoUrl(newVideoUrl);
+      handleSyncTime(0);
       handlePlay();
     });
 
@@ -226,6 +228,19 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
       router.push("/");
     });
 
+    const handleSyncTime = (time: number) => {
+      if (!player) {
+        console.error("Failed to sync time");
+        return;
+      }
+      const currentTime = player?.getCurrentTime() ?? 0;
+      console.log("handleSyncTime", time, currentTime, currentTime < time - 0.6, currentTime > time + 0.6);
+      if (currentTime < time - 0.6 || currentTime > time + 0.6) {
+        console.log("PLAYERSEEKTO", time, player);
+        player.seekTo(time, "seconds");
+      }
+    };
+
     return () => {
       playUserDisconnectedSound();
       socket.offAnyOutgoing();
@@ -235,10 +250,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
 
   const onReady = React.useCallback(
     (player: ReactPlayerType) => {
-      setPlayer(player);
       if (sessionToken === room?.host || sessionToken === process.env.NEXT_PUBLIC_ADMIN_TOKEN) {
         if (!currentVideoUrl.match(VIDEO_FILE_URL_REGEX) && !currentVideoUrl.match(AUDIO_FILE_URL_REGEX)) {
-          player?.seekTo(0);
+          player?.seekTo(0, "seconds");
         }
         setIsPlaying(true);
       }
@@ -250,10 +264,13 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
     [currentVideoUrl, player, sessionToken, room?.host, socket]
   );
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (!player && !isLoading) return;
     socketMethods();
   }, [player]);
+
+  // useEffect(() => {
+  // }, [player]);
 
   const runIfAuthorized = (callback?: () => void, disableAdminCheck = false) => {
     if ((socket?.isAdmin && !disableAdminCheck) || room?.host === socket?.userId) {
@@ -265,18 +282,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
     if (!socket) return;
     socket.emit(LEAVE_ROOM, roomId);
     void router.push("/");
-  };
-
-  const handleSyncTime = (time: number) => {
-    if (!player) {
-      console.error("Failed to sync time");
-      return;
-    }
-    const currentTime = player?.getCurrentTime();
-    console.log("handleSyncTime", time, currentTime, currentTime < time - 0.6, currentTime > time + 0.6);
-    if (currentTime < time - 0.6 || currentTime > time + 0.6) {
-      player.seekTo(time);
-    }
   };
 
   const handlePlay = () => {
@@ -409,6 +414,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
                   onBuffer={handleBuffer}
                   onPlay={handlePlay}
                   onPause={handlePause}
+                  ref={setPlayer}
                   controls={true}
                   //onProgress={onProgress}
                   onEnded={handleEnded}

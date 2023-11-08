@@ -254,7 +254,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(GET_VIDEO_INFORMATION, () => {
-    if (!requestIsNotFromHost(socket, roomsSource.rooms, false)) return;
+    if (!requestIsNotFromHost(socket, roomsSource.rooms)) return;
     if (!socket?.roomId) return;
 
     const room = roomsSource.get(socket.roomId);
@@ -316,7 +316,7 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(END_OF_VIDEO, () => {
-    if (requestIsNotFromHost(socket, roomsSource.rooms, false)) return;
+    if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     const user = socket?.userId && usersSource.get(socket.userId);
     if (user && user?.roomId) {
       const room = roomsSource.get(user.roomId);
@@ -336,7 +336,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
   });
 
-  socket.on(CHANGE_VIDEO, (url, newIndex) => {
+  socket.on(CHANGE_VIDEO, async (url, newIndex) => {
     if (!ReactPlayer.canPlay(url)) return;
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
     const user = socket?.userId && usersSource.get(socket.userId);
@@ -347,7 +347,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         if (typeof newIndex === 'number' && newIndex > -1) {
           room.videoInfo.currentQueueIndex = newIndex;
         }
-        socket.in(user.roomId).emit(CHANGE_VIDEO, url);
+        await socket.in(user.roomId).emit(CHANGE_VIDEO, url);
         socket.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string) => {
           io.to(room.id).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, 0);
         });

@@ -75,7 +75,7 @@ class UserSource extends EventEmitter {
 
 export const usersSource = new UserSource();
 
-export const requestIsNotFromHost = (socket: CustomSocket, rooms: Map<string, Room>, adminCheck: boolean = true): boolean => {
+export const requestIsNotFromHost = (socket: CustomSocket, rooms: Map<string, Room>, adminCheck: boolean = false): boolean => {
   if (adminCheck && socket.isAdmin) return false;
   const room = !!socket?.roomId && rooms.get(socket.roomId);
   return Boolean(room && socket.userId !== room.host);

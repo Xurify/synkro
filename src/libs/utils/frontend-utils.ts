@@ -78,6 +78,7 @@ export const convertURLToTwitchVideoId = (url: string): string | null => {
 };
 
 export const convertURLToCorrectProviderVideoId = (url: string): string | null => {
+  if (typeof url !== "string") return null;
   if (convertURLToYoutubeVideoId(url)) {
     return convertURLToYoutubeVideoId(url);
   } else if (convertURLToSoundcloudTrackId(url)) {
