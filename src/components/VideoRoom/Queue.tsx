@@ -17,6 +17,7 @@ import { runIfAuthorized } from "@/libs/utils/socket";
 import { ButtonActions } from "./RoomToolbar";
 import ReactPlayer from "react-player";
 import { fetchMediaData } from "@/libs/utils/video-fetch-lib";
+import { convertURLToYoutubeVideoId } from "@/libs/utils/frontend-utils";
 
 interface QueueProps {
   currentVideoId: string;
@@ -50,18 +51,27 @@ const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayer
     if (!isAuthorized || !socket) return;
     if (!ReactPlayer.canPlay(newVideoInQueueUrl)) return;
 
-    const videoExist = videoQueue.queue.find((video) => video.url === newVideoInQueueUrl);
+    const removeQueryParams = (url: string, param: string): string => {
+      if (!convertURLToYoutubeVideoId(url)) return url;
+      const parsedUrl = new URL(url);
+      const params = parsedUrl.searchParams;
+      params.delete(param);
+      return parsedUrl.toString();
+    };
+
+    const formattedVideoUrl = removeQueryParams(newVideoInQueueUrl, "t");
+    const videoExist = videoQueue.queue.find((video) => video.url === formattedVideoUrl);
+
     if (!!videoExist) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong",
         description: "This video is already in the current queue",
       });
-      setNewVideoInQueueUrl("");
       return;
     }
 
-    const newVideo = await fetchMediaData(newVideoInQueueUrl);
+    const newVideo = await fetchMediaData(formattedVideoUrl);
 
     if (newVideo?.url) {
       videoQueue.add(newVideo);
