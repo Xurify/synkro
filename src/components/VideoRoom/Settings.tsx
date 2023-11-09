@@ -151,7 +151,7 @@ const Settings: React.FC<SettingsProps> = () => {
             value={roomPasscode}
             onChange={handleOnChangeRoomPasscode}
           />
-          <Button onClick={handleCopyPasscode} className="w-12 rounded-r rounded-l-none">
+          <Button aria-label="Copy to clipboard" onClick={handleCopyPasscode} className="w-12 rounded-r rounded-l-none">
             <span>
               <ClipboardCopyIcon color="#FFFFFF" size="1.25rem" />
             </span>

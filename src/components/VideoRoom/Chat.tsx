@@ -139,7 +139,7 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
           onKeyDown={handleOnKeyDown}
           placeholder="Say something"
         />
-        <Button onClick={handleSendMessage} className="w-12 h-10 rounded-r rounded-l-none">
+        <Button aria-label="Send message" onClick={handleSendMessage} className="w-12 h-10 rounded-r rounded-l-none">
           <span>
             <SendIcon color="#ffffff" size="1.25rem" />
           </span>

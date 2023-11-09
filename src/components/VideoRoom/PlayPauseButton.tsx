@@ -9,7 +9,12 @@ interface PlayPauseButtonProps {
 
 export const PlayPauseButton: React.FC<PlayPauseButtonProps> = ({ onClick, isPlaying }) => {
   return (
-    <Button className="w-9 h-9" onClick={() => onClick(isPlaying ? "pause" : "play")} variant="secondary">
+    <Button
+      aria-label={isPlaying ? "Pause video" : "Play video"}
+      className="w-9 h-9"
+      onClick={() => onClick(isPlaying ? "pause" : "play")}
+      variant="secondary"
+    >
       <span>{isPlaying ? <PauseIcon color="#FFFFFF" size="1.25rem" /> : <PlayIcon color="#FFFFFF" size="1.25rem" />}</span>
     </Button>
   );

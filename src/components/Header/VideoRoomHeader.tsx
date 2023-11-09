@@ -55,6 +55,7 @@ export const VideoRoomHeader: React.FC = () => {
         />
       </ErrorBoundary>
       <Button
+        aria-label="Open QR code modal"
         onClick={handleOpenQRCodeModal}
         className="w-12 h-10 rounded-r-none rounded-l-none bg-[#342f3d6e] hover:bg-[#342f3da1] border border-[#614397] border-r-0"
         variant="secondary"
@@ -64,6 +65,7 @@ export const VideoRoomHeader: React.FC = () => {
         </span>
       </Button>
       <Button
+        aria-label="Copy invite code"
         onClick={handleCopyInviteCode}
         className="w-12 h-10 rounded-r rounded-l-none bg-[#342f3d6e] hover:bg-[#342f3da1] border border-[#614397]"
         variant="secondary"

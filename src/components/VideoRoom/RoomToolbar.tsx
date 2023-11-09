@@ -92,6 +92,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
       <div className="w-full">
         <div className="w-full flex gap-2 overflow-x-auto h-9">
           <Button
+            aria-label="Go to chat view"
             className={`${defaultButtonClassName}`}
             data-active={activeView}
             onClick={() => onClickPlayerButton("chat")}
@@ -102,6 +103,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
             </span>
           </Button>
           <Button
+            aria-label="Go to queue view"
             className={`${defaultButtonClassName}`}
             data-active={activeView}
             onClick={() => onClickPlayerButton("queue")}
@@ -112,6 +114,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
             </span>
           </Button>
           <Button
+            aria-label="Go to settings view"
             className={`${defaultButtonClassName}`}
             data-active={activeView}
             onClick={() => onClickPlayerButton("settings")}
@@ -123,18 +126,28 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
           </Button>
           <Separator />
           <PlayPauseButton onClick={onClickPlayerButton} isPlaying={isPlaying} />
-          <Button className={`${defaultButtonClassName}`} onClick={() => onClickPlayerButton("rewind")} variant="secondary">
+          <Button
+            aria-label="Rewind video"
+            className={`${defaultButtonClassName}`}
+            onClick={() => onClickPlayerButton("rewind")}
+            variant="secondary"
+          >
             <span>
               <RewindIcon color="#FFFFFF" size="1.25rem" />
             </span>
           </Button>
-          <Button className={`${defaultButtonClassName}`} onClick={() => onClickPlayerButton("fast-forward")} variant="secondary">
+          <Button
+            aria-label="Fast forward video"
+            className={`${defaultButtonClassName}`}
+            onClick={() => onClickPlayerButton("fast-forward")}
+            variant="secondary"
+          >
             <span>
               <FastForwardIcon color="#FFFFFF" size="1.25rem" />
             </span>
           </Button>
           <Separator className="hidden min-[1020px]:flex" />
-          <Button className="rounded w-12" onClick={handleSyncVideo}>
+          <Button aria-label="Sync video with host" className="rounded w-12" onClick={handleSyncVideo}>
             <span>
               <RefreshCwIcon color="#FFFFFF" size="1.25rem" />
             </span>
@@ -149,7 +162,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
               onKeyDown={handleChangeVideoOnKeyDown}
               value={newVideoUrl}
             />
-            <Button className="ml-2 rounded w-12" onClick={handleChangeVideo}>
+            <Button aria-label="Change video" className="ml-2 rounded w-12" onClick={handleChangeVideo}>
               <span>
                 <ArrowRightIcon color="#FFFFFF" size="1.25rem" />
               </span>
@@ -157,6 +170,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
           </div>
           <Separator />
           <Button
+            aria-label="Leave room"
             className={`${defaultButtonClassName} ml-auto bg-red-600 hover:bg-red-500`}
             onClick={() => onClickPlayerButton("leave-room")}
             variant="secondary"
@@ -177,7 +191,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
               onKeyDown={handleChangeVideoOnKeyDown}
               value={newVideoUrl}
             />
-            <Button className="ml-2 rounded w-12" onClick={handleChangeVideo}>
+            <Button aria-label="Change video" className="ml-2 rounded w-12" onClick={handleChangeVideo}>
               <span>
                 <ArrowRightIcon color="#FFFFFF" size="1.25rem" />
               </span>

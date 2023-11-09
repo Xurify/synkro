@@ -199,12 +199,20 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
                       <div className="w-full h-[130px] relative">
                         {isAuthorized && (
                           <div className="flex absolute bottom-2 right-2 z-[2] gap-2">
-                            <Button className="p-2 w-8 h-8 bg-black" onClick={() => handleChangeVideo(video.url, video.id)}>
+                            <Button
+                              aria-label="Play video"
+                              className="p-2 w-8 h-8 bg-black"
+                              onClick={() => handleChangeVideo(video.url, video.id)}
+                            >
                               <span>
                                 <PlayIcon fill="#FFFFFF" color="#FFFFFF" size="1.25rem" />
                               </span>
                             </Button>
-                            <Button className="p-2 w-8 h-8 bg-black" onClick={() => handleRemoveVideoFromQueue(video.url)}>
+                            <Button
+                              aria-label="Remove video"
+                              className="p-2 w-8 h-8 bg-black"
+                              onClick={() => handleRemoveVideoFromQueue(video.url)}
+                            >
                               <span>
                                 <Trash2Icon color="#FFFFFF" size="1.25rem" />
                               </span>

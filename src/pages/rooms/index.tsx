@@ -56,7 +56,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
     };
   }, []);
 
-  const handleCopyPasscode = (room: Room) => {
+  const handleNavigateToRoom = (room: Room) => {
     router.push(`/invite/${room.inviteCode}`);
   };
 
@@ -126,7 +126,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
                         </span>
                       </div>
                     </div>
-                    <Button onClick={() => handleCopyPasscode(room)} className="w-full sm:w-9 rounded-r">
+                    <Button aria-label="Navigate to room" onClick={() => handleNavigateToRoom(room)} className="w-full sm:w-9 rounded-r">
                       <span>
                         <ChevronRightIcon color="#FFFFFF" size="1.25rem" />
                       </span>
