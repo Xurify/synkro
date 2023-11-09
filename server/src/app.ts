@@ -186,13 +186,13 @@ io.on('connection', (socket: CustomSocketServer) => {
         return;
       }
 
-      socket.userId = userId;
-      socket.roomId = roomId;
-      socket.join(roomId);
-
       const previouslyConnectedUser = roomsSource.getPreviouslyConnectedUser(userId, roomId);
 
       if (previouslyConnectedUser) {
+        socket.userId = userId;
+        socket.roomId = roomId;
+        socket.join(roomId);
+
         io.to(roomId).emit(SERVER_MESSAGE, {
           type: ServerMessageType.USER_RECONNECTED,
           message: `${previouslyConnectedUser.username} reconnected`,
@@ -228,6 +228,8 @@ io.on('connection', (socket: CustomSocketServer) => {
         }
         io.to(roomId).emit(GET_ROOM_INFO, updatedRoom);
       }
+
+      typeof callback === 'function' && callback({ success: false, error: `You are not authorized to connect to this room: ${roomId}` });
     } else {
       const errorMessage = !roomId && !userId ? 'No room or user id was provided' : !roomId ? 'No room id was provided' : 'No user id was provided';
       typeof callback === 'function' && callback({ success: false, error: errorMessage });
@@ -594,7 +596,7 @@ const startCleanupInterval = () => {
       if (roomsSource.getLength() === 0 && cleanupInterval) {
         clearInterval(cleanupInterval);
         cleanupInterval = null;
-        console.log('🛑 Cleanup interval stopped as there are no rooms left.');
+        console.log('🛑 Cleanup interval stopped as there are no rooms left');
       }
     }, CLEANUP_INTERVAL);
   }
@@ -655,7 +657,6 @@ app.get('/api/public-rooms', function (req, res) {
   roomsSource.on('room:deleted', onQueueUpdate);
 
   req.on('close', () => {
-    console.log('ONCLOSE');
     roomsSource.removeListener('room:added', onQueueUpdate);
     roomsSource.removeListener('room:updated', onQueueUpdate);
     roomsSource.removeListener('rooms:cleared', onQueueUpdate);
