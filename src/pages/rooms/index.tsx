@@ -1,16 +1,19 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowDown01Icon, ArrowDown10Icon, ChevronRightIcon, HomeIcon, ServerIcon } from "lucide-react";
 
-import { cn } from "@/libs/utils/frontend-utils";
+import { serverURL } from "@/constants/constants";
 import { Room } from "@/types/interfaces";
+import { cn } from "@/libs/utils/frontend-utils";
+
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/Spinner";
-import { serverURL } from "@/constants/constants";
 import { Button } from "@/components/ui/button";
+
 import useAudio from "@/hooks/useAudio";
+import useSSE from "@/hooks/useSSE";
 
 interface RoomsPageProps {
   rooms: Room[];
@@ -28,33 +31,32 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
     src: "/next-assets/audio/button_press.mp3",
   });
 
-  useEffect(() => {
-    const eventSource = new EventSource(`${serverURL}/api/public-rooms`);
-
-    eventSource.onopen = () => {
-      setLoading(false);
-    };
-
-    eventSource.onmessage = (event: { data: string }) => {
-      const data = JSON.parse(event.data) as { type: "room"; rooms: Room[] };
-      if (data.type) {
-        const newRooms = data.rooms ?? [];
-        setRooms(newRooms);
-      }
-    };
-
-    eventSource.onerror = (event: Event) => {
-      console.error("AN ERROR OCCURED:", event);
-      eventSource.close();
-      if ((event?.target as EventSource)?.readyState === eventSource.CLOSED) {
-        setIsClosed(true);
-      }
-    };
-
-    return () => {
-      eventSource.close();
+  const options = useMemo(() => {
+    return {
+      onMessage: (event: MessageEvent) => {
+        const data = JSON.parse(event.data) as { type: "room"; rooms: Room[] };
+        if (data.type) {
+          const newRooms = data.rooms ?? [];
+          setRooms(newRooms);
+        }
+      },
+      onOpen: () => {
+        setLoading(false);
+      },
+      onError: (event: Event) => {
+        console.error("AN ERROR OCCURED:", event);
+        eventSource.close();
+        if ((event?.target as EventSource)?.readyState === EventSource.CLOSED) {
+          setIsClosed(true);
+        }
+      },
+      onReconnect: () => {
+        setLoading(true);
+      },
     };
   }, []);
+
+  const eventSource = useSSE(`${serverURL}/api/public-rooms`, options);
 
   const handleNavigateToRoom = (room: Room) => {
     router.push(`/invite/${room.inviteCode}`);
