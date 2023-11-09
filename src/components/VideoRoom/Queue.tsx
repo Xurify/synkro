@@ -25,7 +25,7 @@ interface QueueProps {
   onClickPlayerButton: (newActiveButton: ButtonActions, payload?: { videoUrl: string; videoIndex?: number }) => void;
 }
 
-const Queue: React.FC<QueueProps> = ({ currentVideoId, videoQueue, onClickPlayerButton }) => {
+const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
   const [newVideoInQueueUrl, setNewVideoInQueueUrl] = useState<string>("");
 
   const { toast } = useToast();
