@@ -58,6 +58,7 @@ export const InvitePage: React.FC<InvitePageProps> = ({ code }) => {
     }
 
     socket?.emit(JOIN_ROOM_BY_INVITE, inviteCode, username, ({ success, roomId, error }) => {
+      console.log("handleJoinRoomJOIN_ROOM_BY_INVITE", success, roomId, error);
       if (success) {
         router.push(`/room/${roomId}`);
       } else {
