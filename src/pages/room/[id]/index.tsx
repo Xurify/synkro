@@ -114,6 +114,12 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
       socket.emit(RECONNECT_USER, roomId, sessionToken, (result) => {
         if (!result.success) {
           console.error(result.error);
+          toast({
+            variant: "destructive",
+            Icon: () => <span>{result.error?.includes("authorized") ? "❌" : "😢"}</span>,
+            description: result.error,
+            duration: 10000,
+          });
           handleGoBackToHome();
         }
       });
