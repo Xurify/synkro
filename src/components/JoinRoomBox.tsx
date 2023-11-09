@@ -39,7 +39,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
     });
   };
 
-  const handleJoinRoom = React.useCallback(() => {
+  const handleJoinRoom = () => {
     console.log("handleJoinRoom", roomId, username, !roomId.trim(), !username.trim(), socket);
     if (!roomId.trim()) {
       toast({
@@ -72,7 +72,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
         });
       }
     });
-  }, [roomId, router, socket, username]);
+  };
 
   return (
     <div className="max-w-[30rem] w-full bg-card p-4 rounded">

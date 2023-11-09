@@ -39,7 +39,7 @@ export const InvitePage: React.FC<InvitePageProps> = ({ code }) => {
     });
   };
 
-  const handleJoinRoom = React.useCallback(() => {
+  const handleJoinRoom = () => {
     console.log("handleJoinRoom", inviteCode, username, !inviteCode.trim(), !username.trim(), socket);
     if (!inviteCode.trim()) {
       toast({
@@ -69,7 +69,7 @@ export const InvitePage: React.FC<InvitePageProps> = ({ code }) => {
         });
       }
     });
-  }, [username, inviteCode]);
+  };
 
   return (
     <main className="flex flex-col">
