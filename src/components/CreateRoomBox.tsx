@@ -44,7 +44,7 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
   };
 
   const handleCreateRoom = () => {
-    console.log("handleJoinRoom", roomName, username, !roomName.trim(), !username.trim());
+    console.log("handleJoinRoom", roomName, username, !roomName.trim(), !username.trim(), socket);
     if (!roomName.trim()) {
       toast({
         variant: "destructive",

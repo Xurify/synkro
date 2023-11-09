@@ -40,7 +40,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
   };
 
   const handleJoinRoom = React.useCallback(() => {
-    console.log("handleJoinRoom", roomId, username, !roomId.trim(), !username.trim());
+    console.log("handleJoinRoom", roomId, username, !roomId.trim(), !username.trim(), socket);
     if (!roomId.trim()) {
       toast({
         variant: "destructive",
