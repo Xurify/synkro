@@ -37,6 +37,46 @@ const nextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: "/next-assets/audio/button_press.mp3",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=2592000",
+          },
+        ],
+      },
+      {
+        source: "/next-assets/audio/user_joined.wav",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=2592000",
+          },
+        ],
+      },
+      {
+        source: "/next-assets/audio/user_disconnected.mp3",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=2592000",
+          },
+        ],
+      },
+      {
+        source: "/next-assets/audio/ElevenLabs_Mimi_Kicked.mp3",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=2592000",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
