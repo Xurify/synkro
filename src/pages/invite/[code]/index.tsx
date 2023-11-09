@@ -40,7 +40,6 @@ export const InvitePage: React.FC<InvitePageProps> = ({ code }) => {
   };
 
   const handleJoinRoom = () => {
-    console.log("handleJoinRoom", inviteCode, username, !inviteCode.trim(), !username.trim(), socket);
     if (!inviteCode.trim()) {
       toast({
         variant: "destructive",
@@ -58,7 +57,6 @@ export const InvitePage: React.FC<InvitePageProps> = ({ code }) => {
     }
 
     socket?.emit(JOIN_ROOM_BY_INVITE, inviteCode, username, ({ success, roomId, error }) => {
-      console.log("handleJoinRoomJOIN_ROOM_BY_INVITE", success, roomId, error);
       if (success) {
         router.push(`/room/${roomId}`);
       } else {

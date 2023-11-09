@@ -40,7 +40,6 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
   };
 
   const handleJoinRoom = () => {
-    console.log("handleJoinRoom", roomId, username, !roomId.trim(), !username.trim(), socket);
     if (!roomId.trim()) {
       toast({
         variant: "destructive",
@@ -58,7 +57,6 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
     }
 
     socket?.emit(CHECK_IF_ROOM_EXISTS, roomId, (value) => {
-      console.log("handleJoinRoomCHECK_IF_ROOM_EXISTS", roomId, username, value);
       if (value === null) {
         toast({
           variant: "destructive",
