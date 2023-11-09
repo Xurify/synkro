@@ -3,7 +3,6 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowDown01Icon, ArrowDown10Icon, ChevronRightIcon, HomeIcon, ServerIcon } from "lucide-react";
-import useSound from "use-sound";
 
 import { cn } from "@/libs/utils/frontend-utils";
 import { Room } from "@/types/interfaces";
@@ -11,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/Spinner";
 import { serverURL } from "@/constants/constants";
 import { Button } from "@/components/ui/button";
+import { AudioPlayer } from "@/libs/utils/audio";
+import useAudio from "@/hooks/useAudio";
 
 interface RoomsPageProps {
   rooms: Room[];
@@ -21,8 +22,12 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
   const [sort, setSort] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState(true);
   const [isClosed, setIsClosed] = useState(false);
-  const [playButtonPressSound] = useSound("/next-assets/audio/button_press.mp3", { volume: 0.5 });
   const router = useRouter();
+
+  const { play: playButtonClickSound } = useAudio({
+    volume: 0.5,
+    src: "/next-assets/audio/button_press.mp3",
+  });
 
   useEffect(() => {
     const eventSource = new EventSource(`${serverURL}/api/public-rooms`);
@@ -57,7 +62,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
   };
 
   const handleToggleSort = () => {
-    playButtonPressSound();
+    playButtonClickSound();
     setSort((currentSort) => (currentSort === "asc" ? "desc" : "asc"));
   };
 

@@ -264,7 +264,8 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (!host) return;
 
     io.sockets.sockets.get(host.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string, time: number) => {
-      socket.emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, time);
+      //socket.emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, time);
+      socket.emit(SYNC_VIDEO_INFORMATION, playing, room.videoInfo.currentVideoUrl || videoUrl, time);
     });
   });
 
@@ -349,6 +350,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         }
         await socket.in(user.roomId).emit(CHANGE_VIDEO, url);
         socket.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string) => {
+          io.to(room.id).emit(GET_ROOM_INFO, room);
           io.to(room.id).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, 0);
         });
       }

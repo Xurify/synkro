@@ -2,7 +2,6 @@ import React, { startTransition, useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useRouter } from "next/navigation";
-import useSound from "use-sound";
 
 import ReactPlayer from "react-player";
 import type ReactPlayerType from "react-player";
@@ -50,6 +49,7 @@ import { useUpdateEffect } from "@/hooks/useUpdateEffect";
 import { convertURLToCorrectProviderVideoId } from "@/libs/utils/frontend-utils";
 import { Spinner } from "@/components/Spinner";
 import { AUDIO_FILE_URL_REGEX, VIDEO_FILE_URL_REGEX } from "@/constants/constants";
+import useAudio from "@/hooks/useAudio";
 
 export interface RoomPageProps {
   sessionToken: string;
@@ -67,11 +67,21 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
   const [_isSyncing, setIsSyncing] = useState(false);
 
   // Mixkit.co
-  const [playUserJoinedSound] = useSound("/next-assets/audio/user_joined.wav", { volume: 0.1 });
-  const [playUserDisconnectedSound] = useSound("/next-assets/audio/user_disconnected.mp3", { volume: 0.5 });
+  const { play: playUserJoinedSound } = useAudio({
+    volume: 0.1,
+    src: "/next-assets/audio/user_joined.wav",
+  });
+
+  const { play: playUserDisconnectedSound } = useAudio({
+    volume: 0.5,
+    src: "/next-assets/audio/user_disconnected.mp3",
+  });
 
   // ElevenLabs
-  const [playUserKickedSound] = useSound("/next-assets/audio/ElevenLabs_Mimi_Kicked.mp3", { volume: 0.5 });
+  const { play: playUserKickedSound } = useAudio({
+    volume: 0.5,
+    src: "/next-assets/audio/ElevenLabs_Mimi_Kicked.mp3",
+  });
 
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);
 

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/navigation";
 
-import useSound from "use-sound";
 import { useSocket } from "@/context/SocketContext";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -24,8 +23,6 @@ export const InvitePage: React.FC<InvitePageProps> = ({ code }) => {
   const { socket } = useSocket();
   const { toast } = useToast();
 
-  const [playUserDisconnectedSound] = useSound("/next-assets/audio/button_press.mp3", { volume: 0.5 });
-
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setUsername(value);
@@ -37,7 +34,6 @@ export const InvitePage: React.FC<InvitePageProps> = ({ code }) => {
   };
 
   const handleGenerateRandomUsername = () => {
-    playUserDisconnectedSound();
     import("@/libs/utils/names").then((module) => {
       setUsername(module.generateName());
     });
