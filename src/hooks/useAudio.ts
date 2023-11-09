@@ -12,6 +12,8 @@ function useAudio({ volume = 1.0, src = "" }: AudioOptions = {}) {
   useEffect(() => {
     audioRef.current = new Audio();
     audioRef.current.volume = volume;
+    audioRef.current.preload = "auto";
+    audioRef.current.load();
 
     return () => {
       if (audioRef.current) {
@@ -24,7 +26,6 @@ function useAudio({ volume = 1.0, src = "" }: AudioOptions = {}) {
   const play = () => {
     if (audioRef.current) {
       audioRef.current.src = src;
-      audioRef.current.load();
       audioRef.current.play().then(() => {
         setIsPlaying(true);
       });
