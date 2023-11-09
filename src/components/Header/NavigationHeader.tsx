@@ -10,7 +10,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ page }) => {
   return (
     <nav className="bg-card w-full flex p-3 mb-4 shadow">
       <div className="flex justify-between w-full">
-        <Link className="flex items-center" href="/">
+        <Link aria-label="Go to home" className="flex items-center" href="/">
           <div className="h-[2.5rem] w-[2.5rem] mr-2">
             <SynkroIcon />
           </div>
