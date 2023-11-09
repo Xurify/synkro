@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/Spinner";
 import { serverURL } from "@/constants/constants";
 import { Button } from "@/components/ui/button";
-import { AudioPlayer } from "@/libs/utils/audio";
 import useAudio from "@/hooks/useAudio";
 
 interface RoomsPageProps {
