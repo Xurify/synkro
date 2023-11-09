@@ -40,6 +40,7 @@ export const InvitePage: React.FC<InvitePageProps> = ({ code }) => {
   };
 
   const handleJoinRoom = React.useCallback(() => {
+    console.log("handleJoinRoom", inviteCode, username, !inviteCode.trim(), !username.trim());
     if (!inviteCode.trim()) {
       toast({
         variant: "destructive",

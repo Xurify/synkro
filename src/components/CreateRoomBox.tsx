@@ -44,6 +44,7 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
   };
 
   const handleCreateRoom = () => {
+    console.log("handleJoinRoom", roomName, username, !roomName.trim(), !username.trim());
     if (!roomName.trim()) {
       toast({
         variant: "destructive",
@@ -61,6 +62,7 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
     }
 
     socket?.emit(CREATE_ROOM, username, roomName, ({ result, error }) => {
+      console.log("handleJoinRoomCREATE_ROOM", roomName, username, result, result?.id);
       if (result && result.id) {
         router.push(`/room/${result.id}`);
       } else {

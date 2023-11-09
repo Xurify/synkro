@@ -40,6 +40,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
   };
 
   const handleJoinRoom = React.useCallback(() => {
+    console.log("handleJoinRoom", roomId, username, !roomId.trim(), !username.trim());
     if (!roomId.trim()) {
       toast({
         variant: "destructive",
@@ -57,6 +58,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
     }
 
     socket?.emit(CHECK_IF_ROOM_EXISTS, roomId, (value) => {
+      console.log("handleJoinRoomCHECK_IF_ROOM_EXISTS", roomId, username, value);
       if (value === null) {
         toast({
           variant: "destructive",
@@ -65,6 +67,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
         });
       } else {
         socket.emit(JOIN_ROOM, roomId, username, ({ success }) => {
+          console.log("handleJoinRoomJOIN_ROOM", roomId, success);
           success && router.push(`/room/${roomId}`);
         });
       }
