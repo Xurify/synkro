@@ -4,7 +4,38 @@ const nextConfig = {
   optimizeFonts: false,
   images: {
     dangerouslyAllowSVG: true,
-    domains: ["synkro.vercel.app", "i.ytimg.com", "i1.sndcdn.com", "i.vimeocdn.com", "embed-ssl.wistia.com", "static-cdn.jtvnw.net"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "synkro.vercel.app",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "i1.sndcdn.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.vimeocdn.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "embed-ssl.wistia.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "static-cdn.jtvnw.net",
+        pathname: "**",
+      },
+    ],
   },
 };
 
