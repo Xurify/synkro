@@ -237,6 +237,10 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(USER_MESSAGE, (message, roomId) => {
+    if (message.length > 500) {
+      console.error(`Message length cannot be greater than 500 - UserId: ${socket.userId}`);
+      return;
+    }
     console.log(`📩 Received message: ${message} in ${roomId} by ${socket.userId}`);
     const user = socket.userId && usersSource.get(socket.userId);
     if (user) {

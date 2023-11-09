@@ -4,6 +4,7 @@ import { ArrowBigDown, SendIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { ChatMessage, Messages } from "@/types/interfaces";
 import { USER_MESSAGE } from "@/constants/socketActions";
 import { generateUserIcon, getMessageClassname } from "@/libs/utils/chat";
@@ -19,6 +20,7 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
   const [isNewMessagePopupShown, setIsNewMessagePopupShown] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement & { maxScrollTop?: number }>(null);
 
+  const { toast } = useToast();
   const { socket, room } = useSocket();
 
   const scrollToBottom = (force = false, smooth = true) => {
@@ -97,6 +99,14 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
 
   const handleSendMessage = () => {
     if (!socket || chatMessage.trim() === "") return;
+    if (chatMessage.length > 500) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong",
+        description: "Message length cannot be greater than 500",
+      });
+      return;
+    }
     socket.emit(USER_MESSAGE, chatMessage, roomId);
     setChatMessage("");
   };
@@ -138,6 +148,7 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
           onChange={handleOnChangeMessage}
           onKeyDown={handleOnKeyDown}
           placeholder="Say something"
+          maxLength={500}
         />
         <Button aria-label="Send message" onClick={handleSendMessage} className="w-12 h-10 rounded-r rounded-l-none">
           <span>
