@@ -84,7 +84,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
           <span className="block w-2.5 h-2.5 bg-[#4ac645] rounded-full"></span>
         </div>
         <Input
-          className="h-7 max-w-[200px] mx-2 ml-6 pb-2 text-sm bg-[#070117] hover:border-input focus:border-input focus-visible:border-input"
+          className="h-7 max-w-[200px] mx-2 ml-6 text-sm bg-[#070117] hover:border-input focus:border-input focus-visible:border-input"
           value="Room Browser"
           readOnly={true}
         />
