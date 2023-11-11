@@ -226,7 +226,10 @@ io.on('connection', (socket: CustomSocketServer) => {
           clearTimeout(roomTimeouts[roomId]);
           delete roomTimeouts[roomId];
         }
+
         io.to(roomId).emit(GET_ROOM_INFO, updatedRoom);
+
+        return;
       }
 
       typeof callback === 'function' && callback({ success: false, error: `You are not authorized to connect to this room: ${roomId}` });
@@ -659,6 +662,8 @@ app.get('/api/public-rooms', function (req, res) {
   roomsSource.on('room:updated', onQueueUpdate);
   roomsSource.on('rooms:cleared', onQueueUpdate);
   roomsSource.on('room:deleted', onQueueUpdate);
+
+  console.log('roomsSource', roomsSource.listenerCount('room:added'), roomsSource.listenerCount('room:updated'));
 
   req.on('close', () => {
     roomsSource.removeListener('room:added', onQueueUpdate);
