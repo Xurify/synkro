@@ -59,12 +59,15 @@ export interface RoomPageProps {
 export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
   const [activeView, setActiveView] = useState<SidebarViews>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
+  //const [isMuted, setIsMuted] = useState(false);
   const [messages, setMessages] = useState<Messages>([]);
   const { socket, room, isConnecting } = useSocket();
   const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(room?.videoInfo.currentVideoUrl || "https://youtu.be/QdKhuEnkwiY");
   const [isLoading, setIsLoading] = useState(false);
   const [_isSyncing, setIsSyncing] = useState(false);
+
+  // TODO: MUTE VIDEO WHEN FIRST PLAYING
 
   // Mixkit.co
   const { play: playUserJoinedSound } = useAudio({
@@ -271,6 +274,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
           player?.seekTo(0, "seconds");
         }
         setIsPlaying(true);
+        //setIsMuted(false);
       }
       setIsLoading(false);
       if (sessionToken !== room?.host) {
@@ -427,6 +431,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
                   height="100%"
                   playing={isPlaying}
                   onReady={onReady}
+                  muted={false}
                   onBuffer={handleBuffer}
                   onPlay={handlePlay}
                   onPause={handlePause}
