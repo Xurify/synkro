@@ -84,6 +84,7 @@ class RoomsSource extends EventEmitter {
       members: [user],
       passcode: null,
       created,
+      private: true,
       previouslyConnectedMembers: [{ userId: user.id, username: user.username }],
     };
     this.rooms.set(id, room);

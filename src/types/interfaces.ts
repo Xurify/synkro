@@ -26,6 +26,7 @@ export interface Room {
   previouslyConnectedMembers: { userId: UserId; username: string }[];
   maxRoomSize: number;
   created: string;
+  private: boolean;
 }
 
 export type Rooms = { [roomId: RoomId]: Room };

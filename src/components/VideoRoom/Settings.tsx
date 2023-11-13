@@ -3,13 +3,14 @@ import { ClipboardCopyIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { CHANGE_SETTINGS } from "@/constants/socketActions";
 
 import { useToast } from "@/components/ui/use-toast";
 import { useSocket } from "@/context/SocketContext";
 import { runIfAuthorized } from "@/libs/utils/socket";
 
-import { Label } from "../ui/label";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { generateUserIcon } from "@/libs/utils/chat";
 
@@ -89,6 +90,8 @@ const Settings: React.FC<SettingsProps> = () => {
     setIsUserModalOpen(userId);
   };
 
+  // TODO: PUBLIC AND PRIVATE ROOMS
+
   return (
     <div className="flex flex-col flex-grow w-full h-full p-3 gap-4 hide-scrollbar">
       <div>
@@ -98,7 +101,6 @@ const Settings: React.FC<SettingsProps> = () => {
           <div className="text-white font-semibold font-sans p-2 rounded uppercase text-sm text-center bg-[#6b2ed7] shadow-[inset_0_2px_3px_rgba(255,_255,_255,_0.3),_inset_0_-2px_3px_#4d219b,_0_1px_1px_#331567]">
             CONNECTED USERS: {room?.members.length}
           </div>
-
           <div className="mt-2 flex flex-col gap-2">
             {room &&
               Array.isArray(room?.members) &&
@@ -126,6 +128,10 @@ const Settings: React.FC<SettingsProps> = () => {
               ))}
           </div>
         </div>
+      </div>
+      <div className="flex items-center gap-x-2 text-sm text-secondary-foreground">
+        <Switch id="public-mode" defaultChecked={room?.private} />
+        <Label htmlFor="public-mode">Public</Label>
       </div>
       <div className="text-sm text-secondary-foreground">
         <Label htmlFor="max-room-size">Max Room Size</Label>
@@ -159,6 +165,7 @@ const Settings: React.FC<SettingsProps> = () => {
         </div>
         {!!roomPasscode && room?.passcode !== roomPasscode && <span className="mt-0.5 block text-red-300">Unsaved</span>}
       </div>
+
       <Button
         onClick={() => handleSaveSettings({ roomPasscode, maxRoomSize: room?.maxRoomSize === maxRoomSize ? undefined : maxRoomSize })}
         className="w-full"
