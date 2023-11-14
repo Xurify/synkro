@@ -9,10 +9,11 @@ import { CHANGE_SETTINGS } from "@/constants/socketActions";
 
 import { useToast } from "@/components/ui/use-toast";
 import { useSocket } from "@/context/SocketContext";
-import { runIfAuthorized } from "@/libs/utils/socket";
 
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { runIfAuthorized } from "@/libs/utils/socket";
 import { generateUserIcon } from "@/libs/utils/chat";
+import { deepEqual } from "@/libs/utils/frontend-utils";
 
 const UserModal = lazy(() =>
   import("../Modals/UserModal").then((module) => {
@@ -27,6 +28,7 @@ const Settings: React.FC<SettingsProps> = () => {
   const { socket, room } = useSocket();
 
   const [isUserModalOpen, setIsUserModalOpen] = useState<string | null>(null);
+  const [privateRoom, setPrivateRoom] = useState<boolean>(!!room?.private);
   const [maxRoomSize, setMaxRoomSize] = useState<number>(room?.maxRoomSize ?? 10);
   const [roomPasscode, setRoomPasscode] = useState<string>(room?.passcode ?? "");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -34,6 +36,10 @@ const Settings: React.FC<SettingsProps> = () => {
   const [_value, copy] = useCopyToClipboard();
 
   const isAuthorized = socket?.isAdmin || room?.host === socket?.userId;
+
+  const handleOnChangePrivateRoom = (checked: boolean) => {
+    setPrivateRoom(!checked);
+  };
 
   const handleOnChangeMaxRoomSize = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMaxRoomSize(Number(e.target.value));
@@ -54,34 +60,41 @@ const Settings: React.FC<SettingsProps> = () => {
       });
   };
 
-  const handleSaveSettings = (newSettings: { maxRoomSize?: number; roomPasscode?: string }) => {
+  const handleSaveSettings = () => {
     if (socket?.userId && room) {
       runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
         errorMessage && setErrorMessage(null);
 
-        if (!newSettings.maxRoomSize && !newSettings.roomPasscode) return;
-        if (newSettings.maxRoomSize === room.maxRoomSize && newSettings.roomPasscode === room.passcode) return;
+        const newMaxRoomSize = room?.maxRoomSize === maxRoomSize ? undefined : maxRoomSize;
 
-        if (newSettings.maxRoomSize && newSettings.maxRoomSize > 20) {
+        const currentSettings = {
+          private: room.private,
+          maxRoomSize: room.maxRoomSize,
+          roomPasscode: room.passcode,
+        };
+
+        const newSettings = {
+          private: privateRoom,
+          maxRoomSize,
+          roomPasscode: roomPasscode.trim() || null,
+        };
+
+        const hasSettingsChanged = !deepEqual(currentSettings, newSettings);
+
+        if (!hasSettingsChanged) return;
+
+        if (newMaxRoomSize && newMaxRoomSize > 20) {
           setErrorMessage("Max room size cannot be larger than 20 characters");
           return;
         }
 
         socket.emit(CHANGE_SETTINGS, newSettings);
 
-        if (newSettings.maxRoomSize && newSettings.roomPasscode) {
-          toast({
-            variant: "default",
-            title: "Success!",
-            description: "Room settings have successfully been saved!",
-          });
-        } else {
-          toast({
-            variant: "default",
-            title: "Success!",
-            description: `${newSettings.maxRoomSize ? "Max room size" : "Room passcode"} updated!`,
-          });
-        }
+        toast({
+          variant: "success",
+          title: "Success!",
+          description: "Room settings have successfully been saved!",
+        });
       });
     }
   };
@@ -130,7 +143,7 @@ const Settings: React.FC<SettingsProps> = () => {
         </div>
       </div>
       <div className="flex items-center gap-x-2 text-sm text-secondary-foreground">
-        <Switch id="public-mode" defaultChecked={room?.private} />
+        <Switch id="public-mode" checked={!privateRoom} onCheckedChange={handleOnChangePrivateRoom} />
         <Label htmlFor="public-mode">Public</Label>
       </div>
       <div className="text-sm text-secondary-foreground">
@@ -166,10 +179,7 @@ const Settings: React.FC<SettingsProps> = () => {
         {!!roomPasscode && room?.passcode !== roomPasscode && <span className="mt-0.5 block text-red-300">Unsaved</span>}
       </div>
 
-      <Button
-        onClick={() => handleSaveSettings({ roomPasscode, maxRoomSize: room?.maxRoomSize === maxRoomSize ? undefined : maxRoomSize })}
-        className="w-full"
-      >
+      <Button onClick={handleSaveSettings} className="w-full">
         Save
       </Button>
       {errorMessage && <span className="text-red-600">{errorMessage}</span>}

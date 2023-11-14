@@ -62,7 +62,7 @@ export interface ClientToServerEvents {
   [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
   [VIDEO_QUEUE_REORDERED]: (videoQueue: VideoQueueItem[]) => void;
   [VIDEO_QUEUE_CLEARED]: () => void;
-  [CHANGE_SETTINGS]: (newSettings: { maxRoomSize?: number; roomPasscode?: string }) => void;
+  [CHANGE_SETTINGS]: (newSettings: { maxRoomSize: number; roomPasscode: string | null; private: boolean }) => void;
   [JOIN_ROOM_BY_INVITE]: (
     inviteCode: string,
     username: string,

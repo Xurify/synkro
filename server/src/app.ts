@@ -422,9 +422,9 @@ io.on('connection', (socket: CustomSocketServer) => {
       if (newSettings.maxRoomSize && newSettings.maxRoomSize <= 20) {
         room.maxRoomSize = newSettings.maxRoomSize;
       }
-      if (newSettings.roomPasscode) {
-        room.passcode = newSettings.roomPasscode;
-      }
+      room.passcode = newSettings.roomPasscode;
+      room.private = newSettings.private;
+
       io.to(user.roomId).emit(GET_ROOM_INFO, room);
     }
   });
