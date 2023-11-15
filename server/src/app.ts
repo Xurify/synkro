@@ -650,12 +650,14 @@ app.get('/api/public-rooms', function (req, res) {
   });
 
   const rooms = roomsSource.getAllAsArray();
-  res.write(`data: ${JSON.stringify({ type: 'rooms', rooms: rooms })}\n\n`);
+  const publicRooms = rooms.map((room) => !room.private);
+  res.write(`data: ${JSON.stringify({ type: 'rooms', rooms: publicRooms })}\n\n`);
 
   // TODO: MIGHT NOT WANT TO SEND ALL THE ROOMS
   const onQueueUpdate = () => {
     const rooms = roomsSource.getAllAsArray();
-    res.write(`data: ${JSON.stringify({ type: 'rooms', rooms: rooms })}\n\n`);
+    const publicRooms = rooms.map((room) => !room.private);
+    res.write(`data: ${JSON.stringify({ type: 'rooms', rooms: publicRooms })}\n\n`);
   };
 
   roomsSource.on('room:added', onQueueUpdate);
