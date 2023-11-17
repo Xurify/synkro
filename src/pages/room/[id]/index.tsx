@@ -247,6 +247,8 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
       router.push("/");
     });
 
+    // elapsedVideoTime - seconds
+    // eventCalledTime - milliseconds
     const handleSyncTime = (elapsedVideoTime: number, eventCalledTime: number) => {
       if (!player) {
         console.error("Failed to sync time");
@@ -267,9 +269,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
         currentVideoTime < elapsedVideoTime - 0.6,
         currentVideoTime > elapsedVideoTime + 0.6
       );
-      if (currentVideoTime < elapsedVideoTime - 0.6 || currentVideoTime > elapsedVideoTime + 0.6) {
+      if (currentVideoTime < elapsedVideoTime - 0.4 || currentVideoTime > elapsedVideoTime + 0.4) {
         console.log("PLAYERSEEKTO", elapsedVideoTime, player);
-        player.seekTo(elapsedVideoTime, "seconds");
+        player.seekTo(elapsedVideoTime + eventCalledTimeInSeconds, "seconds");
       }
     };
 
