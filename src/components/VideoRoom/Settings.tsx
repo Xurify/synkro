@@ -62,40 +62,45 @@ const Settings: React.FC<SettingsProps> = () => {
 
   const handleSaveSettings = () => {
     if (socket?.userId && room) {
-      runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
-        errorMessage && setErrorMessage(null);
+      runIfAuthorized(
+        room.host,
+        socket.userId,
+        () => {
+          errorMessage && setErrorMessage(null);
 
-        const newMaxRoomSize = room?.maxRoomSize === maxRoomSize ? undefined : maxRoomSize;
+          const newMaxRoomSize = room?.maxRoomSize === maxRoomSize ? undefined : maxRoomSize;
 
-        const currentSettings = {
-          private: room.private,
-          maxRoomSize: room.maxRoomSize,
-          roomPasscode: room.passcode,
-        };
+          const currentSettings = {
+            private: room.private,
+            maxRoomSize: room.maxRoomSize,
+            roomPasscode: room.passcode,
+          };
 
-        const newSettings = {
-          private: privateRoom,
-          maxRoomSize,
-          roomPasscode: roomPasscode.trim() || null,
-        };
+          const newSettings = {
+            private: privateRoom,
+            maxRoomSize,
+            roomPasscode: roomPasscode.trim() || null,
+          };
 
-        const hasSettingsChanged = !deepEqual(currentSettings, newSettings);
+          const hasSettingsChanged = !deepEqual(currentSettings, newSettings);
 
-        if (!hasSettingsChanged) return;
+          if (!hasSettingsChanged) return;
 
-        if (newMaxRoomSize && newMaxRoomSize > 20) {
-          setErrorMessage("Max room size cannot be larger than 20 characters");
-          return;
-        }
+          if (newMaxRoomSize && newMaxRoomSize > 20) {
+            setErrorMessage("Max room size cannot be larger than 20 characters");
+            return;
+          }
 
-        socket.emit(CHANGE_SETTINGS, newSettings);
+          socket.emit(CHANGE_SETTINGS, newSettings);
 
-        toast({
-          variant: "success",
-          title: "Success!",
-          description: "Room settings have successfully been saved!",
-        });
-      });
+          toast({
+            variant: "success",
+            title: "Success!",
+            description: "Room settings have successfully been saved!",
+          });
+        },
+        socket.isAdmin
+      );
     }
   };
 
