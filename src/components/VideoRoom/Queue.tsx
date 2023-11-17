@@ -146,8 +146,6 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
 
   //bg-[linear-gradient(120deg,_rgba(2,0,36,1)_0%,_rgba(107,46,215,1)_35%,rgba(77,52,122,1)_100%)]
 
-  console.log("QUEUE", room?.videoInfo.currentQueueIndex, room);
-
   return (
     <div className="flex flex-col flex-grow w-full h-full relative hide-scrollbar md:max-h-[calc(100vh-158px)]">
       <div className="flex items-center p-2">
@@ -233,7 +231,7 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
 
       {isAuthorized && (
         <div className="w-full flex p-2">
-          <Button onClick={handleClearQueue} className="w-full h-10 rounded" disabled={!isAuthorized} variant="destructive">
+          <Button onClick={handleClearQueue} className="w-full rounded" disabled={!isAuthorized} variant="destructive">
             <span className="uppercase">Clear queue</span>
           </Button>
         </div>

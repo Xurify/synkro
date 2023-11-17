@@ -103,10 +103,8 @@ const Settings: React.FC<SettingsProps> = () => {
     setIsUserModalOpen(userId);
   };
 
-  // TODO: PUBLIC AND PRIVATE ROOMS
-
   return (
-    <div className="flex flex-col flex-grow w-full h-full p-3 gap-4 hide-scrollbar">
+    <div className="flex flex-col flex-grow w-full h-full p-2 gap-4 hide-scrollbar">
       <div>
         {/* text-white p-2 rounded uppercase text-sm text-center ring-2 ring-[#6b2ed7] ring-inset */}
         {/* text-white p-2 rounded uppercase text-sm text-center bg-[#6b2ed7] ring-2 ring-[#6b2ed7] ring-inset */}
@@ -179,7 +177,7 @@ const Settings: React.FC<SettingsProps> = () => {
         {!!roomPasscode && room?.passcode !== roomPasscode && <span className="mt-0.5 block text-red-300">Unsaved</span>}
       </div>
 
-      <Button onClick={handleSaveSettings} className="w-full">
+      <Button onClick={handleSaveSettings} className="w-full rounded">
         Save
       </Button>
       {errorMessage && <span className="text-red-600">{errorMessage}</span>}
