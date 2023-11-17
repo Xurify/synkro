@@ -30,7 +30,7 @@ import {
   GET_ROOM_INFO,
   KICK_USER,
 } from "../../../constants/socketActions";
-import { ServerMessageType, type ChatMessage, type Messages, type VideoQueueItem } from "@/types/interfaces";
+import { ServerMessageType, type Messages, type VideoQueueItem } from "@/types/interfaces";
 
 import Chat from "@/components/VideoRoom/Chat";
 import Sidebar from "@/components/Sidebar";
