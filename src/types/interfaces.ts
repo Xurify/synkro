@@ -69,3 +69,8 @@ export interface VideoQueueItem {
   url: string;
   thumbnail: string;
 }
+
+export enum VideoStatus {
+  BUFFERING = "BUFFERING",
+  PAUSED = "PAUSED",
+}

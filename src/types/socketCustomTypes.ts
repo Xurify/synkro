@@ -1,4 +1,4 @@
-import type { Socket } from "socket.io";
+import type { Socket, Server } from "socket.io";
 import {
   LEAVE_ROOM,
   USER_MESSAGE,
@@ -31,8 +31,9 @@ import {
   KICK_USER,
   SET_ADMIN,
   VIDEO_QUEUE_CLEARED,
+  USER_VIDEO_STATUS,
 } from "../constants/socketActions";
-import { ChatMessage, Room, ServerMessage, User, VideoQueueItem } from "./interfaces";
+import { ChatMessage, Room, ServerMessage, User, VideoQueueItem, VideoStatus } from "./interfaces";
 
 export interface ClientToServerEvents {
   connect: () => void;
@@ -56,7 +57,12 @@ export interface ClientToServerEvents {
   [CHANGE_VIDEO]: (newVideoUrl: string, newIndex?: number) => void;
   [END_OF_VIDEO]: () => void;
   [SYNC_TIME]: (time: number) => void;
-  [SYNC_VIDEO_INFORMATION]: (callback: (playing: boolean, hostVideoUrl: string, time: number) => void) => void;
+  [SYNC_VIDEO_INFORMATION]: (
+    callback: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventStartTime: number) => void
+  ) => void;
+  [GET_HOST_VIDEO_INFORMATION]: (
+    callback: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventStartTime: number) => void
+  ) => void;
   [GET_VIDEO_INFORMATION]: () => void;
   [ADD_VIDEO_TO_QUEUE]: (video: VideoQueueItem) => void;
   [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
@@ -78,7 +84,7 @@ export interface ServerToClientEvents {
   [KICK_USER]: () => void;
   [SET_ADMIN]: () => void;
   [SERVER_MESSAGE]: ({ message, type }: ServerMessage) => void;
-  [USER_MESSAGE]: (message: ChatMessage, roomId: string) => void;
+  [USER_MESSAGE]: (message: ChatMessage) => void;
   [CHECK_IF_ROOM_IS_FULL]: (roomId: string, callback: any) => void;
   [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room | null) => void) => void;
   [CREATE_ROOM]: (username: string, roomName: string, callback: (value: { result?: Room; error?: string }) => void) => void;
@@ -92,9 +98,11 @@ export interface ServerToClientEvents {
   [CHANGE_VIDEO]: (newVideoUrl: string, newIndex?: number) => void;
   [SYNC_TIME]: (time: number) => void;
   [BUFFERING_VIDEO]: (time: number) => void;
-  [SYNC_VIDEO_INFORMATION]: (playing: boolean, hostVideoUrl: string, time: number) => void;
+  [SYNC_VIDEO_INFORMATION]: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventStartTime: number) => void;
+  [GET_HOST_VIDEO_INFORMATION]: (
+    callback: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventStartTime: number) => void
+  ) => void;
   [GET_VIDEO_INFORMATION]: () => void;
-  [GET_HOST_VIDEO_INFORMATION]: (callback: (playing: boolean, hostVideoUrl: string, time: number) => void) => void;
   [ADD_VIDEO_TO_QUEUE]: (video: VideoQueueItem) => void;
   [REMOVE_VIDEO_FROM_QUEUE]: (url: string) => void;
   [VIDEO_QUEUE_REORDERED]: (videoQueue: VideoQueueItem[]) => void;
@@ -104,10 +112,12 @@ export interface ServerToClientEvents {
     username: string,
     callback: (value: { success: boolean; roomId?: string; error?: string }) => void
   ) => void;
+  [USER_VIDEO_STATUS]: (userId: string, videoStatus: VideoStatus) => void;
 }
 
-export type CustomSocket = Socket<ServerToClientEvents, ClientToServerEvents> & CustomSocketProperties;
-export type CustomSocketServer = Socket<ClientToServerEvents, ServerToClientEvents> & CustomSocketProperties;
+export type CustomSocket = Socket<ServerToClientEvents, ClientToServerEvents, CustomServer> & CustomSocketProperties;
+export type CustomSocketServer = Socket<ClientToServerEvents, ServerToClientEvents, CustomServer> & CustomSocketProperties;
+export type CustomServer = Server<ClientToServerEvents, ServerToClientEvents> & CustomSocketProperties;
 
 type CustomSocketProperties = {
   userId?: string;

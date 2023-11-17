@@ -5,8 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { nanoid } from 'nanoid';
 import { Server } from 'socket.io';
 import ReactPlayer from 'react-player';
-import { Room, ServerMessageType, User } from '../../src/types/interfaces';
-import { CustomSocketServer } from '../../src/types/socketCustomTypes';
+import { Room, ServerMessageType, User, VideoStatus } from '../../src/types/interfaces';
+import { CustomSocketServer, CustomServer } from '../../src/types/socketCustomTypes';
 import { roomsSource } from './utils/room-management';
 import { usersSource, requestIsNotFromHost } from './utils/user-management';
 
@@ -39,6 +39,7 @@ import {
   KICK_USER,
   SET_ADMIN,
   VIDEO_QUEUE_CLEARED,
+  USER_VIDEO_STATUS,
 } from '../../src/constants/socketActions';
 
 import { config } from 'dotenv';
@@ -62,7 +63,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-const io: Server = new Server(server, {
+const io: CustomServer = new Server(server, {
   allowRequest: (req, callback) => {
     const isAllowedOrigin = req?.headers?.origin ? allowedOrigins.includes(req.headers.origin) : false;
     callback(null, isAllowedOrigin);
@@ -98,6 +99,8 @@ io.on('connection', (socket: CustomSocketServer) => {
   socket.userId = userId;
   socket.isAdmin = false;
 
+  if (typeof socket.userId !== 'string') return;
+
   if (adminToken === adminTokenHandshake) {
     socket.isAdmin = true;
     socket.emit(SET_ADMIN);
@@ -119,6 +122,7 @@ io.on('connection', (socket: CustomSocketServer) => {
       } else {
         if (!socket.userId) return;
         const user = usersSource.createUser({ id: socket.userId, username, roomId: newRoomId, socketId: socket.id, isAdmin: socket.isAdmin });
+        console.log(`👀 New user joined in room: ${user.roomId} - User Id: ${userId}`);
         socket.join(newRoomId);
         socket.roomId = newRoomId;
 
@@ -128,7 +132,6 @@ io.on('connection', (socket: CustomSocketServer) => {
         if (newRoom) {
           roomsSource.set(newRoomId, newRoom);
           typeof callback === 'function' && callback({ result: newRoom });
-          console.log(`👀 New user joined in room: ${user.roomId} - User Id: ${userId}`);
           socket.emit(GET_ROOM_INFO, newRoom);
         }
       }
@@ -193,9 +196,11 @@ io.on('connection', (socket: CustomSocketServer) => {
         socket.roomId = roomId;
         socket.join(roomId);
 
+        const timestamp = new Date().toISOString();
         io.to(roomId).emit(SERVER_MESSAGE, {
           type: ServerMessageType.USER_RECONNECTED,
           message: `${previouslyConnectedUser.username} reconnected`,
+          timestamp,
         });
 
         const user: User = usersSource.createUser({
@@ -215,9 +220,11 @@ io.on('connection', (socket: CustomSocketServer) => {
 
         if (newMembers.length === 1) {
           updatedRoom.host = userId;
+          const timestamp = new Date().toISOString();
           io.in(roomId).emit(SERVER_MESSAGE, {
             type: ServerMessageType.NEW_HOST,
             message: `${previouslyConnectedUser.username} is now the host. 👑`,
+            timestamp,
           });
         }
 
@@ -246,7 +253,7 @@ io.on('connection', (socket: CustomSocketServer) => {
     }
     console.log(`📩 Received message: ${message} in ${roomId} by ${socket.userId}`);
     const user = socket.userId && usersSource.get(socket.userId);
-    if (user) {
+    if (user && socket.userId) {
       const timestamp = new Date().toISOString();
       const messageID = uuidv4();
       io.in(roomId).emit(USER_MESSAGE, {
@@ -257,7 +264,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         timestamp,
         color: user.color,
         type: 'USER',
-        isAdmin: socket.isAdmin,
+        isAdmin: socket.isAdmin || false,
       });
     }
   });
@@ -272,9 +279,9 @@ io.on('connection', (socket: CustomSocketServer) => {
     const host = usersSource.get(room.host);
     if (!host) return;
 
-    io.sockets.sockets.get(host.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string, time: number) => {
+    io.sockets.sockets.get(host.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing, videoUrl, elapsedVideoTime, eventStartTime) => {
       //socket.emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, time);
-      socket.emit(SYNC_VIDEO_INFORMATION, playing, room.videoInfo.currentVideoUrl || videoUrl, time);
+      socket.emit(SYNC_VIDEO_INFORMATION, playing, room.videoInfo.currentVideoUrl || videoUrl, elapsedVideoTime, eventStartTime);
     });
   });
 
@@ -285,8 +292,8 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (user && user.roomId) {
       socket.to(user.roomId).emit(PLAY_VIDEO);
 
-      socket.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string, time: number) => {
-        socket.to(user.roomId).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, time);
+      socket.emit(GET_HOST_VIDEO_INFORMATION, (playing, videoUrl, elapsedVideoTime, eventStartTime) => {
+        socket.to(user.roomId).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, elapsedVideoTime, eventStartTime);
       });
     }
   });
@@ -302,8 +309,8 @@ io.on('connection', (socket: CustomSocketServer) => {
 
   socket.on(BUFFERING_VIDEO, (time) => {
     const user = socket.userId && usersSource.get(socket.userId);
-    if (requestIsNotFromHost(socket, roomsSource.rooms) && user && user.roomId) {
-      io.to(user.roomId).emit('USER_VIDEO_STATUS', socket.userId, 'BUFFERING');
+    if (requestIsNotFromHost(socket, roomsSource.rooms) && user && user.roomId && socket.userId) {
+      io.to(user.roomId).emit(USER_VIDEO_STATUS, socket.userId, VideoStatus.BUFFERING);
     } else if (user && user.roomId) {
       socket.to(user.roomId).emit(SYNC_TIME, time);
     }
@@ -335,11 +342,8 @@ io.on('connection', (socket: CustomSocketServer) => {
       const nextIndex = room.videoInfo.currentQueueIndex + 1;
       const nextVideo = room.videoInfo.queue[nextIndex] ?? room.videoInfo.queue[0];
 
-      console.log('nextVideo1', nextVideo, nextIndex);
       if (nextVideo) {
-        console.log('nextVideo2', nextVideo, nextIndex, room.videoInfo.queue.length);
         room.videoInfo.currentQueueIndex = nextIndex < room.videoInfo.queue.length ? nextIndex : 0;
-        console.log('nextVideo3', nextVideo, nextIndex, room.videoInfo.queue.length);
         room.videoInfo.currentVideoUrl = nextVideo.url;
         io.to(user.roomId).emit(CHANGE_VIDEO, nextVideo.url);
       }
@@ -360,6 +364,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         await socket.in(user.roomId).emit(CHANGE_VIDEO, url);
         socket.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string) => {
           io.to(room.id).emit(GET_ROOM_INFO, room);
+          // TODO: TEST THIS
           io.to(room.id).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, 0);
         });
       }
@@ -442,9 +447,11 @@ io.on('connection', (socket: CustomSocketServer) => {
     roomsSource.set(socket.roomId, room);
     //io.in(room.id).emit(SET_HOST, room.host);
     io.in(room.id).emit(GET_ROOM_INFO, room);
+    const timestamp = new Date().toISOString();
     io.in(room.id).emit(SERVER_MESSAGE, {
       type: ServerMessageType.NEW_HOST,
       message: `${user.username} is now the host. 👑`,
+      timestamp,
     });
   });
 
@@ -483,12 +490,13 @@ io.on('connection', (socket: CustomSocketServer) => {
 const handleUserDisconnect = (userId: string) => {
   if (!userId) return;
 
-  console.log(`👻 User disconnected - User Id: ${userId}`);
   const user = usersSource.get(userId);
   if (user) {
+    const timestamp = new Date().toISOString();
     io.to(user.roomId).emit(SERVER_MESSAGE, {
       type: ServerMessageType.USER_DISCONNECTED,
       message: `${user.username} has disconnected`,
+      timestamp,
     });
 
     const room = roomsSource.get(user.roomId);
@@ -501,8 +509,6 @@ const handleUserDisconnect = (userId: string) => {
       roomsSource.set(user.roomId, updatedRoom);
 
       const THREE_MINUTES = 3 * 60 * 1000;
-
-      console.log('handleUserDisconnect', userId, user.roomId, newMembers, updatedRoom);
 
       if (newMembers.length === 0) {
         roomTimeouts[user.roomId] = setTimeout(async () => {
@@ -525,12 +531,13 @@ const handleUserDisconnect = (userId: string) => {
 
       if (userWasHost && newMembers.length > 0) {
         updatedRoom.host = newMembers[0].id;
-        console.log(`TESTING - NEW HOST ${updatedRoom.host} ${newMembers.length}`);
         roomsSource.set(user.roomId, updatedRoom);
 
+        const timestamp = new Date().toISOString();
         io.in(room.id).emit(SERVER_MESSAGE, {
           type: ServerMessageType.NEW_HOST,
           message: `${newMembers[0].username} is now the host. 👑`,
+          timestamp,
         });
       }
 
@@ -539,7 +546,12 @@ const handleUserDisconnect = (userId: string) => {
 
     const roomInfo = roomsSource.get(user.roomId);
     const activeConnections = io.sockets.sockets.size;
-    console.log(LEAVE_ROOM, user.roomId, roomInfo?.members?.length, usersSource.getLength(), activeConnections);
+    console.log(
+      `👻 User disconnected - User Id: ${userId} - Room Id: ${user.roomId}`,
+      roomInfo?.members?.length,
+      usersSource.getLength(),
+      activeConnections,
+    );
   }
 };
 
@@ -547,14 +559,18 @@ const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: strin
   const room = roomsSource.get(roomId);
   if (!room) return null;
 
+  console.log(`👀 New user joined in room: ${roomId} - User Id: ${userId}`);
+
   socket.join(roomId);
   socket.roomId = roomId;
 
   const existingUser = usersSource.get(userId);
   if (existingUser) {
+    const timestamp = new Date().toISOString();
     io.to(roomId).emit(SERVER_MESSAGE, {
       type: ServerMessageType.USER_RECONNECTED,
       message: `${existingUser.username} has reconnected`,
+      timestamp,
     });
     //return room;
   }
@@ -580,11 +596,14 @@ const addUserToRoom = (socket: CustomSocketServer, userId: string, roomId: strin
   }
 
   io.to(roomId).emit(GET_ROOM_INFO, updatedRoom);
-  console.log(`👀 New user joined in room: ${roomId} - User Id: ${userId}`);
+
+  const timestamp = new Date().toISOString();
   io.to(roomId).emit(SERVER_MESSAGE, {
     type: ServerMessageType.USER_JOINED,
     message: `${username} has joined the room`,
+    timestamp,
   });
+
   return updatedRoom;
 };
 

@@ -167,15 +167,18 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
 
     const currentVideoId = convertURLToCorrectProviderVideoId(currentVideoUrl) as string;
 
-    socket.on(GET_HOST_VIDEO_INFORMATION, (callback: (playing: boolean, videoUrl: string, time: number) => void) => {
-      if (sessionToken !== room?.host) return;
-      const currentTime = player?.getCurrentTime() ?? 0;
-      const currentVideoUrl = player?.props?.url as string;
-      const isCurrentlyPlaying = player?.props?.playing as boolean;
-
-      console.log(GET_HOST_VIDEO_INFORMATION, currentTime, currentVideoUrl, currentVideoId, isCurrentlyPlaying);
-      typeof callback === "function" && callback(isCurrentlyPlaying, currentVideoUrl, currentTime);
-    });
+    socket.on(
+      GET_HOST_VIDEO_INFORMATION,
+      (callback: (playing: boolean, videoUrl: string, videoTime: number, currentDateTime: number) => void) => {
+        if (sessionToken !== room?.host) return;
+        const currentVideoTime = player?.getCurrentTime() ?? 0;
+        const currentVideoUrl = player?.props?.url as string;
+        const isCurrentlyPlaying = player?.props?.playing as boolean;
+        const currentDateTime = new Date().getTime();
+        console.log(GET_HOST_VIDEO_INFORMATION, currentDateTime, currentVideoTime, currentVideoUrl, currentVideoId, isCurrentlyPlaying);
+        typeof callback === "function" && callback(isCurrentlyPlaying, currentVideoUrl, currentVideoTime, currentDateTime);
+      }
+    );
 
     socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, time) => {
       console.log(SYNC_VIDEO_INFORMATION, playing, hostVideoUrl, time, currentVideoId);
