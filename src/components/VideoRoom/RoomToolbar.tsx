@@ -62,10 +62,15 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
       return;
     }
     if (socket?.userId && room?.host) {
-      runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
-        onClickPlayerButton("change-video", { videoUrl: newVideoUrl });
-        setNewVideoUrl("");
-      });
+      runIfAuthorized(
+        room.host,
+        socket.userId,
+        () => {
+          onClickPlayerButton("change-video", { videoUrl: newVideoUrl });
+          setNewVideoUrl("");
+        },
+        socket.isAdmin
+      );
     }
   };
 
@@ -78,7 +83,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({ activeView, onClickPla
       if (room.host !== socket.userId) {
         onClickPlayerButton("sync-video", { videoUrl: newVideoUrl });
       } else {
-        runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {});
+        runIfAuthorized(room.host, socket.userId, () => {}, socket.isAdmin);
       }
     }
   };

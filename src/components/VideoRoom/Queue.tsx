@@ -88,30 +88,45 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
 
   const handleChangeVideo = (newVideoUrl: string, newVideoId: string) => {
     if (socket?.userId && room) {
-      runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
-        const newVideoIndex = getIndexOfVideoInQueue(newVideoId);
-        onClickPlayerButton("change-video", { videoUrl: newVideoUrl, videoIndex: newVideoIndex });
-      });
+      runIfAuthorized(
+        room.host,
+        socket.userId,
+        () => {
+          const newVideoIndex = getIndexOfVideoInQueue(newVideoId);
+          onClickPlayerButton("change-video", { videoUrl: newVideoUrl, videoIndex: newVideoIndex });
+        },
+        socket.isAdmin
+      );
     }
   };
 
   const handleRemoveVideoFromQueue = (videoUrl: string) => {
     if (socket?.userId && room) {
-      runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
-        socket.emit(REMOVE_VIDEO_FROM_QUEUE, videoUrl);
-        videoQueue.removeItem("url", videoUrl);
-      });
+      runIfAuthorized(
+        room.host,
+        socket.userId,
+        () => {
+          socket.emit(REMOVE_VIDEO_FROM_QUEUE, videoUrl);
+          videoQueue.removeItem("url", videoUrl);
+        },
+        socket.isAdmin
+      );
     }
   };
 
   const handleClearQueue = () => {
     if (socket?.userId && room) {
-      runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
-        if (videoQueue.queue.length > 0) {
-          socket.emit(VIDEO_QUEUE_CLEARED);
-          videoQueue.clear();
-        }
-      });
+      runIfAuthorized(
+        room.host,
+        socket.userId,
+        () => {
+          if (videoQueue.queue.length > 0) {
+            socket.emit(VIDEO_QUEUE_CLEARED);
+            videoQueue.clear();
+          }
+        },
+        socket.isAdmin
+      );
     }
   };
 
@@ -124,12 +139,17 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
 
   const onDragEnd = (result: DropResult) => {
     if (socket?.userId && room) {
-      runIfAuthorized(room.host, socket.userId, socket.isAdmin, () => {
-        if (!result.destination) return;
-        const items = handleReorder(videoQueue.queue, result.source.index, result.destination.index);
-        videoQueue.set(items);
-        socket.emit(VIDEO_QUEUE_REORDERED, items);
-      });
+      runIfAuthorized(
+        room.host,
+        socket.userId,
+        () => {
+          if (!result.destination) return;
+          const items = handleReorder(videoQueue.queue, result.source.index, result.destination.index);
+          videoQueue.set(items);
+          socket.emit(VIDEO_QUEUE_REORDERED, items);
+        },
+        socket.isAdmin
+      );
     }
   };
 

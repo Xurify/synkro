@@ -161,29 +161,26 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
-    socket.on(USER_MESSAGE, (newMessage: ChatMessage) => {
+    socket.on(USER_MESSAGE, (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
     const currentVideoId = convertURLToCorrectProviderVideoId(currentVideoUrl) as string;
 
-    socket.on(
-      GET_HOST_VIDEO_INFORMATION,
-      (callback: (playing: boolean, videoUrl: string, videoTime: number, currentDateTime: number) => void) => {
-        if (sessionToken !== room?.host) return;
-        const currentVideoTime = player?.getCurrentTime() ?? 0;
-        const currentVideoUrl = player?.props?.url as string;
-        const isCurrentlyPlaying = player?.props?.playing as boolean;
-        const currentDateTime = new Date().getTime();
-        console.log(GET_HOST_VIDEO_INFORMATION, currentDateTime, currentVideoTime, currentVideoUrl, currentVideoId, isCurrentlyPlaying);
-        typeof callback === "function" && callback(isCurrentlyPlaying, currentVideoUrl, currentVideoTime, currentDateTime);
-      }
-    );
+    socket.on(GET_HOST_VIDEO_INFORMATION, (callback) => {
+      if (sessionToken !== room?.host) return;
+      const currentVideoTime = player?.getCurrentTime() ?? 0;
+      const currentVideoUrl = player?.props?.url as string;
+      const isCurrentlyPlaying = player?.props?.playing as boolean;
+      const currentDateTime = new Date().getTime();
+      console.log(GET_HOST_VIDEO_INFORMATION, currentDateTime, currentVideoTime, currentVideoUrl, currentVideoId, isCurrentlyPlaying);
+      typeof callback === "function" && callback(isCurrentlyPlaying, currentVideoUrl, currentVideoTime, currentDateTime);
+    });
 
-    socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, time) => {
-      console.log(SYNC_VIDEO_INFORMATION, playing, hostVideoUrl, time, currentVideoId);
+    socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, elapsedVideoTime, eventCalledTime) => {
+      console.log(SYNC_VIDEO_INFORMATION, playing, hostVideoUrl, elapsedVideoTime, currentVideoId);
       setCurrentVideoUrl(hostVideoUrl);
-      handleSyncTime(time);
+      handleSyncTime(elapsedVideoTime, eventCalledTime);
       setIsPlaying(playing);
       setIsSyncing(false);
     });
@@ -196,29 +193,29 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
       setIsPlaying(false);
     });
 
-    socket.on(REWIND_VIDEO, (newTime: number) => {
+    socket.on(REWIND_VIDEO, (newTime) => {
       player?.seekTo(newTime);
     });
 
-    socket.on(FASTFORWARD_VIDEO, (newTime: number) => {
+    socket.on(FASTFORWARD_VIDEO, (newTime) => {
       player?.seekTo(newTime);
     });
 
-    socket.on(CHANGE_VIDEO, (newVideoUrl: string) => {
+    socket.on(CHANGE_VIDEO, (newVideoUrl) => {
       setCurrentVideoUrl(newVideoUrl);
-      handleSyncTime(0);
+      handleSyncTime(0, 0);
       handlePlay();
     });
 
-    socket.on(ADD_VIDEO_TO_QUEUE, (newVideo: VideoQueueItem) => {
+    socket.on(ADD_VIDEO_TO_QUEUE, (newVideo) => {
       videoQueue.add(newVideo);
     });
 
-    socket.on(REMOVE_VIDEO_FROM_QUEUE, (url: string) => {
+    socket.on(REMOVE_VIDEO_FROM_QUEUE, (url) => {
       videoQueue.removeItem("url", url);
     });
 
-    socket.on(VIDEO_QUEUE_REORDERED, (newVideoQueue: VideoQueueItem[]) => {
+    socket.on(VIDEO_QUEUE_REORDERED, (newVideoQueue) => {
       videoQueue.set(newVideoQueue);
     });
 
@@ -226,8 +223,8 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
       videoQueue.set([]);
     });
 
-    socket.on(SYNC_TIME, (currentTime: number) => {
-      handleSyncTime(currentTime);
+    socket.on(SYNC_TIME, (currentVideoTime) => {
+      handleSyncTime(currentVideoTime, 0);
     });
 
     socket.on(KICK_USER, () => {
@@ -250,16 +247,29 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
       router.push("/");
     });
 
-    const handleSyncTime = (time: number) => {
+    const handleSyncTime = (elapsedVideoTime: number, eventCalledTime: number) => {
       if (!player) {
         console.error("Failed to sync time");
         return;
       }
-      const currentTime = player?.getCurrentTime() ?? 0;
-      console.log("handleSyncTime", time, currentTime, currentTime < time - 0.6, currentTime > time + 0.6);
-      if (currentTime < time - 0.6 || currentTime > time + 0.6) {
-        console.log("PLAYERSEEKTO", time, player);
-        player.seekTo(time, "seconds");
+      const currentVideoTime = player?.getCurrentTime() ?? 0;
+      const userCurrentTime = new Date().getTime();
+      const timeDifference = userCurrentTime - eventCalledTime;
+      const eventCalledTimeInSeconds = timeDifference / 1000;
+
+      console.log(
+        "handleSyncTime",
+        elapsedVideoTime,
+        eventCalledTime,
+        timeDifference,
+        currentVideoTime,
+        eventCalledTimeInSeconds,
+        currentVideoTime < elapsedVideoTime - 0.6,
+        currentVideoTime > elapsedVideoTime + 0.6
+      );
+      if (currentVideoTime < elapsedVideoTime - 0.6 || currentVideoTime > elapsedVideoTime + 0.6) {
+        console.log("PLAYERSEEKTO", elapsedVideoTime, player);
+        player.seekTo(elapsedVideoTime, "seconds");
       }
     };
 
@@ -292,19 +302,16 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
     socketMethods();
   }, [player]);
 
-  // useEffect(() => {
-  // }, [player]);
+  const handleLeaveRoom = () => {
+    if (!socket) return;
+    socket.emit(LEAVE_ROOM, roomId);
+    void router.push("/");
+  };
 
   const runIfAuthorized = (callback?: () => void, disableAdminCheck = false) => {
     if ((socket?.isAdmin && !disableAdminCheck) || room?.host === socket?.userId) {
       typeof callback === "function" && callback();
     }
-  };
-
-  const handleLeaveRoom = () => {
-    if (!socket) return;
-    socket.emit(LEAVE_ROOM, roomId);
-    void router.push("/");
   };
 
   const handlePlay = () => {
@@ -343,9 +350,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
   };
 
   const handleEnded = () => {
-    runIfAuthorized(() => {
-      socket?.emit(END_OF_VIDEO);
-    }, false);
+    runIfAuthorized(() => socket?.emit(END_OF_VIDEO));
   };
 
   const handleClickPlayerButton = (buttonAction: ButtonActions, payload?: { videoUrl: string; videoIndex?: number }) => {

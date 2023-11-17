@@ -56,12 +56,12 @@ export interface ClientToServerEvents {
   [BUFFERING_VIDEO]: (time: number) => void;
   [CHANGE_VIDEO]: (newVideoUrl: string, newIndex?: number) => void;
   [END_OF_VIDEO]: () => void;
-  [SYNC_TIME]: (time: number) => void;
+  [SYNC_TIME]: (currentVideoTime: number) => void;
   [SYNC_VIDEO_INFORMATION]: (
-    callback: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventStartTime: number) => void
+    callback: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventCalledTime: number) => void
   ) => void;
   [GET_HOST_VIDEO_INFORMATION]: (
-    callback: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventStartTime: number) => void
+    callback: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventCalledTime: number) => void
   ) => void;
   [GET_VIDEO_INFORMATION]: () => void;
   [ADD_VIDEO_TO_QUEUE]: (video: VideoQueueItem) => void;
@@ -96,11 +96,11 @@ export interface ServerToClientEvents {
   [FASTFORWARD_VIDEO]: (newTime: number) => void;
   [REWIND_VIDEO]: (newTime: number) => void;
   [CHANGE_VIDEO]: (newVideoUrl: string, newIndex?: number) => void;
-  [SYNC_TIME]: (time: number) => void;
+  [SYNC_TIME]: (currentVideoTime: number) => void;
   [BUFFERING_VIDEO]: (time: number) => void;
-  [SYNC_VIDEO_INFORMATION]: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventStartTime: number) => void;
+  [SYNC_VIDEO_INFORMATION]: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventCalledTime: number) => void;
   [GET_HOST_VIDEO_INFORMATION]: (
-    callback: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventStartTime: number) => void
+    callback: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventCalledTime: number) => void
   ) => void;
   [GET_VIDEO_INFORMATION]: () => void;
   [ADD_VIDEO_TO_QUEUE]: (video: VideoQueueItem) => void;

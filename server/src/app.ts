@@ -279,9 +279,9 @@ io.on('connection', (socket: CustomSocketServer) => {
     const host = usersSource.get(room.host);
     if (!host) return;
 
-    io.sockets.sockets.get(host.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing, videoUrl, elapsedVideoTime, eventStartTime) => {
+    io.sockets.sockets.get(host.socketId)?.emit(GET_HOST_VIDEO_INFORMATION, (playing, videoUrl, elapsedVideoTime, eventCalledTime) => {
       //socket.emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, time);
-      socket.emit(SYNC_VIDEO_INFORMATION, playing, room.videoInfo.currentVideoUrl || videoUrl, elapsedVideoTime, eventStartTime);
+      socket.emit(SYNC_VIDEO_INFORMATION, playing, room.videoInfo.currentVideoUrl || videoUrl, elapsedVideoTime, eventCalledTime);
     });
   });
 
@@ -292,8 +292,8 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (user && user.roomId) {
       socket.to(user.roomId).emit(PLAY_VIDEO);
 
-      socket.emit(GET_HOST_VIDEO_INFORMATION, (playing, videoUrl, elapsedVideoTime, eventStartTime) => {
-        socket.to(user.roomId).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, elapsedVideoTime, eventStartTime);
+      socket.emit(GET_HOST_VIDEO_INFORMATION, (playing, videoUrl, elapsedVideoTime, eventCalledTime) => {
+        socket.to(user.roomId).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, elapsedVideoTime, eventCalledTime);
       });
     }
   });
@@ -365,7 +365,7 @@ io.on('connection', (socket: CustomSocketServer) => {
         socket.emit(GET_HOST_VIDEO_INFORMATION, (playing: boolean, videoUrl: string) => {
           io.to(room.id).emit(GET_ROOM_INFO, room);
           // TODO: TEST THIS
-          io.to(room.id).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, 0);
+          io.to(room.id).emit(SYNC_VIDEO_INFORMATION, playing, videoUrl, 0, 0);
         });
       }
     }
