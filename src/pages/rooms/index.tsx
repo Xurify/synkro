@@ -67,13 +67,15 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
     setSort((currentSort) => (currentSort === "asc" ? "desc" : "asc"));
   };
 
-  const sortedRooms: Room[] = rooms.sort((roomA, roomB) => {
-    if (sort === "asc") {
-      return roomA.members.length - roomB.members.length;
-    } else {
-      return roomB.members.length - roomA.members.length;
-    }
-  });
+  const sortedRooms: Room[] = rooms
+    .filter((room) => !room.private)
+    .sort((roomA, roomB) => {
+      if (sort === "asc") {
+        return roomA.members.length - roomB.members.length;
+      } else {
+        return roomB.members.length - roomA.members.length;
+      }
+    });
 
   return (
     <main className="flex flex-col text-center relative h-auto px-2 pb-4">

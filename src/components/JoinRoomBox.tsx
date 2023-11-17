@@ -65,7 +65,6 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
         });
       } else {
         socket.emit(JOIN_ROOM, roomId, username, ({ success }) => {
-          console.log("handleJoinRoomJOIN_ROOM", roomId, success);
           success && router.push(`/room/${roomId}`);
         });
       }
