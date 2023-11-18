@@ -118,7 +118,9 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
           const userIcon = message.type === "USER" && room?.host && generateUserIcon(message?.userId, room.host, message?.isAdmin);
           return (
             <div
-              className={`${getMessageClassname(message.type === "USER" && message?.isAdmin ? "ADMIN" : message.type)} rounded p-1 px-2`}
+              className={`${getMessageClassname(
+                message.type === "USER" && message?.isAdmin ? "ADMIN" : message.type
+              )} break-words rounded p-1 px-2`}
               key={index}
             >
               {message.type === "USER" && (
