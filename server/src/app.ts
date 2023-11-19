@@ -114,6 +114,13 @@ io.on('connection', (socket: CustomSocketServer) => {
   });
 
   socket.on(CREATE_ROOM, async (username, roomName, callback) => {
+    if (typeof username !== 'string') {
+      typeof callback === 'function' && callback({ error: 'Username must be of type string' });
+      return;
+    } else if (username.length > 80) {
+      typeof callback === 'function' && callback({ error: 'Username cannot exceed the maximum character length of 80' });
+      return;
+    }
     const newRoomId = nanoid(6);
     if (userId) {
       const room = roomsSource.get(newRoomId);
