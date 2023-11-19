@@ -181,6 +181,9 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (!inviteCode || !username || !socket.userId) {
       typeof callback === 'function' && callback({ success: false, error: 'An invalid input was provided' });
       return;
+    } else if (inviteCode.length !== 5) {
+      typeof callback === 'function' && callback({ success: false, error: 'Invite code must have a character length of 5' });
+      return;
     }
 
     const room = roomsSource.getRoomByInviteCode(inviteCode);
