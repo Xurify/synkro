@@ -151,6 +151,18 @@ io.on('connection', (socket: CustomSocketServer) => {
     if (!roomId || !username || !socket.userId) {
       typeof callback === 'function' && callback({ success: false, error: 'An invalid input was provided' });
       return;
+    } else if (typeof username !== 'string') {
+      typeof callback === 'function' && callback({ success: false, error: 'Username must be of type string' });
+      return;
+    } else if (typeof roomId !== 'string') {
+      typeof callback === 'function' && callback({ success: false, error: 'Room Id must be of type string' });
+      return;
+    } else if (username.length > 80) {
+      typeof callback === 'function' && callback({ success: false, error: 'Username cannot exceed the maximum character length of 80' });
+      return;
+    } else if (roomId.length !== 6) {
+      typeof callback === 'function' && callback({ success: false, error: 'Room Id must have a character length of 6' });
+      return;
     }
 
     const existingRoom = roomsSource.has(roomId);
