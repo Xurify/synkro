@@ -57,7 +57,7 @@ export interface RoomPageProps {
 }
 
 export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
-  const [activeView, setActiveView] = useState<SidebarViews>("chat");
+  const [activeView, setActiveView] = useLocalStorage<SidebarViews>(`sidebar-view-${roomId}`, "chat");
   const [isPlaying, setIsPlaying] = useState(false);
   //const [isMuted, setIsMuted] = useState(false);
   const [messages, setMessages] = useState<Messages>([]);
@@ -165,20 +165,18 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
-    const currentVideoId = convertURLToCorrectProviderVideoId(currentVideoUrl) as string;
-
     socket.on(GET_HOST_VIDEO_INFORMATION, (callback) => {
       if (sessionToken !== room?.host) return;
       const currentVideoTime = player?.getCurrentTime() ?? 0;
       const currentVideoUrl = player?.props?.url as string;
       const isCurrentlyPlaying = player?.props?.playing as boolean;
       const currentDateTime = new Date().getTime();
-      console.log(GET_HOST_VIDEO_INFORMATION, currentDateTime, currentVideoTime, currentVideoUrl, currentVideoId, isCurrentlyPlaying);
+      //console.log(GET_HOST_VIDEO_INFORMATION, currentDateTime, currentVideoTime, currentVideoUrl, currentVideoId, isCurrentlyPlaying);
       typeof callback === "function" && callback(isCurrentlyPlaying, currentVideoUrl, currentVideoTime, currentDateTime);
     });
 
     socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, elapsedVideoTime, eventCalledTime) => {
-      console.log(SYNC_VIDEO_INFORMATION, playing, hostVideoUrl, elapsedVideoTime, currentVideoId);
+      //console.log(SYNC_VIDEO_INFORMATION, playing, hostVideoUrl, elapsedVideoTime, currentVideoId);
       setCurrentVideoUrl(hostVideoUrl);
       handleSyncTime(elapsedVideoTime, eventCalledTime);
       setIsPlaying(playing);
@@ -259,18 +257,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
       const timeDifference = userCurrentTime - eventCalledTime;
       const eventCalledTimeInSeconds = timeDifference / 1000;
 
-      console.log(
-        "handleSyncTime",
-        elapsedVideoTime,
-        eventCalledTime,
-        timeDifference,
-        currentVideoTime,
-        eventCalledTimeInSeconds,
-        currentVideoTime < elapsedVideoTime - 0.6,
-        currentVideoTime > elapsedVideoTime + 0.6
-      );
       if (currentVideoTime < elapsedVideoTime - 0.4 || currentVideoTime > elapsedVideoTime + 0.4) {
-        console.log("PLAYERSEEKTO", elapsedVideoTime, player);
         player.seekTo(elapsedVideoTime + eventCalledTimeInSeconds, "seconds");
       }
     };
