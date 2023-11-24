@@ -87,7 +87,7 @@ class RoomsSource extends EventEmitter {
       private: true,
       previouslyConnectedMembers: [{ userId: user.id, username: user.username }],
     };
-    this.rooms.set(id, room);
+    this.set(id, room);
     this.emit('room:added', room);
     return room;
   }
@@ -100,7 +100,7 @@ class RoomsSource extends EventEmitter {
       ...room,
       ...newRoom,
     };
-    this.rooms.set(id, updatedRoom);
+    this.set(id, updatedRoom);
     this.emit('room:updated', updatedRoom);
     return updatedRoom;
   }
