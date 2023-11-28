@@ -242,6 +242,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
       playUserDisconnectedSound();
       socket.disconnect();
       setStoredRoom(null);
+      setActiveView("chat");
       router.push("/");
     });
 
@@ -294,7 +295,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
   const handleLeaveRoom = () => {
     if (!socket) return;
     socket.emit(LEAVE_ROOM, roomId);
-    void router.push("/");
+    router.push("/");
   };
 
   const runIfAuthorized = (callback?: () => void, disableAdminCheck = false) => {
