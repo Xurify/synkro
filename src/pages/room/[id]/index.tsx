@@ -295,7 +295,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
   const handleLeaveRoom = () => {
     if (!socket) return;
     socket.emit(LEAVE_ROOM, roomId);
-    router.push("/");
   };
 
   const runIfAuthorized = (callback?: () => void, disableAdminCheck = false) => {
