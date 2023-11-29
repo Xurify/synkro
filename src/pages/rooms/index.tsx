@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowDown01Icon, ArrowDown10Icon, ChevronRightIcon, HomeIcon, ServerIcon } from "lucide-react";
 
-import { serverURL } from "@/constants/constants";
+import { SERVER_URL } from "@/constants/constants";
 import { Room } from "@/types/interfaces";
 import { cn } from "@/libs/utils/frontend-utils";
 
@@ -56,7 +56,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
     };
   }, []);
 
-  const eventSource = useSSE(`${serverURL}/api/public-rooms`, options);
+  const eventSource = useSSE(`${SERVER_URL}/api/public-rooms`, options);
 
   const handleNavigateToRoom = (room: Room) => {
     router.push(`/invite/${room.inviteCode}`);
