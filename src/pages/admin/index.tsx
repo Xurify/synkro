@@ -27,7 +27,17 @@ export const RoomsPage: React.FC<RoomsPageProps> = () => {
   useEffect(() => {
     fetch(`${SERVER_URL}/api/rooms`)
       .then((res) => res.json())
-      .then((data) => console.log("rooms", data));
+      .then((data) => {
+        setRooms(Object.values(data.rooms));
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch(`${SERVER_URL}/api/users`)
+      .then((res) => res.json())
+      .then((data) => {
+        setUsers(Object.values(data.users));
+      });
   }, []);
 
   const { play: playButtonClickSound } = useAudio({
