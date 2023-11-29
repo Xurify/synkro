@@ -3,7 +3,7 @@ import io from "socket.io-client";
 import { useRouter } from "next/router";
 import { SocketContext } from "./SocketContext";
 import { CustomSocket } from "@/types/socketCustomTypes";
-import { socketURL } from "@/constants/constants";
+import { SOCKET_URL } from "@/constants/constants";
 import { GET_ROOM_INFO, GET_USER_INFO, SET_ADMIN } from "@/constants/socketActions";
 import { Room, User } from "@/types/interfaces";
 
@@ -29,7 +29,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
       }
       return;
     }
-    const newSocket = io(socketURL, {
+    const newSocket = io(SOCKET_URL, {
       transports: ["websocket"],
       auth: {
         token: sessionToken,
