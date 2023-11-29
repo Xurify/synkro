@@ -14,14 +14,11 @@ import { Button } from "@/components/ui/button";
 
 import useAudio from "@/hooks/useAudio";
 
-interface RoomsPageProps {
-  rooms: Room[];
-  users: User[];
-}
+interface RoomsPageProps {}
 
-export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms, users: initialUsers }) => {
-  const [rooms, setRooms] = useState(initialRooms ?? []);
-  const [users, setUsers] = useState(initialUsers ?? []);
+export const RoomsPage: React.FC<RoomsPageProps> = () => {
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [sort, setSort] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState(true);
 
@@ -139,7 +136,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     props: {
       sessionToken,
       adminToken,
-      rooms: [],
     },
   };
 };
