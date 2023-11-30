@@ -20,7 +20,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [sort, setSort] = useState<"asc" | "desc">("asc");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState({ rooms: true, users: true });
 
   const router = useRouter();
 
@@ -29,6 +29,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = () => {
       .then((res) => res.json())
       .then((data) => {
         setRooms(Object.values(data.rooms));
+        setLoading({ ...loading, rooms: false });
       });
   }, []);
 
@@ -37,6 +38,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = () => {
       .then((res) => res.json())
       .then((data) => {
         setUsers(Object.values(data.users));
+        setLoading({ ...loading, users: false });
       });
   }, []);
 
@@ -74,7 +76,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = () => {
         </div>
         <Input
           className="h-7 max-w-[200px] mx-2 ml-6 text-sm bg-[#070117] hover:border-input focus:border-input focus-visible:border-input"
-          value="Users"
+          value="Rooms"
           readOnly={true}
         />
         <button className="ml-auto" onClick={handleToggleSort}>
@@ -83,7 +85,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = () => {
       </div>
       <div className="bg-card w-full h-full max-w-[500px] mx-auto p-4 rounded-b">
         <div className="flex flex-col w-full h-[500px] gap-y-4 overflow-y-auto overflow-x-hidden max-h-[calc(100vh-250px)] primary-scrollbar">
-          {loading ? (
+          {loading.rooms ? (
             <div className="w-full flex items-center justify-center">
               <Spinner />
             </div>
