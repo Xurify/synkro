@@ -19,7 +19,6 @@ interface RoomsPageProps {}
 export const RoomsPage: React.FC<RoomsPageProps> = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [sort, setSort] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState({ rooms: true, users: true });
 
   const router = useRouter();
@@ -42,40 +41,37 @@ export const RoomsPage: React.FC<RoomsPageProps> = () => {
       });
   }, []);
 
-  const { play: playButtonClickSound } = useAudio({
-    volume: 0.5,
-    src: "/next-assets/audio/button_press.mp3",
-  });
-
   const handleNavigateToRoom = (room: Room) => {
     router.push(`/invite/${room.inviteCode}`);
   };
 
-  const handleToggleSort = () => {
-    playButtonClickSound();
-    setSort((currentSort) => (currentSort === "asc" ? "desc" : "asc"));
-  };
-
   return (
     <main className="flex flex-col text-center relative h-auto px-2 pb-4">
-      <RoomCard
-        rooms={rooms}
-        sort={sort}
-        loading={loading.rooms}
-        handleToggleSort={handleToggleSort}
-        handleNavigateToRoom={handleNavigateToRoom}
-      />
+      <div className="flex flex-wrap gap-2 w-full justify-center items-center">
+        <RoomCard rooms={rooms} loading={loading.rooms} handleNavigateToRoom={handleNavigateToRoom} />
+        <RoomCard rooms={rooms} loading={loading.users} handleNavigateToRoom={handleNavigateToRoom} />
+      </div>
     </main>
   );
 };
 
 const RoomCard: React.FC<{
   rooms: Room[];
-  sort: "asc" | "desc";
   loading: boolean;
-  handleToggleSort: () => void;
   handleNavigateToRoom: (room: Room) => void;
-}> = ({ rooms, sort, loading, handleToggleSort, handleNavigateToRoom }) => {
+}> = ({ rooms, loading, handleNavigateToRoom }) => {
+  const [sort, setSort] = useState<"asc" | "desc">("asc");
+
+  const { play: playButtonClickSound } = useAudio({
+    volume: 0.5,
+    src: "/next-assets/audio/button_press.mp3",
+  });
+
+  const handleToggleSort = () => {
+    playButtonClickSound();
+    setSort((currentSort) => (currentSort === "asc" ? "desc" : "asc"));
+  };
+
   const sortedRooms: Room[] = rooms
     .filter((room) => !room.private)
     .sort((roomA, roomB) => {
@@ -87,8 +83,8 @@ const RoomCard: React.FC<{
     });
 
   return (
-    <div>
-      <div className="flex items-center bg-[#141428] max-w-[500px] w-full mx-auto py-4 px-4 rounded-t">
+    <div className="w-full max-w-[500px]">
+      <div className="flex items-center bg-[#141428] w-full mx-auto py-4 px-4 rounded-t">
         <div className="flex gap-x-1.5">
           <span className="block w-2.5 h-2.5 bg-[#f4645c] rounded-full"></span>
           <span className="block w-2.5 h-2.5 bg-[#f9be3e] rounded-full"></span>
@@ -103,7 +99,7 @@ const RoomCard: React.FC<{
           {sort === "asc" ? <ArrowDown01Icon color="#FFFFFF" size="1.25rem" /> : <ArrowDown10Icon color="#FFFFFF" size="1.25rem" />}
         </button>
       </div>
-      <div className="bg-card w-full h-full max-w-[500px] mx-auto p-4 rounded-b">
+      <div className="bg-card w-full max-w-[500px] mx-auto p-4 rounded-b">
         <div className="flex flex-col w-full h-[500px] gap-y-4 overflow-y-auto overflow-x-hidden max-h-[calc(100vh-250px)] primary-scrollbar">
           {loading ? (
             <div className="w-full flex items-center justify-center">
