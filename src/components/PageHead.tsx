@@ -15,7 +15,7 @@ export const PageHead: React.FC = () => {
       <meta property="twitter:title" content="Synkro" />
       <meta property="twitter:description" content="Synkro - Watch Together" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <link rel="prefetch" href="/next-assets/audio/button_press.mp3" />
+      <link rel="prefetch" href="https://utfs.io/f/0c5f10fd-9e8b-401a-94bb-032d7820bda4-lbqvhy.mp3" />
     </Head>
   );
 };

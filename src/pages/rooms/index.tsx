@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowDown01Icon, ArrowDown10Icon, ChevronRightIcon, HomeIcon, ServerIcon } from "lucide-react";
 
-import { SERVER_URL } from "@/constants/constants";
+import { BUTTON_PRESS_AUDIO, SERVER_URL } from "@/constants/constants";
 import { Room } from "@/types/interfaces";
 import { cn } from "@/libs/utils/frontend-utils";
 
@@ -28,7 +28,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
 
   const { play: playButtonClickSound } = useAudio({
     volume: 0.5,
-    src: "/next-assets/audio/button_press.mp3",
+    src: BUTTON_PRESS_AUDIO,
   });
 
   const options = useMemo(() => {

@@ -21,3 +21,8 @@ export const AUDIO_FILE_URL_REGEX = /^https?:\/\/(.*)(\.mp3|.wav)/;
 export const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/;
 
 //https:\/\/.*.mp4
+
+export const BUTTON_PRESS_AUDIO = 'https://utfs.io/f/0c5f10fd-9e8b-401a-94bb-032d7820bda4-lbqvhy.mp3';
+export const USER_DISCONNECTED_AUDIO = 'https://utfs.io/f/c77e24f4-9d3b-4a2d-98d9-6787d2280744-tmke27.mp3'; // Mixkit.co
+export const USER_JOINED_AUDIO = 'https://utfs.io/f/bc2ccdfa-a4d0-4b79-9b98-f41034efa2ab-6tmzer.mp3'; // Mixkit.co
+export const USER_KICKED_AUDIO = 'https://utfs.io/f/b3b7e3cc-3abe-4e97-a813-028a9f20bae6-ml9rpw.mp3'; // ElevenLabs

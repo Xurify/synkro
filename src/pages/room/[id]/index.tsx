@@ -48,7 +48,7 @@ import { useUpdateEffect } from "@/hooks/useUpdateEffect";
 
 import { convertURLToCorrectProviderVideoId } from "@/libs/utils/frontend-utils";
 import { Spinner } from "@/components/Spinner";
-import { AUDIO_FILE_URL_REGEX, VIDEO_FILE_URL_REGEX } from "@/constants/constants";
+import { AUDIO_FILE_URL_REGEX, USER_DISCONNECTED_AUDIO, USER_JOINED_AUDIO, USER_KICKED_AUDIO, VIDEO_FILE_URL_REGEX } from "@/constants/constants";
 import useAudio from "@/hooks/useAudio";
 
 export interface RoomPageProps {
@@ -69,21 +69,19 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
 
   // TODO: MUTE VIDEO WHEN FIRST PLAYING
 
-  // Mixkit.co
   const { play: playUserJoinedSound } = useAudio({
     volume: 0.1,
-    src: "/next-assets/audio/user_joined.wav",
+    src: USER_JOINED_AUDIO,
   });
 
   const { play: playUserDisconnectedSound } = useAudio({
     volume: 0.5,
-    src: "/next-assets/audio/user_disconnected.mp3",
+    src: USER_DISCONNECTED_AUDIO,
   });
 
-  // ElevenLabs
   const { play: playUserKickedSound } = useAudio({
     volume: 0.5,
-    src: "/next-assets/audio/ElevenLabs_Mimi_Kicked.mp3",
+    src: USER_KICKED_AUDIO,
   });
 
   const [player, setPlayer] = useState<ReactPlayerType | null>(null);

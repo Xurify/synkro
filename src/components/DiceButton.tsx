@@ -3,6 +3,7 @@ import { DicesIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/libs/utils/frontend-utils";
 import useAudio from "@/hooks/useAudio";
+import { BUTTON_PRESS_AUDIO } from "@/constants/constants";
 
 export interface DiceButtonProps {
   className?: string;
@@ -12,7 +13,7 @@ export interface DiceButtonProps {
 export const DiceButton: React.FC<DiceButtonProps> = ({ className, onClick }) => {
   const { play: playButtonClickSound } = useAudio({
     volume: 0.5,
-    src: "/next-assets/audio/button_press.mp3",
+    src: BUTTON_PRESS_AUDIO,
   });
   const handleOnClick = () => {
     playButtonClickSound();
