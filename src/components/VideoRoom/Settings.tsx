@@ -14,6 +14,8 @@ import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { runIfAuthorized } from "@/libs/utils/socket";
 import { generateUserIcon } from "@/libs/utils/chat";
 import { deepEqual } from "@/libs/utils/frontend-utils";
+import useAudio from "@/hooks/useAudio";
+import { BUTTON_PRESS_AUDIO } from "@/constants/constants";
 
 const UserModal = lazy(() =>
   import("../Modals/UserModal").then((module) => {
@@ -35,9 +37,15 @@ const Settings: React.FC<SettingsProps> = () => {
 
   const [_value, copy] = useCopyToClipboard();
 
+  const { play: playButtonClickSound } = useAudio({
+    volume: 0.5,
+    src: BUTTON_PRESS_AUDIO,
+  });
+
   const isAuthorized = socket?.isAdmin || room?.host === socket?.userId;
 
   const handleOnChangePrivateRoom = (checked: boolean) => {
+    playButtonClickSound();
     setPrivateRoom(!checked);
   };
 
