@@ -53,10 +53,11 @@ import useAudio from "@/hooks/useAudio";
 
 export interface RoomPageProps {
   sessionToken: string;
+  deviceType: 'desktop' | 'mobile';
   roomId: string;
 }
 
-export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
+export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, roomId }) => {
   const [activeView, setActiveView] = useLocalStorage<SidebarViews>(`sidebar-view-${roomId}`, "chat");
   const [isPlaying, setIsPlaying] = useState(false);
   //const [isMuted, setIsMuted] = useState(false);
@@ -414,7 +415,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
         <title>Synkro - {room.name ?? "Unknown"}</title>
       </Head>
 
-      <main className="mx-auto h-full flex flex-col md:flex-row justify-center mt-[-1rem] md:mt-0">
+      <main className="mx-auto h-full flex flex-col md:flex-row md:justify-center mt-[-1rem] md:mt-0">
         <div className="flex flex-col max-w-[80rem] w-full">
           <div className="w-full">
             <div className="bg-card mb-2">
@@ -443,7 +444,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
             <RoomToolbar activeView={activeView} onClickPlayerButton={handleClickPlayerButton} isPlaying={isPlaying} roomId={roomId} />
           </div>
         </div>
-        <Sidebar activeView={activeView} views={views} />
+        <Sidebar activeView={activeView} deviceType={deviceType} views={views} onClickPlayerButton={handleClickPlayerButton} />
       </main>
     </>
   );
@@ -454,6 +455,8 @@ export default RoomPage;
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const sessionToken = context.req.cookies["session_token"] || null;
   const adminToken = context.req.cookies["admin_token"] || null;
+  const deviceType = context.req.cookies["device_type"] || null;
+
   const roomId = context.params?.["id"] || null;
 
   return {
@@ -461,6 +464,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       sessionToken,
       adminToken,
       roomId,
+      deviceType,
       navigationHeaderProps: {
         page: "video_room",
       },
