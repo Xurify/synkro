@@ -190,7 +190,7 @@ const Settings: React.FC<SettingsProps> = () => {
         {!!roomPasscode && room?.passcode !== roomPasscode && <span className="mt-0.5 block text-red-300">Unsaved</span>}
       </div>
 
-      <Button onClick={handleSaveSettings} className="w-full rounded">
+      <Button disabled={!isAuthorized} onClick={handleSaveSettings} className="w-full rounded">
         Save
       </Button>
       {errorMessage && <span className="text-red-600">{errorMessage}</span>}
