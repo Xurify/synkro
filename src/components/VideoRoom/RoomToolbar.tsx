@@ -135,7 +135,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({
           <Separator className="hidden min-[1020px]:flex" />
           <Button
             aria-label="Sync video with host"
-            className="rounded w-12"
+            className="rounded w-9 h-9"
             onClick={handleSyncVideo}
           >
             <span>
