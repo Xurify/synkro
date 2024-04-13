@@ -19,7 +19,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <SocketProvider sessionToken={pageProps?.sessionToken || null} adminToken={pageProps?.adminToken || null}>
-        <div className={`${rubik.className} ${inter.className}`}>
+        <div className={`${rubik.className} ${inter.className} h-screen flex flex-col`}>
           <Page sessionToken={pageProps?.sessionToken || null} navigationHeaderProps={pageProps.navigationHeaderProps}>
             <Component {...pageProps} />
             <Analytics />

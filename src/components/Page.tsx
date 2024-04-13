@@ -26,7 +26,7 @@ export const Page: React.FC<React.PropsWithChildren<PageProps>> = ({ children, n
     <>
       <PageHead />
       <NavigationHeader {...navigationHeaderProps} />
-      <div className="md:px-2 h-[calc(100vh-106px)] md:h-full relative">{children}</div>
+      <div className="md:px-2 TODO-h-[calc(100vh-106px)] h-full md:h-[calc(100vh-64px)] relative md:pt-4 md:pb-4">{children}</div>
     </>
   );
 };

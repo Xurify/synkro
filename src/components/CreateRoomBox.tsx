@@ -58,6 +58,8 @@ export const CreateRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowJo
         description: "Username is missing.",
       });
       return;
+    } else if (socket && !socket?.connected) {
+      console.log('Socket is not connected', socket);
     }
 
     socket?.emit(CREATE_ROOM, username, roomName, ({ result, error }) => {
