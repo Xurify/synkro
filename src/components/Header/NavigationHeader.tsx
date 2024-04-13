@@ -8,7 +8,7 @@ export interface NavigationHeaderProps {
 
 export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ page }) => {
   return (
-    <nav className="bg-card w-full flex p-3 shadow mb-4">
+    <nav className="bg-card w-full flex p-3 shadow">
       <div className="flex justify-between w-full">
         <Link aria-label="Synkro (Go to home)" className="flex items-center" href="/">
           <div className="h-[2.5rem] w-[2.5rem] mr-2">
