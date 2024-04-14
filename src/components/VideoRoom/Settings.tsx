@@ -58,6 +58,7 @@ const Settings: React.FC<SettingsProps> = () => {
   };
 
   const handleCopyPasscode = () => {
+    if (!room?.passcode) return;
     room?.passcode &&
       copy(room.passcode).then(() => {
         toast({
@@ -181,7 +182,7 @@ const Settings: React.FC<SettingsProps> = () => {
             value={roomPasscode}
             onChange={handleOnChangeRoomPasscode}
           />
-          <Button aria-label="Copy to clipboard" onClick={handleCopyPasscode} className="w-12 rounded-r rounded-l-none">
+          <Button aria-label="Copy to clipboard" disabled={!roomPasscode.trim()} onClick={handleCopyPasscode} className="w-12 rounded-r rounded-l-none">
             <span>
               <ClipboardCopyIcon color="#FFFFFF" size="1.25rem" />
             </span>
