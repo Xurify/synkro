@@ -77,8 +77,8 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
   const [isSyncing, setIsSyncing] = useState(false);
 
   const hostVideoInformationRef = useRef<{
-    isPlaying: boolean;
-    videoUrl: string;
+    isPlaying?: boolean;
+    videoUrl?: string;
   }>({});
 
   // TODO: MUTE VIDEO WHEN FIRST PLAYING
@@ -240,7 +240,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
     });
 
     socket.on(SYNC_TIME, (currentVideoTime) => {
-      handleSyncTime(currentVideoTime, 0, hostVideoInformationRef.current.isPlaying);
+      handleSyncTime(currentVideoTime, 0, hostVideoInformationRef.current.isPlaying || isPlaying);
     });
 
     socket.on(KICK_USER, () => {
