@@ -31,11 +31,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 const io: CustomServer = new Server(server, {
-  cors: { origin: '*' },
-  // allowRequest: (req, callback) => {
-  //   const isAllowedOrigin = req?.headers?.origin ? allowedOrigins.includes(req.headers.origin) : false;
-  //   callback(null, isAllowedOrigin);
-  // },
+  allowRequest: (req, callback) => {
+    const isAllowedOrigin = req?.headers?.origin ? allowedOrigins.includes(req.headers.origin) : false;
+    callback(null, isAllowedOrigin);
+  },
 });
 
 io.use((socket, next) => {
