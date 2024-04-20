@@ -52,10 +52,6 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
       console.log(`connect_error due to ${err.message}`);
     });
 
-    newSocket.on("error", (err) => {
-      console.error(`error due to ${err.message}`);
-    });
-
     newSocket.on("connect", () => {
       console.log("Connected");
       setIsConnecting(false);

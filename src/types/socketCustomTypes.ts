@@ -79,6 +79,7 @@ export interface ClientToServerEvents {
 export interface ServerToClientEvents {
   connect: () => void;
   disconnect: () => void;
+  'connect_error': (error: any) => void;
   [JOIN_ROOM]: (roomId: string, username: string, callback: (value: { success: boolean; error: string }) => void) => void;
   [LEAVE_ROOM]: () => void;
   [KICK_USER]: () => void;
