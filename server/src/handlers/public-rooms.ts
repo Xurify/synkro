@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { roomsSource } from './room-management';
+import { roomsSource } from '../utils/room-management';
 
 export const publicRoomsHandler = (
   req: Request,

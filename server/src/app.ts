@@ -5,9 +5,9 @@ import { Server } from 'socket.io';
 import { CustomSocketServer, CustomServer } from '../../src/types/socketCustomTypes';
 import { roomsSource } from './utils/room-management';
 import { usersSource } from './utils/user-management';
-import { handleSocketEvents } from './socket-events';
+import { handleSocketEvents } from './handlers/socket-events';
 import { startCleanupInterval } from './utils/cleanup';
-import { publicRoomsHandler } from './utils/public-rooms';
+import { publicRoomsHandler } from './handlers/public-rooms';
 
 import { config } from 'dotenv';
 config();

@@ -31,11 +31,11 @@ import {
   SET_HOST,
   KICK_USER,
   LEAVE_ROOM,
-} from '../../src/constants/socketActions';
-import { roomsSource } from './utils/room-management';
-import { requestIsNotFromHost, usersSource } from './utils/user-management';
-import { Room, ServerMessageType, User, VideoStatus } from '../../src/types/interfaces';
-import { CustomServer, CustomSocketServer } from '../../src/types/socketCustomTypes';
+} from '../../../src/constants/socketActions';
+import { roomsSource } from '../utils/room-management';
+import { requestIsNotFromHost, usersSource } from '../utils/user-management';
+import { Room, ServerMessageType, User, VideoStatus } from '../../../src/types/interfaces';
+import { CustomServer, CustomSocketServer } from '../../../src/types/socketCustomTypes';
 
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 
