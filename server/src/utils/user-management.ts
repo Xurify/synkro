@@ -3,7 +3,7 @@ import { Room, User } from '../../../src/types/interfaces';
 import { CustomSocket } from '../../../src/types/socketCustomTypes';
 import { assignUsernameChatColor } from './chat';
 
-class UserSource extends EventEmitter {
+export class UsersSource extends EventEmitter {
   public users: Map<string, User> = new Map();
   public length: () => number = () => this.getLength();
 
@@ -73,7 +73,7 @@ class UserSource extends EventEmitter {
   };
 }
 
-export const usersSource = new UserSource();
+export const usersSource = new UsersSource();
 
 export const requestIsNotFromHost = (socket: CustomSocket, rooms: Map<string, Room>, adminCheck: boolean = false): boolean => {
   if (adminCheck && socket.isAdmin) return false;

@@ -12,7 +12,11 @@ interface SocketProviderProps {
   adminToken?: string;
 }
 
-export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProps>> = ({ children, sessionToken, adminToken }) => {
+export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProps>> = ({
+  children,
+  sessionToken,
+  adminToken,
+}) => {
   const [socket, setSocket] = React.useState<CustomSocket | null>(null);
   const [room, setRoom] = React.useState<Room | null | undefined>(undefined);
   const [user, setUser] = React.useState<User | null>(null);
@@ -44,6 +48,14 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
 
     setSocket(newSocket);
 
+    newSocket.on("connect_error", (err) => {
+      console.log(`connect_error due to ${err.message}`);
+    });
+
+    newSocket.on("error", (err) => {
+      console.error(`error due to ${err.message}`);
+    });
+
     newSocket.on("connect", () => {
       console.log("Connected");
       setIsConnecting(false);
@@ -71,7 +83,11 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
     };
   }, [sessionToken]);
 
-  return <SocketContext.Provider value={{ socket, sessionToken, room, user, isConnecting }}>{children}</SocketContext.Provider>;
+  return (
+    <SocketContext.Provider value={{ socket, sessionToken, room, user, isConnecting }}>
+      {children}
+    </SocketContext.Provider>
+  );
 };
 
 export default SocketContext;
