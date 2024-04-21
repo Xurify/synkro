@@ -1,8 +1,8 @@
 {
   "name": "synkro_server",
   "version": "1.0.0",
-  "description": "Boilerplate for a NodeJs, Express, Typescript app",
-  "main": "index.js",
+  "description": "Server for Synkro",
+  "main": "app.js",
   "scripts": {
     "start": "node ./dist/app.js",
     "dev": "nodemon src/app.ts",
@@ -21,7 +21,7 @@
     "nanoid": "^3.3.6",
     "react": "^18.2.0",
     "react-player": "^2.13.0",
-    "socket.io": "^4.7.1",
+    "socket.io": "^4.7.5",
     "uuid": "^9.0.0",
     "winston": "^3.9.0"
   },
