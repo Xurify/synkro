@@ -442,7 +442,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
         <title>Synkro - {room.name ?? "Unknown"}</title>
       </Head>
 
-      <main className="mx-auto h-full flex flex-col md:flex-row md:justify-center md:mt-0">
+      <main className="mx-auto h-full flex flex-col md:flex-row md:justify-center md:pt-4">
         <div className="flex flex-col max-w-[80rem] w-full">
           <div className="w-full">
             <div className="bg-card mb-2">

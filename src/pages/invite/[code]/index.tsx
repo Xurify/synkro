@@ -70,7 +70,7 @@ export const InvitePage: React.FC<InvitePageProps> = ({ code }) => {
   };
 
   return (
-    <main className="flex flex-col">
+    <main className="flex flex-col pt-4">
       <div className="w-full h-full flex flex-col items-center justify-center px-2">
         <div className="max-w-[30rem] w-full bg-card p-4 rounded">
           <div className="flex">
