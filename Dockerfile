@@ -4,15 +4,15 @@ FROM node:18.16.0-alpine as base
 WORKDIR /server
 
 # Add package file
-COPY package.json ./
+COPY /server/package.json ./
 
 # Install deps
 RUN yarn install
 
 # Copy source
-COPY src ./src
-COPY types ./types
-COPY constants ./constants
+COPY /server/src ./src
+COPY /server/types ./types
+COPY /server/constants ./constants
 COPY tsconfig.json ./
 
 # Build dist
