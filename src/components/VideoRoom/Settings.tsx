@@ -42,7 +42,7 @@ const Settings: React.FC<SettingsProps> = () => {
     src: BUTTON_PRESS_AUDIO,
   });
 
-  const isAuthorized = socket?.isAdmin || room?.host === socket?.userId;
+  const isAuthorized = socket?.data?.isAdmin || room?.host === socket?.data?.isAdmin;
 
   const handleOnChangePrivateRoom = (checked: boolean) => {
     playButtonClickSound();
@@ -70,10 +70,10 @@ const Settings: React.FC<SettingsProps> = () => {
   };
 
   const handleSaveSettings = () => {
-    if (socket?.userId && room) {
+    if (socket?.data?.isAdmin && room) {
       runIfAuthorized(
         room.host,
-        socket.userId,
+        socket.data.userId,
         () => {
           errorMessage && setErrorMessage(null);
 
@@ -108,7 +108,7 @@ const Settings: React.FC<SettingsProps> = () => {
             description: "Room settings have successfully been saved!",
           });
         },
-        socket.isAdmin
+        socket.data.isAdmin
       );
     }
   };
@@ -145,7 +145,7 @@ const Settings: React.FC<SettingsProps> = () => {
                         User: <span className="text-primary">{member.username}</span>
                       </div>
                     }
-                    disabled={member.isAdmin || !isAuthorized || member.id === socket?.userId}
+                    disabled={member.isAdmin || !isAuthorized || member.id === socket?.data?.userId}
                     open={isUserModalOpen === member.id}
                     handleToggle={handleCloseUserModal}
                   />

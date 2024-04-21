@@ -71,15 +71,15 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({
       console.error("Video URL cannot be played:", newVideoUrl);
       return;
     }
-    if (socket?.userId && room?.host) {
+    if (socket?.data?.isAdmin && room?.host) {
       runIfAuthorized(
         room.host,
-        socket.userId,
+        socket.data.userId,
         () => {
           onClickPlayerButton("change-video", { videoUrl: newVideoUrl });
           setNewVideoUrl("");
         },
-        socket.isAdmin
+        socket.data.isAdmin
       );
     }
   };
@@ -91,16 +91,16 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({
   };
 
   const handleSyncVideo = () => {
-    if (socket?.userId && room?.host) {
-      if (room.host !== socket.userId) {
+    if (socket?.data?.isAdmin && room?.host) {
+      if (room.host !== socket.data.userId) {
         onClickPlayerButton("sync-video", { videoUrl: newVideoUrl });
       } else {
-        runIfAuthorized(room.host, socket.userId, () => {}, socket.isAdmin);
+        runIfAuthorized(room.host, socket.data.userId, () => {}, socket.data.isAdmin);
       }
     }
   };
 
-  const isAuthorized = socket?.isAdmin || room?.host === socket?.userId;
+  const isAuthorized = socket?.data?.isAdmin || room?.host === socket?.data?.isAdmin;
 
   return (
     <div className="max-w-[80rem] w-full bg-card shadow-md p-2.5 rounded flex">

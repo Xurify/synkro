@@ -146,9 +146,9 @@ export interface InterServerEvents {
 }
 
 export interface SocketData {
-  userId?: string;
-  roomId?: string;
-  isAdmin?: boolean;
+  userId: string | undefined;
+  roomId: string | undefined;
+  isAdmin: boolean | undefined;
 }
 
 export type CustomSocket = Socket<ServerToClientEvents, ClientToServerEvents, InterServerEvents, SocketData>;

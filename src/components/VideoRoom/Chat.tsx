@@ -48,7 +48,7 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
 
   useEffect(() => {
     const lastMessage = (messages as ChatMessage[])[messages.length - 1];
-    if (lastMessage?.userId !== socket?.userId) {
+    if (lastMessage?.userId !== socket?.data?.userId) {
       scrollToBottom();
     } else {
       scrollToBottom(true);
@@ -125,8 +125,8 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
             >
               {message.type === "USER" && (
                 <div
-                  className={`${message.userId === socket?.userId ? "text-red-500" : "text-green-500"}`}
-                  style={{ color: message?.isAdmin ? "#ff45ef" : message.userId === socket?.userId ? undefined : message.color }}
+                  className={`${message.userId === socket?.data?.userId ? "text-red-500" : "text-green-500"}`}
+                  style={{ color: message?.isAdmin ? "#ff45ef" : message.userId === socket?.data?.userId ? undefined : message.color }}
                 >
                   {userIcon && <span className="mr-1">{userIcon}</span>}
                   {message.username}

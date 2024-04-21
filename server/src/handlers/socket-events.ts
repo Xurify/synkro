@@ -58,10 +58,11 @@ export const handleSocketEvents = (
     return;
   }
 
-  socket.data = {};
-
-  socket.data.userId = userId;
-  socket.data.isAdmin = false;
+  socket.data = {
+    userId: userId || '',
+    roomId: '',
+    isAdmin: false,
+  };
 
   if (typeof socket.data.userId !== 'string') return;
 

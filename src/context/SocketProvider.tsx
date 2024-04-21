@@ -41,11 +41,15 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
       },
     }) as unknown as CustomSocket;
 
-    newSocket.data = {};
+    newSocket.data = {
+      userId: '',
+      roomId: '',
+      isAdmin: false,
+    };
 
     if (sessionToken) {
       newSocket.data.userId = sessionToken;
-      newSocket.data.roomId = room?.id;
+      newSocket.data.roomId = room?.id || '';
     }
 
     setSocket(newSocket);

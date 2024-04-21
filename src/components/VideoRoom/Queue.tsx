@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { VideoQueueItem } from "@/types/interfaces";
 import { ADD_VIDEO_TO_QUEUE, REMOVE_VIDEO_FROM_QUEUE, VIDEO_QUEUE_REORDERED, VIDEO_QUEUE_CLEARED } from "@/constants/socketActions";
 
-import { Queue } from "@/hooks/useQueue";
+import { Queue as QueueType } from "@/hooks/useQueue";
 import { useToast } from "@/components/ui/use-toast";
 import Image from "next/image";
 import { useSocket } from "@/context/SocketContext";
@@ -21,7 +21,7 @@ import { convertURLToYoutubeVideoId } from "@/libs/utils/frontend-utils";
 
 interface QueueProps {
   currentVideoId: string;
-  videoQueue: Queue<VideoQueueItem>;
+  videoQueue: QueueType<VideoQueueItem>;
   onClickPlayerButton: (newActiveButton: ButtonActions, payload?: { videoUrl: string; videoIndex?: number }) => void;
 }
 
@@ -31,7 +31,7 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
   const { toast } = useToast();
   const { socket, room } = useSocket();
 
-  const isAuthorized = socket?.isAdmin || room?.host === socket?.userId;
+  const isAuthorized = socket?.data?.isAdmin || room?.host === socket?.data?.isAdmin;
   const isMobile = new UAParser().getDevice().type === "mobile";
 
   const getIndexOfVideoInQueue = (videoId: string): number => {
@@ -87,45 +87,45 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
   };
 
   const handleChangeVideo = (newVideoUrl: string, newVideoId: string) => {
-    if (socket?.userId && room) {
+    if (socket?.data?.isAdmin && room) {
       runIfAuthorized(
         room.host,
-        socket.userId,
+        socket.data.userId,
         () => {
           const newVideoIndex = getIndexOfVideoInQueue(newVideoId);
           onClickPlayerButton("change-video", { videoUrl: newVideoUrl, videoIndex: newVideoIndex });
         },
-        socket.isAdmin
+        socket.data.isAdmin
       );
     }
   };
 
   const handleRemoveVideoFromQueue = (videoUrl: string) => {
-    if (socket?.userId && room) {
+    if (socket?.data?.isAdmin && room) {
       runIfAuthorized(
         room.host,
-        socket.userId,
+        socket.data.userId,
         () => {
           socket.emit(REMOVE_VIDEO_FROM_QUEUE, videoUrl);
           videoQueue.removeItem("url", videoUrl);
         },
-        socket.isAdmin
+        socket.data.isAdmin
       );
     }
   };
 
   const handleClearQueue = () => {
-    if (socket?.userId && room) {
+    if (socket?.data?.isAdmin && room) {
       runIfAuthorized(
         room.host,
-        socket.userId,
+        socket.data.userId,
         () => {
           if (videoQueue.queue.length > 0) {
             socket.emit(VIDEO_QUEUE_CLEARED);
             videoQueue.clear();
           }
         },
-        socket.isAdmin
+        socket.data.isAdmin
       );
     }
   };
@@ -138,17 +138,17 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
   };
 
   const onDragEnd = (result: DropResult) => {
-    if (socket?.userId && room) {
+    if (socket?.data?.isAdmin && room) {
       runIfAuthorized(
         room.host,
-        socket.userId,
+        socket.data.userId,
         () => {
           if (!result.destination) return;
           const items = handleReorder(videoQueue.queue, result.source.index, result.destination.index);
           videoQueue.set(items);
           socket.emit(VIDEO_QUEUE_REORDERED, items);
         },
-        socket.isAdmin
+        socket.data.isAdmin
       );
     }
   };
