@@ -35,11 +35,15 @@ import {
 import { roomsSource } from '../utils/room-management';
 import { requestIsNotFromHost, usersSource } from '../utils/user-management';
 import { Room, ServerMessageType, User, VideoStatus } from '../../../src/types/interfaces';
-import { CustomServer, CustomSocketServer } from '../../../src/types/socketCustomTypes';
+import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from '../../../src/types/socketCustomTypes';
+import { Server, Socket } from 'socket.io';
 
 const roomTimeouts: { [roomId: string]: NodeJS.Timeout | undefined } = {};
 
-export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer) => {
+export const handleSocketEvents = (
+  io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,
+  socket: Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,
+) => {
   const userId = socket.handshake.auth.token;
   const adminTokenHandshake = socket.handshake.auth.adminToken;
   const adminToken = process.env.ADMIN_TOKEN;
@@ -54,13 +58,15 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
     return;
   }
 
-  socket.userId = userId;
-  socket.isAdmin = false;
+  socket.data = {};
 
-  if (typeof socket.userId !== 'string') return;
+  socket.data.userId = userId;
+  socket.data.isAdmin = false;
+
+  if (typeof socket.data.userId !== 'string') return;
 
   if (adminToken === adminTokenHandshake) {
-    socket.isAdmin = true;
+    socket.data.isAdmin = true;
     socket.emit(SET_ADMIN);
   }
 
@@ -85,11 +91,17 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
       if (room) {
         typeof callback === 'function' && callback({ error: 'Room already exists' });
       } else {
-        if (!socket.userId) return;
-        const user = usersSource.createUser({ id: socket.userId, username, roomId: newRoomId, socketId: socket.id, isAdmin: socket.isAdmin });
+        if (!socket.data.userId) return;
+        const user = usersSource.createUser({
+          id: socket.data.userId,
+          username,
+          roomId: newRoomId,
+          socketId: socket.id,
+          isAdmin: socket.data.isAdmin,
+        });
         console.log(`👀 New user joined in room: ${user.roomId} - User Id: ${userId}`);
         socket.join(newRoomId);
-        socket.roomId = newRoomId;
+        socket.data.roomId = newRoomId;
 
         const newRoom = roomsSource.create(newRoomId, roomName, user);
 
@@ -105,7 +117,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
   });
 
   socket.on(JOIN_ROOM, (roomId, username, callback) => {
-    if (!roomId || !username || !socket.userId) {
+    if (!roomId || !username || !socket.data.userId) {
       typeof callback === 'function' && callback({ success: false, error: 'An invalid input was provided' });
       return;
     } else if (typeof username !== 'string') {
@@ -128,14 +140,14 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
       return;
     }
 
-    const updatedRoom = addUserToRoom(io, socket, socket.userId, roomId, username);
+    const updatedRoom = addUserToRoom(io, socket, socket.data.userId, roomId, username);
     if (updatedRoom && typeof callback === 'function') {
       callback({ success: true });
     }
   });
 
   socket.on(JOIN_ROOM_BY_INVITE, (inviteCode, username, callback) => {
-    if (!inviteCode || !username || !socket.userId) {
+    if (!inviteCode || !username || !socket.data.userId) {
       typeof callback === 'function' && callback({ success: false, error: 'An invalid input was provided' });
       return;
     } else if (inviteCode.length !== 5) {
@@ -153,7 +165,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
       return;
     }
 
-    const updatedRoom = addUserToRoom(io, socket, socket.userId, room.id, username);
+    const updatedRoom = addUserToRoom(io, socket, socket.data.userId, room.id, username);
     if (updatedRoom && typeof callback === 'function') {
       callback({ success: true, roomId: room.id });
     }
@@ -171,8 +183,8 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
       const previouslyConnectedUser = roomsSource.getPreviouslyConnectedUser(userId, roomId);
 
       if (previouslyConnectedUser) {
-        socket.userId = userId;
-        socket.roomId = roomId;
+        socket.data.userId = userId;
+        socket.data.roomId = roomId;
         socket.join(roomId);
 
         const timestamp = new Date().toISOString();
@@ -187,7 +199,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
           username: previouslyConnectedUser.username,
           roomId: roomId,
           socketId: socket.id,
-          isAdmin: socket.isAdmin,
+          isAdmin: socket.data.isAdmin,
         });
 
         const userExistsInRoomMembers = existingRoom.members.find((member) => member.id === user.id);
@@ -227,32 +239,32 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
 
   socket.on(USER_MESSAGE, (message, roomId) => {
     if (message.length > 500) {
-      console.error(`Message length cannot be greater than 500 - UserId: ${socket.userId}`);
+      console.error(`Message length cannot be greater than 500 - UserId: ${socket.data.userId}`);
       return;
     }
-    console.log(`📩 Received message: ${message} in ${roomId} by ${socket.userId}`);
-    const user = socket.userId && usersSource.get(socket.userId);
-    if (user && socket.userId) {
+    console.log(`📩 Received message: ${message} in ${roomId} by ${socket.data.userId}`);
+    const user = socket.data.userId && usersSource.get(socket.data.userId);
+    if (user && socket.data.userId) {
       const timestamp = new Date().toISOString();
       const messageID = uuidv4();
       io.in(roomId).emit(USER_MESSAGE, {
         username: user.username,
         message,
-        userId: socket.userId,
+        userId: socket.data.userId,
         id: messageID,
         timestamp,
         color: user.color,
         type: 'USER',
-        isAdmin: socket.isAdmin || false,
+        isAdmin: socket.data.isAdmin || false,
       });
     }
   });
 
   socket.on(GET_VIDEO_INFORMATION, () => {
     if (!requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    if (!socket?.roomId) return;
+    if (!socket?.data?.roomId) return;
 
-    const room = roomsSource.get(socket.roomId);
+    const room = roomsSource.get(socket.data.roomId);
     if (!room) return;
 
     const host = usersSource.get(room.host);
@@ -267,7 +279,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
   socket.on(PLAY_VIDEO, () => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
 
-    const user = socket.userId && usersSource.get(socket.userId);
+    const user = socket.data.userId && usersSource.get(socket.data.userId);
     if (user && user.roomId) {
       socket.to(user.roomId).emit(PLAY_VIDEO);
 
@@ -280,16 +292,16 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
   socket.on(PAUSE_VIDEO, () => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
 
-    const user = socket?.userId && usersSource.get(socket.userId);
+    const user = socket?.data?.userId && usersSource.get(socket.data.userId);
     if (user && user.roomId) {
       socket.to(user.roomId).emit(PAUSE_VIDEO);
     }
   });
 
   socket.on(BUFFERING_VIDEO, (time) => {
-    const user = socket.userId && usersSource.get(socket.userId);
-    if (requestIsNotFromHost(socket, roomsSource.rooms) && user && user.roomId && socket.userId) {
-      io.to(user.roomId).emit(USER_VIDEO_STATUS, socket.userId, VideoStatus.BUFFERING);
+    const user = socket.data.userId && usersSource.get(socket.data.userId);
+    if (requestIsNotFromHost(socket, roomsSource.rooms) && user && user.roomId && socket.data.userId) {
+      io.to(user.roomId).emit(USER_VIDEO_STATUS, socket.data.userId, VideoStatus.BUFFERING);
     } else if (user && user.roomId) {
       socket.to(user.roomId).emit(SYNC_TIME, time);
       socket.to(user.roomId).emit(PLAY_VIDEO);
@@ -306,7 +318,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
 
   socket.on(REWIND_VIDEO, (time) => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    const user = socket?.userId && usersSource.get(socket.userId);
+    const user = socket?.data?.userId && usersSource.get(socket.data.userId);
     if (user && user.roomId) {
       socket.to(user.roomId).emit(REWIND_VIDEO, time);
     }
@@ -314,7 +326,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
 
   socket.on(FASTFORWARD_VIDEO, (time) => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    const user = socket?.userId && usersSource.get(socket.userId);
+    const user = socket?.data?.userId && usersSource.get(socket.data.userId);
     if (user && user.roomId) {
       socket.to(user.roomId).emit(FASTFORWARD_VIDEO, time);
     }
@@ -322,7 +334,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
 
   socket.on(END_OF_VIDEO, () => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    const user = socket?.userId && usersSource.get(socket.userId);
+    const user = socket?.data?.userId && usersSource.get(socket.data.userId);
     if (user && user?.roomId) {
       const room = roomsSource.get(user.roomId);
       if (!room) return;
@@ -341,7 +353,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
   socket.on(CHANGE_VIDEO, async (url, newIndex) => {
     if (!ReactPlayer.canPlay(url)) return;
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    const user = socket?.userId && usersSource.get(socket.userId);
+    const user = socket?.data?.userId && usersSource.get(socket.data.userId);
     if (user && user?.roomId) {
       const room = roomsSource.get(user.roomId);
       if (room) {
@@ -361,7 +373,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
 
   socket.on(ADD_VIDEO_TO_QUEUE, (newVideo) => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    const user = socket?.userId && usersSource.get(socket.userId);
+    const user = socket?.data?.userId && usersSource.get(socket.data.userId);
     if (user && user?.roomId) {
       const room = roomsSource.get(user.roomId);
       if (!room) return;
@@ -372,7 +384,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
 
   socket.on(REMOVE_VIDEO_FROM_QUEUE, (url) => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    const user = socket?.userId && usersSource.get(socket.userId);
+    const user = socket?.data?.userId && usersSource.get(socket.data.userId);
     if (user && user?.roomId) {
       const room = roomsSource.get(user.roomId);
       if (!room) return;
@@ -384,7 +396,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
 
   socket.on(VIDEO_QUEUE_REORDERED, (newVideoQueue) => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    const user = socket?.userId && usersSource.get(socket.userId);
+    const user = socket?.data?.userId && usersSource.get(socket.data.userId);
     if (user && user?.roomId) {
       const room = roomsSource.get(user.roomId);
       if (!room) return;
@@ -395,7 +407,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
 
   socket.on(VIDEO_QUEUE_CLEARED, () => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    const user = socket?.userId && usersSource.get(socket.userId);
+    const user = socket?.data?.userId && usersSource.get(socket.data.userId);
     if (user && user?.roomId) {
       const room = roomsSource.get(user.roomId);
       if (!room) return;
@@ -408,7 +420,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
 
   socket.on(CHANGE_SETTINGS, (newSettings) => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    const user = socket?.userId && usersSource.get(socket.userId);
+    const user = socket?.data?.userId && usersSource.get(socket.data.userId);
     if (user && user?.roomId) {
       const room = roomsSource.get(user.roomId);
       if (!room) return;
@@ -424,7 +436,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
 
   socket.on(SET_HOST, (userId) => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    if (!socket.roomId) return;
+    if (!socket.data.roomId) return;
 
     const user = usersSource.get(userId);
     if (!user) return;
@@ -432,7 +444,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
     const room = roomsSource.get(user.roomId);
     if (!room) return;
     room.host = userId;
-    roomsSource.set(socket.roomId, room);
+    roomsSource.set(socket.data.roomId, room);
 
     io.in(room.id).emit(GET_ROOM_INFO, room);
     const timestamp = new Date().toISOString();
@@ -445,7 +457,7 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
 
   socket.on(KICK_USER, (userId) => {
     if (requestIsNotFromHost(socket, roomsSource.rooms)) return;
-    if (!socket.roomId) return;
+    if (!socket.data.roomId) return;
 
     const user = usersSource.get(userId);
     if (!user || user.isAdmin) return;
@@ -456,26 +468,29 @@ export const handleSocketEvents = (io: CustomServer, socket: CustomSocketServer)
   });
 
   socket.on(LEAVE_ROOM, () => {
-    if (socket.userId) {
-      handleUserDisconnect(socket.userId, io);
-      socket.roomId && socket?.emit(LEAVE_ROOM);
-      socket.roomId && socket.leave(socket.roomId);
-      socket.userId = undefined;
-      socket.roomId = undefined;
+    if (socket.data.userId) {
+      handleUserDisconnect(socket.data.userId, io);
+      socket.data.roomId && socket?.emit(LEAVE_ROOM);
+      socket.data.roomId && socket.leave(socket.data.roomId);
+      socket.data.userId = undefined;
+      socket.data.roomId = undefined;
     }
   });
 
   socket.on('disconnect', () => {
-    if (socket.userId) {
-      handleUserDisconnect(socket.userId, io);
-      socket.roomId && socket.leave(socket.roomId);
-      socket.userId = undefined;
-      socket.roomId = undefined;
+    if (socket.data.userId) {
+      handleUserDisconnect(socket.data.userId, io);
+      socket.data.roomId && socket.leave(socket.data.roomId);
+      socket.data.userId = undefined;
+      socket.data.roomId = undefined;
     }
   });
 };
 
-const handleUserDisconnect = (userId: string, io: CustomServer) => {
+// export type CustomIO = Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
+// export type CustomSocket = Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
+
+const handleUserDisconnect = (userId: string, io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>) => {
   if (!userId) return;
 
   const user = usersSource.get(userId);
@@ -543,14 +558,20 @@ const handleUserDisconnect = (userId: string, io: CustomServer) => {
   }
 };
 
-const addUserToRoom = (io: CustomServer, socket: CustomSocketServer, userId: string, roomId: string, username: string): Room | null => {
+const addUserToRoom = (
+  io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,
+  socket: Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,
+  userId: string,
+  roomId: string,
+  username: string,
+): Room | null => {
   const room = roomsSource.get(roomId);
   if (!room) return null;
 
   console.log(`👀 New user joined in room: ${roomId} - User Id: ${userId}`);
 
   socket.join(roomId);
-  socket.roomId = roomId;
+  socket.data.roomId = roomId;
 
   const existingUser = usersSource.get(userId);
   if (existingUser) {
@@ -563,7 +584,7 @@ const addUserToRoom = (io: CustomServer, socket: CustomSocketServer, userId: str
     //return room;
   }
 
-  const user = usersSource.createUser({ id: userId, username, roomId, socketId: socket.id, isAdmin: socket.isAdmin });
+  const user = usersSource.createUser({ id: userId, username, roomId, socketId: socket.id, isAdmin: socket.data.isAdmin });
 
   const userExistsInRoomMembers = room.members.find((member) => member.id === user.id);
   const newMembers = userExistsInRoomMembers ? room.members : [...room.members, user];

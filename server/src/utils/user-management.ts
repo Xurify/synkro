@@ -1,7 +1,8 @@
 import { EventEmitter } from 'events';
 import { Room, User } from '../../../src/types/interfaces';
-import { CustomSocket } from '../../../src/types/socketCustomTypes';
+import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from '../../../src/types/socketCustomTypes';
 import { assignUsernameChatColor } from './chat';
+import { Socket } from 'socket.io';
 
 export class UsersSource extends EventEmitter {
   public users: Map<string, User> = new Map();
@@ -75,8 +76,12 @@ export class UsersSource extends EventEmitter {
 
 export const usersSource = new UsersSource();
 
-export const requestIsNotFromHost = (socket: CustomSocket, rooms: Map<string, Room>, adminCheck: boolean = false): boolean => {
-  if (adminCheck && socket.isAdmin) return false;
-  const room = !!socket?.roomId && rooms.get(socket.roomId);
-  return Boolean(room && socket.userId !== room.host);
+export const requestIsNotFromHost = (
+  socket: Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,
+  rooms: Map<string, Room>,
+  adminCheck: boolean = false,
+): boolean => {
+  if (adminCheck && socket.data?.isAdmin) return false;
+  const room = !!socket?.data?.roomId && rooms.get(socket.data?.roomId);
+  return Boolean(room && socket.data?.userId !== room.host);
 };

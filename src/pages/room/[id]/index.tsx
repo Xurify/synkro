@@ -319,7 +319,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
 
   const runIfAuthorized = (callback?: () => void, disableAdminCheck = false) => {
     if (!socket) return;
-    if ((socket?.isAdmin && !disableAdminCheck) || room?.host === socket?.userId) {
+    if ((socket?.data?.isAdmin && !disableAdminCheck) || room?.host === socket?.data?.userId) {
       typeof callback === "function" && callback();
     }
   };
@@ -354,7 +354,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
   const handleBuffer = () => {
     if (!player) return null;
     const currentTime = player.getCurrentTime();
-    if (socket?.userId) {
+    if (socket?.data?.userId) {
       socket.emit(BUFFERING_VIDEO, currentTime);
     }
   };

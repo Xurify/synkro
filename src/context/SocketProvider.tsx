@@ -41,9 +41,11 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
       },
     }) as unknown as CustomSocket;
 
+    newSocket.data = {};
+
     if (sessionToken) {
-      newSocket.userId = sessionToken;
-      newSocket.roomId = room?.id;
+      newSocket.data.userId = sessionToken;
+      newSocket.data.roomId = room?.id;
     }
 
     setSocket(newSocket);
@@ -63,7 +65,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
     });
 
     newSocket.on(SET_ADMIN, () => {
-      newSocket.isAdmin = true;
+      newSocket.data.isAdmin = true;
     });
 
     newSocket.on(GET_ROOM_INFO, (newRoom) => {

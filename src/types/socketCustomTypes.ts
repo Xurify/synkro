@@ -1,4 +1,4 @@
-import type { Socket, Server } from "socket.io";
+import { Socket, Server } from "socket.io";
 import {
   LEAVE_ROOM,
   USER_MESSAGE,
@@ -38,13 +38,25 @@ import { ChatMessage, Room, ServerMessage, User, VideoQueueItem, VideoStatus } f
 export interface ClientToServerEvents {
   connect: () => void;
   disconnect: () => void;
-  [JOIN_ROOM]: (roomId: string, username: string, callback: (value: { success: boolean; error?: string }) => void) => void;
+  [JOIN_ROOM]: (
+    roomId: string,
+    username: string,
+    callback: (value: { success: boolean; error?: string }) => void
+  ) => void;
   [LEAVE_ROOM]: (roomId: string) => void;
-  [RECONNECT_USER]: (roomId: string, userId: string | null, callback: (value: { success: boolean; error?: string }) => void) => void;
+  [RECONNECT_USER]: (
+    roomId: string,
+    userId: string | null,
+    callback: (value: { success: boolean; error?: string }) => void
+  ) => void;
   [USER_MESSAGE]: (message: string, roomId: string) => void;
   [SERVER_MESSAGE]: ({ message, type }: ServerMessage) => void;
   [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room | null) => void) => void;
-  [CREATE_ROOM]: (username: string, roomName: string, callback: (value: { result?: Room; error?: string }) => void) => void;
+  [CREATE_ROOM]: (
+    username: string,
+    roomName: string,
+    callback: (value: { result?: Room; error?: string }) => void
+  ) => void;
   [SET_HOST]: (host: string) => void;
   [KICK_USER]: (userId: string) => void;
   [GET_USERS]: (users: User[]) => void;
@@ -79,8 +91,12 @@ export interface ClientToServerEvents {
 export interface ServerToClientEvents {
   connect: () => void;
   disconnect: () => void;
-  'connect_error': (error: any) => void;
-  [JOIN_ROOM]: (roomId: string, username: string, callback: (value: { success: boolean; error: string }) => void) => void;
+  connect_error: (error: any) => void;
+  [JOIN_ROOM]: (
+    roomId: string,
+    username: string,
+    callback: (value: { success: boolean; error: string }) => void
+  ) => void;
   [LEAVE_ROOM]: () => void;
   [KICK_USER]: () => void;
   [SET_ADMIN]: () => void;
@@ -88,7 +104,11 @@ export interface ServerToClientEvents {
   [USER_MESSAGE]: (message: ChatMessage) => void;
   [CHECK_IF_ROOM_IS_FULL]: (roomId: string, callback: any) => void;
   [CHECK_IF_ROOM_EXISTS]: (roomId: string, callback: (room: Room | null) => void) => void;
-  [CREATE_ROOM]: (username: string, roomName: string, callback: (value: { result?: Room; error?: string }) => void) => void;
+  [CREATE_ROOM]: (
+    username: string,
+    roomName: string,
+    callback: (value: { result?: Room; error?: string }) => void
+  ) => void;
   [SET_HOST]: (host: string) => void;
   [GET_ROOM_INFO]: (room: Room) => void;
   [GET_USER_INFO]: (user: User) => void;
@@ -99,7 +119,12 @@ export interface ServerToClientEvents {
   [CHANGE_VIDEO]: (newVideoUrl: string, newIndex?: number) => void;
   [SYNC_TIME]: (currentVideoTime: number) => void;
   [BUFFERING_VIDEO]: (time: number) => void;
-  [SYNC_VIDEO_INFORMATION]: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventCalledTime: number) => void;
+  [SYNC_VIDEO_INFORMATION]: (
+    playing: boolean,
+    hostVideoUrl: string,
+    elapsedVideoTime: number,
+    eventCalledTime: number
+  ) => void;
   [GET_HOST_VIDEO_INFORMATION]: (
     callback: (playing: boolean, hostVideoUrl: string, elapsedVideoTime: number, eventCalledTime: number) => void
   ) => void;
@@ -116,12 +141,16 @@ export interface ServerToClientEvents {
   [USER_VIDEO_STATUS]: (userId: string, videoStatus: VideoStatus) => void;
 }
 
-export type CustomSocket = Socket<ServerToClientEvents, ClientToServerEvents, CustomServer> & CustomSocketProperties;
-export type CustomSocketServer = Socket<ClientToServerEvents, ServerToClientEvents, CustomServer> & CustomSocketProperties;
-export type CustomServer = Server<ClientToServerEvents, ServerToClientEvents> & CustomSocketProperties;
+export interface InterServerEvents {
+  ping: () => void;
+}
 
-type CustomSocketProperties = {
+export interface SocketData {
   userId?: string;
   roomId?: string;
   isAdmin?: boolean;
-};
+}
+
+export type CustomSocket = Socket<ServerToClientEvents, ClientToServerEvents, InterServerEvents, SocketData>;
+export type CustomServer = Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
+export type CustomServerSocket = Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;

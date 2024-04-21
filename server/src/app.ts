@@ -2,7 +2,7 @@ import express, { Application } from 'express';
 import { createServer, Server as HttpServer } from 'http';
 import cors from 'cors';
 import { Server } from 'socket.io';
-import { CustomSocketServer, CustomServer } from '../../src/types/socketCustomTypes';
+import { InterServerEvents, ServerToClientEvents, ClientToServerEvents, SocketData } from '../../src/types/socketCustomTypes';
 import { roomsSource } from './utils/room-management';
 import { usersSource } from './utils/user-management';
 import { handleSocketEvents } from './handlers/socket-events';
@@ -30,7 +30,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-const io: CustomServer = new Server(server, {
+const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(server, {
   allowRequest: (req, callback) => {
     const isAllowedOrigin = req?.headers?.origin ? allowedOrigins.includes(req.headers.origin) : false;
     callback(null, isAllowedOrigin);
@@ -46,7 +46,7 @@ io.use((socket, next) => {
   }
 });
 
-io.on('connection', (socket: CustomSocketServer) => {
+io.on('connection', (socket) => {
   handleSocketEvents(io, socket);
 });
 
