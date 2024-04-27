@@ -112,8 +112,8 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
   };
 
   return (
-    <div className="flex flex-col flex-grow w-full h-full relative hide-scrollbar">
-      <div className="flex-grow overflow-y-auto p-4 gap-y-4 flex flex-col" ref={chatContainerRef}>
+    <div className="flex flex-col flex-grow w-full h-full relative">
+      <div className="flex-grow overflow-y-auto p-4 gap-y-4 flex flex-col chat-scrollbar" ref={chatContainerRef}>
         {messages.map((message, index) => {
           const userIcon = message.type === "USER" && room?.host && generateUserIcon(message?.userId, room.host, message?.isAdmin);
           return (

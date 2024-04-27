@@ -110,6 +110,22 @@ body.dark {
   background-color: #5327a0;
 }
 
+.chat-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+  background-color: #0000006e;
+  border-radius: 0px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  background-color: #bbb6d45d;
+}
+
 .input-colored {
   background: #3b2f51;
 }

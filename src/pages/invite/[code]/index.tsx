@@ -20,9 +20,6 @@ export interface InvitePageProps {
   hasPasscode: boolean;
 }
 
-// TODO: Add passcode input
-// TODO: Update styling of scrollbar for chat
-
 export const InvitePage: React.FC<InvitePageProps> = ({ code, hasPasscode }) => {
   const router = useRouter();
   const [inviteCode, setInviteCode] = useState(code ?? "");
