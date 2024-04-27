@@ -89,11 +89,11 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
     setIsNewMessagePopupShown(false);
   };
 
-  const handleOnChangeMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChatMessage(e.target.value);
   };
 
-  const handleOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") handleSendMessage();
   };
 
@@ -147,8 +147,8 @@ const Chat: React.FC<ChatProps> = ({ messages, roomId }) => {
           className="h-10 rounded-l rounded-r-none"
           type="text"
           value={chatMessage}
-          onChange={handleOnChangeMessage}
-          onKeyDown={handleOnKeyDown}
+          onChange={handleChangeMessage}
+          onKeyDown={handleKeyDown}
           placeholder="Say something"
           maxLength={500}
         />

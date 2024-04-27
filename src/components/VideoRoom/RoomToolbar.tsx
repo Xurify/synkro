@@ -71,7 +71,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({
       console.error("Video URL cannot be played:", newVideoUrl);
       return;
     }
-    if (socket?.data?.isAdmin && room?.host) {
+    if (socket?.data.isAdmin && room?.host) {
       runIfAuthorized(
         room.host,
         socket.data.userId,
@@ -91,7 +91,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({
   };
 
   const handleSyncVideo = () => {
-    if (socket?.data?.isAdmin && room?.host) {
+    if (socket?.data.isAdmin && room?.host) {
       if (room.host !== socket.data.userId) {
         onClickPlayerButton("sync-video", { videoUrl: newVideoUrl });
       } else {
@@ -100,7 +100,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({
     }
   };
 
-  const isAuthorized = socket?.data?.isAdmin || room?.host === socket?.data?.isAdmin;
+  const isAuthorized = socket?.data.isAdmin || room?.host === socket?.data?.userId;
 
   return (
     <div className="max-w-[80rem] w-full bg-card shadow-md p-2.5 rounded flex">

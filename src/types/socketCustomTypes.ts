@@ -84,6 +84,7 @@ export interface ClientToServerEvents {
   [JOIN_ROOM_BY_INVITE]: (
     inviteCode: string,
     username: string,
+    roomPasscode: string,
     callback: (value: { success: boolean; roomId?: string; error?: string }) => void
   ) => void;
 }
@@ -136,6 +137,7 @@ export interface ServerToClientEvents {
   [JOIN_ROOM_BY_INVITE]: (
     inviteCode: string,
     username: string,
+    roomPasscode: string,
     callback: (value: { success: boolean; roomId?: string; error?: string }) => void
   ) => void;
   [USER_VIDEO_STATUS]: (userId: string, videoStatus: VideoStatus) => void;

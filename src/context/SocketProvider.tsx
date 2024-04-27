@@ -50,6 +50,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
     if (sessionToken) {
       newSocket.data.userId = sessionToken;
       newSocket.data.roomId = room?.id || '';
+      newSocket.data.isAdmin = room?.host === newSocket.data.userId;
     }
 
     setSocket(newSocket);
@@ -68,12 +69,15 @@ export const SocketProvider: React.FC<React.PropsWithChildren<SocketProviderProp
       setRoom(null);
     });
 
+    // TODO: Test setting admin and changing to new admins
     newSocket.on(SET_ADMIN, () => {
       newSocket.data.isAdmin = true;
     });
 
     newSocket.on(GET_ROOM_INFO, (newRoom) => {
       setRoom(newRoom);
+      newSocket.data.roomId = newRoom?.id || '';
+      newSocket.data.isAdmin = newRoom?.host === newSocket.data.userId;
     });
 
     newSocket.on(GET_USER_INFO, (newUser) => {

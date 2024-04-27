@@ -10,6 +10,7 @@ import { startCleanupInterval } from './utils/cleanup';
 import { publicRoomsHandler } from './handlers/public-rooms';
 
 import { config } from 'dotenv';
+import { handleVerifyApiKey } from './handlers/middleware';
 config();
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT)) || 8000;
@@ -60,11 +61,24 @@ app.get('/api/healthz', (_req, res) => {
   res.send({ status: 'ok' });
 });
 
-app.get('/api/rooms', (_req, res) => {
+app.get('/api/rooms', handleVerifyApiKey, (_req, res) => {
   res.json({ rooms: Object.fromEntries(roomsSource.rooms.entries()) });
 });
 
-app.get('/api/users', (_req, res) => {
+app.get('/api/room/:roomId', handleVerifyApiKey, (req, res) => {
+  const roomId = req.params?.roomId as string;
+  const room = roomsSource.get(roomId) || null;
+  res.json({ room });
+});
+
+app.get('/api/room-invite-code/:inviteCode', handleVerifyApiKey, (req, res) => {
+  const inviteCode = req.params?.inviteCode as string;
+  const room = roomsSource.getRoomByInviteCode(inviteCode) || null;
+  res.json({ room });
+});
+
+
+app.get('/api/users', handleVerifyApiKey, (_req, res) => {
   res.json({ users: Object.fromEntries(usersSource.users.entries()) });
 });
 

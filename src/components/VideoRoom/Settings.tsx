@@ -42,18 +42,18 @@ const Settings: React.FC<SettingsProps> = () => {
     src: BUTTON_PRESS_AUDIO,
   });
 
-  const isAuthorized = socket?.data?.isAdmin || room?.host === socket?.data?.isAdmin;
+  const isAuthorized = socket?.data.isAdmin || room?.host === socket?.data.userId;
 
-  const handleOnChangePrivateRoom = (checked: boolean) => {
+  const handleChangePrivateRoom = (checked: boolean) => {
     playButtonClickSound();
     setPrivateRoom(!checked);
   };
 
-  const handleOnChangeMaxRoomSize = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeMaxRoomSize = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMaxRoomSize(Number(e.target.value));
   };
 
-  const handleOnChangeRoomPasscode = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRoomPasscode = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRoomPasscode(e.target.value);
   };
 
@@ -70,7 +70,8 @@ const Settings: React.FC<SettingsProps> = () => {
   };
 
   const handleSaveSettings = () => {
-    if (socket?.data?.isAdmin && room) {
+    console.log(socket?.data, room);
+    if (socket?.data.isAdmin && room) {
       runIfAuthorized(
         room.host,
         socket.data.userId,
@@ -155,7 +156,7 @@ const Settings: React.FC<SettingsProps> = () => {
         </div>
       </div>
       <div className="flex items-center gap-x-2 text-sm text-secondary-foreground">
-        <Switch id="public-mode" checked={!privateRoom} onCheckedChange={handleOnChangePrivateRoom} />
+        <Switch id="public-mode" checked={!privateRoom} onCheckedChange={handleChangePrivateRoom} />
         <Label htmlFor="public-mode">Public</Label>
       </div>
       <div className="text-sm text-secondary-foreground">
@@ -167,7 +168,7 @@ const Settings: React.FC<SettingsProps> = () => {
           max={10}
           min={room?.members.length}
           value={maxRoomSize}
-          onChange={handleOnChangeMaxRoomSize}
+          onChange={handleChangeMaxRoomSize}
         />
         {!!maxRoomSize && room?.maxRoomSize !== maxRoomSize && <span className="mt-0.5 block text-red-300">Unsaved</span>}
       </div>
@@ -180,7 +181,7 @@ const Settings: React.FC<SettingsProps> = () => {
             type="password"
             id="room-passcode"
             value={roomPasscode}
-            onChange={handleOnChangeRoomPasscode}
+            onChange={handleChangeRoomPasscode}
           />
           <Button aria-label="Copy to clipboard" disabled={!roomPasscode.trim()} onClick={handleCopyPasscode} className="w-12 rounded-r rounded-l-none">
             <span>

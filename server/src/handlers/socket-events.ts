@@ -147,7 +147,7 @@ export const handleSocketEvents = (
     }
   });
 
-  socket.on(JOIN_ROOM_BY_INVITE, (inviteCode, username, callback) => {
+  socket.on(JOIN_ROOM_BY_INVITE, (inviteCode, username, roomPasscode, callback) => {
     if (!inviteCode || !username || !socket.data.userId) {
       typeof callback === 'function' && callback({ success: false, error: 'An invalid input was provided' });
       return;
@@ -166,7 +166,15 @@ export const handleSocketEvents = (
       return;
     }
 
+    if (room.passcode) {
+      if (roomPasscode.trim() !== room.passcode) {
+        callback({ success: false, error: 'Incorrect passcode' });
+        return;
+      }
+    }
+
     const updatedRoom = addUserToRoom(io, socket, socket.data.userId, room.id, username);
+
     if (updatedRoom && typeof callback === 'function') {
       callback({ success: true, roomId: room.id });
     }
@@ -589,10 +597,11 @@ const addUserToRoom = (
 
   const userExistsInRoomMembers = room.members.find((member) => member.id === user.id);
   const newMembers = userExistsInRoomMembers ? room.members : [...room.members, user];
+  const filteredPreviouslyConnectedMembers = room.previouslyConnectedMembers.filter((member) => member.userId !== user.id);
   const updatedRoom = roomsSource.update(roomId, {
     ...room,
     members: newMembers,
-    previouslyConnectedMembers: [...room.previouslyConnectedMembers, { userId: user.id, username: user.username }],
+    previouslyConnectedMembers: [...filteredPreviouslyConnectedMembers, { userId: user.id, username: user.username }],
   });
 
   if (newMembers.length === 1) {

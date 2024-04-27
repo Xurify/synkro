@@ -31,7 +31,7 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
   const { toast } = useToast();
   const { socket, room } = useSocket();
 
-  const isAuthorized = socket?.data?.isAdmin || room?.host === socket?.data?.isAdmin;
+  const isAuthorized = socket?.data.isAdmin || room?.host === socket?.data?.userId;
   const isMobile = new UAParser().getDevice().type === "mobile";
 
   const getIndexOfVideoInQueue = (videoId: string): number => {
@@ -39,11 +39,11 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
     return index;
   };
 
-  const handleOnChangeVideoUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeVideoUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewVideoInQueueUrl(e.target.value);
   };
 
-  const handleOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") handleAddVideoToQueue();
   };
 
@@ -87,7 +87,7 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
   };
 
   const handleChangeVideo = (newVideoUrl: string, newVideoId: string) => {
-    if (socket?.data?.isAdmin && room) {
+    if (socket?.data.isAdmin && room) {
       runIfAuthorized(
         room.host,
         socket.data.userId,
@@ -101,7 +101,7 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
   };
 
   const handleRemoveVideoFromQueue = (videoUrl: string) => {
-    if (socket?.data?.isAdmin && room) {
+    if (socket?.data.isAdmin && room) {
       runIfAuthorized(
         room.host,
         socket.data.userId,
@@ -115,7 +115,7 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
   };
 
   const handleClearQueue = () => {
-    if (socket?.data?.isAdmin && room) {
+    if (socket?.data.isAdmin && room) {
       runIfAuthorized(
         room.host,
         socket.data.userId,
@@ -138,7 +138,7 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
   };
 
   const onDragEnd = (result: DropResult) => {
-    if (socket?.data?.isAdmin && room) {
+    if (socket?.data.isAdmin && room) {
       runIfAuthorized(
         room.host,
         socket.data.userId,
@@ -173,8 +173,8 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
           className="h-10 rounded-l rounded-r-none"
           type="text"
           value={newVideoInQueueUrl}
-          onChange={handleOnChangeVideoUrl}
-          onKeyDown={handleOnKeyDown}
+          onChange={handleChangeVideoUrl}
+          onKeyDown={handleKeyDown}
           placeholder={!isAuthorized ? "Only the host can add videos" : "Add video"}
           disabled={!isAuthorized}
         />

@@ -319,7 +319,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
 
   const runIfAuthorized = (callback?: () => void, disableAdminCheck = false) => {
     if (!socket) return;
-    if ((socket?.data?.isAdmin && !disableAdminCheck) || room?.host === socket?.data?.userId) {
+    if ((socket?.data.isAdmin && !disableAdminCheck) || room?.host === socket?.data?.userId) {
       typeof callback === "function" && callback();
     }
   };

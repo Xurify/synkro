@@ -15,7 +15,7 @@ export const DiceButton: React.FC<DiceButtonProps> = ({ className, onClick }) =>
     volume: 0.5,
     src: BUTTON_PRESS_AUDIO,
   });
-  const handleOnClick = () => {
+  const handleClick = () => {
     playButtonClickSound();
     onClick && onClick();
   };
@@ -24,7 +24,7 @@ export const DiceButton: React.FC<DiceButtonProps> = ({ className, onClick }) =>
     <Button
       aria-label="Generate Random Name"
       className={cn("w-9 h-9 min-w-[2.25rem] text-primary hover:bg-primary hover:text-white ml-2", { [`${className}`]: !!className })}
-      onClick={handleOnClick}
+      onClick={handleClick}
       variant="secondary"
     >
       <span>
