@@ -64,7 +64,7 @@ export interface RoomPageProps {
 }
 
 export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, roomId }) => {
-  const [activeView, setActiveView] = useLocalStorage<SidebarViews>(`sidebar-view`, "chat");
+  const [activeView, setActiveView] = useState<SidebarViews>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
   //const [isMuted, setIsMuted] = useState(false);
   const [messages, setMessages] = useState<Messages>([]);
