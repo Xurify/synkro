@@ -1,7 +1,29 @@
 import { NextRequest, NextResponse, userAgent } from "next/server";
 import { v4 as uuidv4 } from "uuid";
+import arcjet, { createMiddleware, shield } from "@arcjet/next";
 
-export const middleware = async (req: NextRequest): Promise<NextResponse> => {
+export const config = {
+  // matcher tells Next.js which routes to run the middleware on.
+  // This runs the middleware on all routes except for static assets.
+  /*
+   * - _next/static (static files)
+   * - _next/image (image optimization files)
+   * - favicon.ico (favicon file)
+   */
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|next-assets).*)"],
+};
+
+const aj = arcjet({
+  key: process.env.ARCJET_KEY!,
+  rules: [
+    // Protect against common attacks with Arcjet Shield
+    shield({
+      mode: "LIVE", // will block requests. Use "DRY_RUN" to log only
+    }),
+  ],
+});
+
+const middleware = async (req: NextRequest): Promise<NextResponse> => {
   const { device } = userAgent(req);
 
   const res = NextResponse.next();
@@ -31,3 +53,6 @@ export const middleware = async (req: NextRequest): Promise<NextResponse> => {
 
   return res;
 };
+
+// Pass any existing middleware with the optional existingMiddleware prop
+export default createMiddleware(aj, middleware);
