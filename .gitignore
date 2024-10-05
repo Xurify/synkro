@@ -40,3 +40,7 @@ next-env.d.ts
 
 .env*.local
 .vercel
+
+# Million Lint
+.million
+server/src/utils/mockRoom.ts
