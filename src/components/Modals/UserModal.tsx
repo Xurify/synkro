@@ -43,12 +43,12 @@ export const UserModal: React.FC<ModalProps> = ({ buttonText, disabled = false, 
           <DialogDescription>Make changes to the room here. Click save when you&apos;re done.</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button type="submit" variant="default" onClick={handleChangeAdmin}>
+          <Button className="w-full" type="submit" variant="default" onClick={handleChangeAdmin}>
             Make admin
           </Button>
         </DialogFooter>
         <DialogFooter>
-          <Button type="submit" variant="destructive" onClick={handleKickUser}>
+          <Button className="w-full" type="submit" variant="destructive" onClick={handleKickUser}>
             Kick user
           </Button>
         </DialogFooter>
