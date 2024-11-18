@@ -2,6 +2,7 @@ import React from "react";
 import type { AppProps } from "next/app";
 import { Inter, Rubik } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import { Page } from "@/components/Page";
 import { Toaster } from "@/components/ui/toaster";
@@ -20,6 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <Page sessionToken={pageProps?.sessionToken || null} navigationHeaderProps={pageProps.navigationHeaderProps}>
             <Component {...pageProps} />
             <Analytics />
+            <SpeedInsights />
             <Toaster />
           </Page>
         </div>
