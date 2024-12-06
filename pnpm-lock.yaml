@@ -117,8 +117,8 @@ dependencies:
     specifier: 8.4.26
     version: 8.4.26
   posthog-js:
-    specifier: ^1.166.1
-    version: 1.166.1
+    specifier: ^1.194.4
+    version: 1.194.4
   react:
     specifier: 18.3.1
     version: 18.3.1
@@ -2281,6 +2281,11 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
+  /core-js@3.39.0:
+    resolution: {integrity: sha512-raM0ew0/jJUqkJ0E6e8UDtl+y/7ktFivgWvqw8dNSQeNWoSDLvQ1H/RN3aPXB9tBd4/FhyR4RDPGhsNIMsAn7g==}
+    requiresBuild: true
+    dev: false
+
   /core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
     dev: false
@@ -4397,9 +4402,10 @@ packages:
       source-map-js: 1.2.0
     dev: false
 
-  /posthog-js@1.166.1:
-    resolution: {integrity: sha512-K8IpV8FJTCdwhsXFSbKj5vZ6IXNV079lukpG3cRtst2q5vMmUXRQiks7W3lOZLrjWyuJLKZDUiCeeDIUFORRuQ==}
+  /posthog-js@1.194.4:
+    resolution: {integrity: sha512-w42HfzQktNj51jb4lPf45qykPG0RSpl2WZmr1kAaPTVF9LKUwRJHA854GN0R0bx1hap2fnao/yQBktFLlg4vxQ==}
     dependencies:
+      core-js: 3.39.0
       fflate: 0.4.8
       preact: 10.22.0
       web-vitals: 4.2.3
