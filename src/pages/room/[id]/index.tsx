@@ -30,13 +30,20 @@ import {
   GET_ROOM_INFO,
   KICK_USER,
 } from "../../../constants/socketActions";
-import { ServerMessageType, type Messages, type VideoQueueItem } from "@/types/interfaces";
+import {
+  ServerMessageType,
+  type Messages,
+  type VideoQueueItem,
+} from "@/types/interfaces";
 
 import Chat from "@/components/VideoRoom/Chat";
 import Sidebar from "@/components/Sidebar";
 import Queue from "@/components/VideoRoom/Queue";
 import Settings from "@/components/VideoRoom/Settings";
-import RoomToolbar, { ButtonActions, SidebarViews } from "@/components/VideoRoom/RoomToolbar";
+import RoomToolbar, {
+  ButtonActions,
+  SidebarViews,
+} from "@/components/VideoRoom/RoomToolbar";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useToast } from "@/components/ui/use-toast";
@@ -63,7 +70,7 @@ export interface RoomPageProps {
   roomId: string;
 }
 
-export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, roomId }) => {
+export const RoomPage: React.FC<RoomPageProps> = ({ sessionToken, roomId }) => {
   const [activeView, setActiveView] = useState<SidebarViews>("chat");
   const [isPlaying, setIsPlaying] = useState(false);
   //const [isMuted, setIsMuted] = useState(false);
@@ -71,7 +78,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
   const { socket, room, isConnecting } = useSocket();
   const [storedRoom, setStoredRoom] = useLocalStorage("room", room);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(
-    room?.videoInfo.currentVideoUrl || "https://youtu.be/QdKhuEnkwiY"
+    room?.videoInfo.currentVideoUrl || "https://youtu.be/QdKhuEnkwiY",
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -110,7 +117,11 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
   useEffect(() => {
     setStoredRoom(room);
 
-    if (room && Array.isArray(room?.videoInfo?.queue) && room.videoInfo.queue.length > 0) {
+    if (
+      room &&
+      Array.isArray(room?.videoInfo?.queue) &&
+      room.videoInfo.queue.length > 0
+    ) {
       videoQueue.set(room.videoInfo.queue);
     }
 
@@ -131,7 +142,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
           console.error(result.error);
           toast({
             variant: "destructive",
-            Icon: () => <span>{result.error?.includes("authorized") ? "❌" : "😢"}</span>,
+            Icon: () => (
+              <span>{result.error?.includes("authorized") ? "❌" : "😢"}</span>
+            ),
             description: result.error,
             duration: 10000,
           });
@@ -164,7 +177,12 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
     });
 
     socket.on(SERVER_MESSAGE, (newMessage) => {
-      if ([ServerMessageType.USER_JOINED, ServerMessageType.USER_RECONNECTED].includes(newMessage.type)) {
+      if (
+        [
+          ServerMessageType.USER_JOINED,
+          ServerMessageType.USER_RECONNECTED,
+        ].includes(newMessage.type)
+      ) {
         playUserJoinedSound();
       }
       if (newMessage.type === ServerMessageType.USER_DISCONNECTED) {
@@ -185,25 +203,42 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
       const isCurrentlyPlaying = player?.props?.playing as boolean;
       const currentDateTime = new Date().getTime();
       typeof callback === "function" &&
-        callback(isCurrentlyPlaying, currentVideoUrl, currentVideoTime, currentDateTime);
+        callback(
+          isCurrentlyPlaying,
+          currentVideoUrl,
+          currentVideoTime,
+          currentDateTime,
+        );
     });
 
     socket.on(PLAY_VIDEO, () => {
-      hostVideoInformationRef.current = { isPlaying: true, videoUrl: hostVideoInformationRef.current.videoUrl || "" };
+      hostVideoInformationRef.current = {
+        isPlaying: true,
+        videoUrl: hostVideoInformationRef.current.videoUrl || "",
+      };
       setIsPlaying(true);
     });
 
     socket.on(PAUSE_VIDEO, () => {
-      hostVideoInformationRef.current = { isPlaying: false, videoUrl: hostVideoInformationRef.current.videoUrl || "" };
+      hostVideoInformationRef.current = {
+        isPlaying: false,
+        videoUrl: hostVideoInformationRef.current.videoUrl || "",
+      };
       setIsPlaying(false);
     });
 
-    socket.on(SYNC_VIDEO_INFORMATION, (playing, hostVideoUrl, elapsedVideoTime, eventCalledTime) => {
-      setCurrentVideoUrl(hostVideoUrl);
-      handleSyncTime(elapsedVideoTime, eventCalledTime, playing);
-      setIsSyncing(false);
-      hostVideoInformationRef.current = { isPlaying: playing, videoUrl: hostVideoUrl };
-    });
+    socket.on(
+      SYNC_VIDEO_INFORMATION,
+      (playing, hostVideoUrl, elapsedVideoTime, eventCalledTime) => {
+        setCurrentVideoUrl(hostVideoUrl);
+        handleSyncTime(elapsedVideoTime, eventCalledTime, playing);
+        setIsSyncing(false);
+        hostVideoInformationRef.current = {
+          isPlaying: playing,
+          videoUrl: hostVideoUrl,
+        };
+      },
+    );
 
     socket.on(REWIND_VIDEO, (newTime) => {
       player?.seekTo(newTime);
@@ -240,7 +275,11 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
     });
 
     socket.on(SYNC_TIME, (currentVideoTime) => {
-      handleSyncTime(currentVideoTime, 0, hostVideoInformationRef.current.isPlaying || isPlaying);
+      handleSyncTime(
+        currentVideoTime,
+        0,
+        hostVideoInformationRef.current.isPlaying || isPlaying,
+      );
     });
 
     socket.on(KICK_USER, () => {
@@ -266,7 +305,11 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
 
     // elapsedVideoTime - seconds
     // eventCalledTime - milliseconds
-    const handleSyncTime = (elapsedVideoTime: number, eventCalledTime: number, playing: boolean) => {
+    const handleSyncTime = (
+      elapsedVideoTime: number,
+      eventCalledTime: number,
+      playing: boolean,
+    ) => {
       if (!player) {
         console.error("Failed to sync time");
         return;
@@ -276,7 +319,10 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
       const timeDifference = userCurrentTime - eventCalledTime;
       const eventCalledTimeInSeconds = timeDifference / 1000;
 
-      if (currentVideoTime < elapsedVideoTime - 0.4 || currentVideoTime > elapsedVideoTime + 0.4) {
+      if (
+        currentVideoTime < elapsedVideoTime - 0.4 ||
+        currentVideoTime > elapsedVideoTime + 0.4
+      ) {
         player.seekTo(elapsedVideoTime + eventCalledTimeInSeconds, "seconds");
       }
 
@@ -292,8 +338,14 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
 
   const onReady = React.useCallback(
     (player: ReactPlayerType) => {
-      if (sessionToken === room?.host || sessionToken === process.env.NEXT_PUBLIC_ADMIN_TOKEN) {
-        if (!currentVideoUrl.match(VIDEO_FILE_URL_REGEX) && !currentVideoUrl.match(AUDIO_FILE_URL_REGEX)) {
+      if (
+        sessionToken === room?.host ||
+        sessionToken === process.env.NEXT_PUBLIC_ADMIN_TOKEN
+      ) {
+        if (
+          !currentVideoUrl.match(VIDEO_FILE_URL_REGEX) &&
+          !currentVideoUrl.match(AUDIO_FILE_URL_REGEX)
+        ) {
           player?.seekTo(0, "seconds");
         }
         setIsPlaying(true);
@@ -304,7 +356,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
         socket?.emit(GET_VIDEO_INFORMATION);
       }
     },
-    [currentVideoUrl, player, sessionToken, room?.host, socket]
+    [currentVideoUrl, player, sessionToken, room?.host, socket],
   );
 
   useUpdateEffect(() => {
@@ -317,9 +369,15 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
     socket.emit(LEAVE_ROOM, roomId);
   };
 
-  const runIfAuthorized = (callback?: () => void, disableAdminCheck = false) => {
+  const runIfAuthorized = (
+    callback?: () => void,
+    disableAdminCheck = false,
+  ) => {
     if (!socket) return;
-    if ((socket?.data.isAdmin && !disableAdminCheck) || room?.host === socket?.data?.userId) {
+    if (
+      (socket?.data.isAdmin && !disableAdminCheck) ||
+      room?.host === socket?.data?.userId
+    ) {
       typeof callback === "function" && callback();
     }
   };
@@ -365,7 +423,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
 
   const handleClickPlayerButton = (
     buttonAction: ButtonActions,
-    payload?: { videoUrl: string; videoIndex?: number }
+    payload?: { videoUrl: string; videoIndex?: number },
   ) => {
     if (["chat", "queue", "settings"].includes(buttonAction)) {
       startTransition(() => {
@@ -390,7 +448,10 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
         handleLeaveRoom();
         return;
       case "change-video":
-        if (typeof payload?.videoUrl === "string" && ReactPlayer.canPlay(payload.videoUrl)) {
+        if (
+          typeof payload?.videoUrl === "string" &&
+          ReactPlayer.canPlay(payload.videoUrl)
+        ) {
           setCurrentVideoUrl(payload.videoUrl);
           socket?.emit(CHANGE_VIDEO, payload.videoUrl, payload.videoIndex);
           setIsPlaying(true);
@@ -413,12 +474,18 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
     }
   };
 
-  const currentVideoId = convertURLToCorrectProviderVideoId(currentVideoUrl) as string;
+  const currentVideoId = convertURLToCorrectProviderVideoId(
+    currentVideoUrl,
+  ) as string;
 
   const views: { [key in SidebarViews]: React.ReactNode } = {
     chat: <Chat messages={messages} roomId={roomId} />,
     queue: (
-      <Queue currentVideoId={currentVideoId} videoQueue={videoQueue} onClickPlayerButton={handleClickPlayerButton} />
+      <Queue
+        currentVideoId={currentVideoId}
+        videoQueue={videoQueue}
+        onClickPlayerButton={handleClickPlayerButton}
+      />
     ),
     settings: <Settings />,
   };
@@ -476,10 +543,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
             />
           </div>
         </div>
-        <Sidebar
-          activeView={activeView}
-          views={views}
-        />
+        <Sidebar activeView={activeView} views={views} />
       </main>
     </>
   );
