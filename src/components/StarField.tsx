@@ -20,7 +20,7 @@ interface IStarFieldState {
 
 class StarField extends Component<{}, IStarFieldState> {
   private fieldRef: RefObject<HTMLCanvasElement>;
-  private interval?: NodeJS.Timeout;
+  private interval?: number;
 
   constructor(props: {}) {
     super(props);
@@ -31,7 +31,7 @@ class StarField extends Component<{}, IStarFieldState> {
       starsToDraw: 0,
     };
 
-    this.fieldRef = React.createRef();
+    this.fieldRef = React.createRef() as React.RefObject<HTMLCanvasElement>;
   }
 
   getUrlParameter = (sParam: string): string | boolean | undefined => {
@@ -48,7 +48,8 @@ class StarField extends Component<{}, IStarFieldState> {
   };
 
   componentDidMount() {
-    const starsToDraw = (this.fieldRef.current!.width * this.fieldRef.current!.height) / 833.33;
+    const starsToDraw =
+      (this.fieldRef.current!.width * this.fieldRef.current!.height) / 833.33;
     const acceleration = Number(this.getUrlParameter("accel")) || 1;
 
     this.setState({
@@ -59,7 +60,7 @@ class StarField extends Component<{}, IStarFieldState> {
     this.fieldRef.current!.width = window.innerWidth;
     this.fieldRef.current!.height = window.innerHeight;
 
-    this.interval = setInterval(this.draw, 40);
+    this.interval = window.setInterval(this.draw, 40);
   }
 
   componentWillUnmount() {
@@ -111,7 +112,12 @@ class StarField extends Component<{}, IStarFieldState> {
       star.H++;
     }
 
-    if (star.X + star.W < 0 || star.X > fieldCanvasElement.width || star.Y + star.H < 0 || star.Y > fieldCanvasElement.height) {
+    if (
+      star.X + star.W < 0 ||
+      star.X > fieldCanvasElement.width ||
+      star.Y + star.H < 0 ||
+      star.Y > fieldCanvasElement.height
+    ) {
       return null;
     }
 
@@ -132,7 +138,9 @@ class StarField extends Component<{}, IStarFieldState> {
     fieldContext.fillStyle = "rgba(0, 0, 0, 0.8)";
     fieldContext.fillRect(0, 0, field.width, field.height);
 
-    const updatedStars = this.state.stars.map(this.drawStar).filter((star) => star !== null) as IStar[];
+    const updatedStars = this.state.stars
+      .map(this.drawStar)
+      .filter((star) => star !== null) as IStar[];
 
     while (updatedStars.length < this.state.starsToDraw) {
       updatedStars.push(this.createStar());
@@ -144,7 +152,11 @@ class StarField extends Component<{}, IStarFieldState> {
   render() {
     return (
       <div className="star-field-canvas-wrapper absolute w-full">
-        <canvas className="max-h-[calc(100vh-90px)] w-full" ref={this.fieldRef} id="field"></canvas>
+        <canvas
+          className="max-h-[calc(100vh-90px)] w-full"
+          ref={this.fieldRef}
+          id="field"
+        ></canvas>
       </div>
     );
   }
