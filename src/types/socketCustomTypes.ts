@@ -87,6 +87,7 @@ export interface ClientToServerEvents {
     roomPasscode: string,
     callback: (value: { success: boolean; roomId?: string; error?: string }) => void
   ) => void;
+  [USER_VIDEO_STATUS]: (userId: string, videoStatus: VideoStatus) => void;
 }
 
 export interface ServerToClientEvents {
