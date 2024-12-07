@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { nanoid } from 'nanoid';
 import { Room, RoomId, User, UserId } from '../../../src/types/interfaces';
-import mockRoom from './mockRoom';
+//import mockRoom from './mockRoom';
 
 export class RoomsSource extends EventEmitter {
   public rooms: Map<string, Room> = new Map();

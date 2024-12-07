@@ -415,7 +415,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
 
   const currentVideoId = convertURLToCorrectProviderVideoId(currentVideoUrl) as string;
 
-  const views: { [key in SidebarViews]: JSX.Element } = {
+  const views: { [key in SidebarViews]: React.ReactNode } = {
     chat: <Chat messages={messages} roomId={roomId} />,
     queue: (
       <Queue currentVideoId={currentVideoId} videoQueue={videoQueue} onClickPlayerButton={handleClickPlayerButton} />
@@ -478,9 +478,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ deviceType, sessionToken, ro
         </div>
         <Sidebar
           activeView={activeView}
-          deviceType={deviceType}
           views={views}
-          onClickPlayerButton={handleClickPlayerButton}
         />
       </main>
     </>
