@@ -1,13 +1,23 @@
 import React, { useState } from "react";
 
 import { PlayIcon, PlusIcon, Trash2Icon } from "lucide-react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import UAParser from "ua-parser-js";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
+import { UAParser } from "ua-parser-js";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { VideoQueueItem } from "@/types/interfaces";
-import { ADD_VIDEO_TO_QUEUE, REMOVE_VIDEO_FROM_QUEUE, VIDEO_QUEUE_REORDERED, VIDEO_QUEUE_CLEARED } from "@/constants/socketActions";
+import {
+  ADD_VIDEO_TO_QUEUE,
+  REMOVE_VIDEO_FROM_QUEUE,
+  VIDEO_QUEUE_REORDERED,
+  VIDEO_QUEUE_CLEARED,
+} from "@/constants/socketActions";
 
 import { Queue as QueueType } from "@/hooks/useQueue";
 import { useToast } from "@/components/ui/use-toast";
@@ -22,7 +32,10 @@ import { convertURLToYoutubeVideoId } from "@/libs/utils/frontend-utils";
 interface QueueProps {
   currentVideoId: string;
   videoQueue: QueueType<VideoQueueItem>;
-  onClickPlayerButton: (newActiveButton: ButtonActions, payload?: { videoUrl: string; videoIndex?: number }) => void;
+  onClickPlayerButton: (
+    newActiveButton: ButtonActions,
+    payload?: { videoUrl: string; videoIndex?: number },
+  ) => void;
 }
 
 const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
@@ -31,7 +44,8 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
   const { toast } = useToast();
   const { socket, room } = useSocket();
 
-  const isAuthorized = socket?.data.isAdmin || room?.host === socket?.data?.userId;
+  const isAuthorized =
+    socket?.data.isAdmin || room?.host === socket?.data?.userId;
   const isMobile = new UAParser().getDevice().type === "mobile";
 
   const getIndexOfVideoInQueue = (videoId: string): number => {
@@ -60,7 +74,9 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
     };
 
     const formattedVideoUrl = removeQueryParams(newVideoInQueueUrl, "t");
-    const videoExist = videoQueue.queue.find((video) => video.url === formattedVideoUrl);
+    const videoExist = videoQueue.queue.find(
+      (video) => video.url === formattedVideoUrl,
+    );
 
     if (!!videoExist) {
       toast({
@@ -81,7 +97,8 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong",
-        description: "This URL seems to be invalid or is not from an accepted provider",
+        description:
+          "This URL seems to be invalid or is not from an accepted provider",
       });
     }
   };
@@ -93,9 +110,12 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
         socket.data.userId,
         () => {
           const newVideoIndex = getIndexOfVideoInQueue(newVideoId);
-          onClickPlayerButton("change-video", { videoUrl: newVideoUrl, videoIndex: newVideoIndex });
+          onClickPlayerButton("change-video", {
+            videoUrl: newVideoUrl,
+            videoIndex: newVideoIndex,
+          });
         },
-        socket.data.isAdmin
+        socket.data.isAdmin,
       );
     }
   };
@@ -109,7 +129,7 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
           socket.emit(REMOVE_VIDEO_FROM_QUEUE, videoUrl);
           videoQueue.removeItem("url", videoUrl);
         },
-        socket.data.isAdmin
+        socket.data.isAdmin,
       );
     }
   };
@@ -125,12 +145,16 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
             videoQueue.clear();
           }
         },
-        socket.data.isAdmin
+        socket.data.isAdmin,
       );
     }
   };
 
-  const handleReorder = (list: VideoQueueItem[], startIndex: number, endIndex: number): VideoQueueItem[] => {
+  const handleReorder = (
+    list: VideoQueueItem[],
+    startIndex: number,
+    endIndex: number,
+  ): VideoQueueItem[] => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
@@ -144,11 +168,15 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
         socket.data.userId,
         () => {
           if (!result.destination) return;
-          const items = handleReorder(videoQueue.queue, result.source.index, result.destination.index);
+          const items = handleReorder(
+            videoQueue.queue,
+            result.source.index,
+            result.destination.index,
+          );
           videoQueue.set(items);
           socket.emit(VIDEO_QUEUE_REORDERED, items);
         },
-        socket.data.isAdmin
+        socket.data.isAdmin,
       );
     }
   };
@@ -175,10 +203,16 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
           value={newVideoInQueueUrl}
           onChange={handleChangeVideoUrl}
           onKeyDown={handleKeyDown}
-          placeholder={!isAuthorized ? "Only the host can add videos" : "Add video"}
+          placeholder={
+            !isAuthorized ? "Only the host can add videos" : "Add video"
+          }
           disabled={!isAuthorized}
         />
-        <Button onClick={handleAddVideoToQueue} className="w-12 h-10 rounded-r rounded-l-none" disabled={!isAuthorized}>
+        <Button
+          onClick={handleAddVideoToQueue}
+          className="w-12 h-10 rounded-r rounded-l-none"
+          disabled={!isAuthorized}
+        >
           <span>
             <PlusIcon color="#FFFFFF" size="1.25rem" />
           </span>
@@ -186,7 +220,10 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="droppable" isDropDisabled={!isAuthorized || isMobile}>
+        <Droppable
+          droppableId="droppable"
+          isDropDisabled={!isAuthorized || isMobile}
+        >
           {(provided) => (
             <div
               className="flex-grow overflow-y-auto p-4 h-full gap-y-4 flex flex-col"
@@ -206,8 +243,8 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
                         room?.videoInfo.currentQueueIndex === index
                           ? "bg-gradient-to-br from-[#4d347a] from-10% via-[#6b2ed7] via-60% to-[#18118d] to-92%"
                           : snapshot.isDragging
-                          ? "bg-[#6936ff75]"
-                          : "bg-[#212123]"
+                            ? "bg-[#6936ff75]"
+                            : "bg-[#212123]"
                       } rounded w-[250px] md:w-auto p-2 cursor-pointer`}
                       ref={provided.innerRef}
                       {...provided.draggableProps}
@@ -220,16 +257,24 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
                             <Button
                               aria-label="Play video"
                               className="p-2 w-8 h-8 bg-black"
-                              onClick={() => handleChangeVideo(video.url, video.id)}
+                              onClick={() =>
+                                handleChangeVideo(video.url, video.id)
+                              }
                             >
                               <span>
-                                <PlayIcon fill="#FFFFFF" color="#FFFFFF" size="1.25rem" />
+                                <PlayIcon
+                                  fill="#FFFFFF"
+                                  color="#FFFFFF"
+                                  size="1.25rem"
+                                />
                               </span>
                             </Button>
                             <Button
                               aria-label="Remove video"
                               className="p-2 w-8 h-8 bg-black"
-                              onClick={() => handleRemoveVideoFromQueue(video.url)}
+                              onClick={() =>
+                                handleRemoveVideoFromQueue(video.url)
+                              }
                             >
                               <span>
                                 <Trash2Icon color="#FFFFFF" size="1.25rem" />
@@ -237,9 +282,19 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
                             </Button>
                           </div>
                         )}
-                        <Image alt="" src={video.thumbnail || "/next-assets/images/synkro_placeholder.svg"} fill={true} quality={25} />
+                        <Image
+                          alt=""
+                          src={
+                            video.thumbnail ||
+                            "/next-assets/images/synkro_placeholder.svg"
+                          }
+                          fill={true}
+                          quality={25}
+                        />
                       </div>
-                      <p className="text-primary-foreground mt-2 text-sm">{video.title}</p>
+                      <p className="text-primary-foreground mt-2 text-sm">
+                        {video.title}
+                      </p>
                     </div>
                   )}
                 </Draggable>
@@ -251,7 +306,12 @@ const Queue: React.FC<QueueProps> = ({ videoQueue, onClickPlayerButton }) => {
 
       {isAuthorized && (
         <div className="w-full flex p-2">
-          <Button onClick={handleClearQueue} className="w-full rounded" disabled={!isAuthorized} variant="destructive">
+          <Button
+            onClick={handleClearQueue}
+            className="w-full rounded"
+            disabled={!isAuthorized}
+            variant="destructive"
+          >
             <span className="uppercase">Clear queue</span>
           </Button>
         </div>
