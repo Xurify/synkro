@@ -117,8 +117,8 @@ dependencies:
     specifier: 8.4.49
     version: 8.4.49
   posthog-js:
-    specifier: ^1.194.4
-    version: 1.194.4
+    specifier: ^1.207.0
+    version: 1.207.0
   react:
     specifier: 19.0.0
     version: 19.0.0
@@ -357,7 +357,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/traverse': 7.26.4
-      '@babel/types': 7.26.0
+      '@babel/types': 7.26.3
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -396,7 +396,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/template': 7.25.9
-      '@babel/types': 7.26.0
+      '@babel/types': 7.26.3
     dev: false
 
   /@babel/parser@7.26.3:
@@ -420,7 +420,7 @@ packages:
     dependencies:
       '@babel/code-frame': 7.26.2
       '@babel/parser': 7.26.3
-      '@babel/types': 7.26.0
+      '@babel/types': 7.26.3
     dev: false
 
   /@babel/traverse@7.26.4:
@@ -1091,8 +1091,8 @@ packages:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  /@million/install@1.0.13:
-    resolution: {integrity: sha512-gFslYuzCem83FHMo4ZIWXmRWmyABXmTBQxodwnP4AeWtLjdvymOp8JB5+b/A4eZX79heFZuw9eqBpERo9zgvtg==}
+  /@million/install@1.0.14:
+    resolution: {integrity: sha512-xZvj4AEHc5hyn8RCiLl9dYNqggj2fa0lgNvUkCiJyhRJPNE2hZrUa/Ka0Weu82VpBaO//zujG0YErk7osjNXPA==}
     hasBin: true
     dependencies:
       '@antfu/ni': 0.21.12
@@ -1117,7 +1117,7 @@ packages:
       '@babel/core': 7.26.0
       '@babel/types': 7.26.0
       '@hono/node-server': 1.13.7(hono@4.6.12)
-      '@million/install': 1.0.13
+      '@million/install': 1.0.14
       '@rollup/pluginutils': 5.1.3
       '@rrweb/types': 2.0.0-alpha.16
       babel-plugin-syntax-hermes-parser: 0.21.1
@@ -4722,12 +4722,6 @@ packages:
       thenify-all: 1.6.0
     dev: false
 
-  /nanoid@3.3.6:
-    resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
-    dev: false
-
   /nanoid@3.3.8:
     resolution: {integrity: sha512-WNLf5Sd8oZxOm+TzppcYk8gVOgP+l58xNy58D0nbUnOxOWRWvlcCV4kUF7ltmI6PsrLl/BgKEyS4mqsGChFN0w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -5166,7 +5160,7 @@ packages:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
-      nanoid: 3.3.6
+      nanoid: 3.3.8
       picocolors: 1.1.1
       source-map-js: 1.2.1
     dev: false
@@ -5180,8 +5174,8 @@ packages:
       source-map-js: 1.2.1
     dev: false
 
-  /posthog-js@1.194.4:
-    resolution: {integrity: sha512-w42HfzQktNj51jb4lPf45qykPG0RSpl2WZmr1kAaPTVF9LKUwRJHA854GN0R0bx1hap2fnao/yQBktFLlg4vxQ==}
+  /posthog-js@1.207.0:
+    resolution: {integrity: sha512-Sx+xamhg1/iKGAtUNh3uAUtAAza4j/yBhxcfUxfqR++WrZdw0V6nmh7LSfVNl7+QVl2qmiPSoZA7z+5ojaWDDQ==}
     dependencies:
       core-js: 3.39.0
       fflate: 0.4.8
