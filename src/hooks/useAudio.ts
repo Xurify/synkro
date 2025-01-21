@@ -1,31 +1,47 @@
 import { useEffect, useState, useRef } from "react";
 
+const audioCache: { [key: string]: HTMLAudioElement } = {};
+
 interface AudioOptions {
   volume?: number;
-  src?: string;
+  src: string;
 }
 
-function useAudio({ volume = 1.0, src = "" }: AudioOptions = {}) {
+function useAudio({ volume = 1.0, src = "" }: AudioOptions) {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    audioRef.current = new Audio();
-    audioRef.current.volume = volume;
-    audioRef.current.preload = "auto";
-    audioRef.current.load();
+    const audioUrl = encodeURIComponent(src);
+    const proxyUrl = `/api/audio-proxy?url=${audioUrl}`;
+
+    if (src && !audioCache[src]) {
+      console.log("TEST");
+      const audio = new Audio();
+      audio.volume = volume;
+      audio.preload = "auto";
+      audio.src = proxyUrl;
+      audioCache[src] = audio;
+    }
+
+    if (src) {
+      audioRef.current = audioCache[src];
+      audioRef.current.volume = volume;
+    }
 
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current = null;
       }
     };
-  }, [volume]);
+  }, [src, volume]);
 
   const play = () => {
     if (audioRef.current) {
-      audioRef.current.src = src;
+      if (audioRef.current.currentTime > 0) {
+        audioRef.current.currentTime = 0;
+      }
+
       audioRef.current.play().then(() => {
         setIsPlaying(true);
       });
