@@ -16,7 +16,6 @@ function useAudio({ volume = 1.0, src = "" }: AudioOptions) {
     const proxyUrl = `/api/audio-proxy?url=${audioUrl}`;
 
     if (src && !audioCache[src]) {
-      console.log("TEST");
       const audio = new Audio();
       audio.volume = volume;
       audio.preload = "auto";
