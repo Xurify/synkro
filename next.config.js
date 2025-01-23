@@ -6,7 +6,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "synkro.vercel.app",
+        hostname: "www.synkro.live",
         pathname: "**",
       },
       {

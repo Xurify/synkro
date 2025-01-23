@@ -19,6 +19,8 @@ const server: HttpServer = createServer(app);
 
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://synkro.live/',
+  'https://www.synkro.live/',
   'https://synkro.vercel.app',
   'https://synkro-synkro.vercel.app',
   'https://synkro-git-master-synkro.vercel.app',
@@ -76,7 +78,6 @@ app.get('/api/room-invite-code/:inviteCode', handleVerifyApiKey, (req, res) => {
   const room = roomsSource.getRoomByInviteCode(inviteCode) || null;
   res.json({ room });
 });
-
 
 app.get('/api/users', handleVerifyApiKey, (_req, res) => {
   res.json({ users: Object.fromEntries(usersSource.users.entries()) });

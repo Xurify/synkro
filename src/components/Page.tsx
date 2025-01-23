@@ -16,7 +16,7 @@ export const Page: React.FC<React.PropsWithChildren<PageProps>> = ({
   sessionToken,
 }) => {
   React.useEffect(() => {
-    if (["synkro.vercel.app"].includes(location.host)) {
+    if (["www.synkro.live", "synkro.vercel.app"].includes(location.host)) {
       posthog.init("phc_71zr5IIT4JprMrihRHlVvN6RfYYmVvWcK3HCWooPGsi", {
         api_host: "https://app.posthog.com",
         loaded: function (posthog) {
