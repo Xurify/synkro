@@ -2,7 +2,13 @@ import { useMemo, useState } from "react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowDown01Icon, ArrowDown10Icon, ChevronRightIcon, HomeIcon, ServerIcon } from "lucide-react";
+import {
+  ArrowDown01Icon,
+  ArrowDown10Icon,
+  ChevronRightIcon,
+  HomeIcon,
+  ServerIcon,
+} from "lucide-react";
 
 import { BUTTON_PRESS_AUDIO, SERVER_URL } from "@/constants/constants";
 import { Room } from "@/types/interfaces";
@@ -19,7 +25,9 @@ interface RoomsPageProps {
   rooms: Room[];
 }
 
-export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => {
+export const RoomsPage: React.FC<RoomsPageProps> = ({
+  rooms: initialRooms,
+}) => {
   const [rooms, setRooms] = useState(initialRooms ?? []);
   const [sort, setSort] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState(true);
@@ -79,7 +87,7 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
 
   return (
     <main className="flex flex-col text-center relative h-auto px-2 pb-4">
-      <div className="flex items-center bg-[#141428] max-w-[500px] w-full mx-auto py-4 px-4 rounded-t">
+      <div className="flex items-center bg-[#141428] max-w-[500px] w-full mx-auto mt-4 py-4 px-4 rounded-t">
         <div className="flex gap-x-1.5">
           <span className="block w-2.5 h-2.5 bg-[#f4645c] rounded-full"></span>
           <span className="block w-2.5 h-2.5 bg-[#f9be3e] rounded-full"></span>
@@ -91,7 +99,11 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
           readOnly={true}
         />
         <button className="ml-auto" onClick={handleToggleSort}>
-          {sort === "asc" ? <ArrowDown01Icon color="#FFFFFF" size="1.25rem" /> : <ArrowDown10Icon color="#FFFFFF" size="1.25rem" />}
+          {sort === "asc" ? (
+            <ArrowDown01Icon color="#FFFFFF" size="1.25rem" />
+          ) : (
+            <ArrowDown10Icon color="#FFFFFF" size="1.25rem" />
+          )}
         </button>
       </div>
       <div className="bg-card w-full h-full max-w-[500px] mx-auto p-4 rounded-b">
@@ -102,9 +114,13 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
             </div>
           ) : (
             <>
-              {isClosed && <div className="text-white text-sm">Connection closed</div>}
+              {isClosed && (
+                <div className="text-white text-sm">Connection closed</div>
+              )}
               {!isClosed && sortedRooms.length === 0 && (
-                <div className="text-white text-sm">There are currently no public rooms available</div>
+                <div className="text-white text-sm">
+                  There are currently no public rooms available
+                </div>
               )}
               {!isClosed &&
                 sortedRooms.length > 0 &&
@@ -113,9 +129,11 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
                     className={cn(
                       "w-full flex flex-col gap-2 sm:flex-row justify-between items-center flex-wrap bg-[#6b2ed73d] hover:bg-[#6b2ed766] text-foreground border border-primary box-border cursor-pointer p-2 rounded transition duration-300 ease-in-out",
                       {
-                        "[bg-[#170d20]": room.members.length === room.maxRoomSize,
-                        "hover:bg-[#170d20]": room.members.length === room.maxRoomSize,
-                      }
+                        "[bg-[#170d20]":
+                          room.members.length === room.maxRoomSize,
+                        "hover:bg-[#170d20]":
+                          room.members.length === room.maxRoomSize,
+                      },
                     )}
                     key={room.id}
                   >
@@ -130,7 +148,11 @@ export const RoomsPage: React.FC<RoomsPageProps> = ({ rooms: initialRooms }) => 
                         </span>
                       </div>
                     </div>
-                    <Button aria-label="Navigate to room" onClick={() => handleNavigateToRoom(room)} className="w-full sm:w-9 rounded-r">
+                    <Button
+                      aria-label="Navigate to room"
+                      onClick={() => handleNavigateToRoom(room)}
+                      className="w-full sm:w-9 rounded-r"
+                    >
                       <span>
                         <ChevronRightIcon color="#FFFFFF" size="1.25rem" />
                       </span>

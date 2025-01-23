@@ -10,12 +10,15 @@ import { useToast } from "@/components/ui/use-toast";
 
 import { CHECK_IF_ROOM_EXISTS, JOIN_ROOM } from "@/constants/socketActions";
 import { useSocket } from "@/context/SocketContext";
+import { CraftedWithLove } from "./CraftedWithLove";
 
 export interface JoinRoomBoxProps {
   toggle: () => void;
 }
 
-export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCreate }) => {
+export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({
+  toggle: toggleShowCreate,
+}) => {
   const [roomId, setRoomId] = useState("");
   const [username, setUsername] = useState("");
 
@@ -74,17 +77,33 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
   return (
     <div className="max-w-[30rem] w-full bg-card p-4 rounded">
       <div className="flex">
-        <Input placeholder="Room Id" onChange={handleChangeRoomId} value={roomId} />
+        <Input
+          placeholder="Room Id"
+          onChange={handleChangeRoomId}
+          value={roomId}
+        />
       </div>
       <div className="flex mt-3">
-        <Input placeholder="Username" onChange={handleChangeUsername} value={username} />
+        <Input
+          placeholder="Username"
+          onChange={handleChangeUsername}
+          value={username}
+        />
         <DiceButton className="ml-2" onClick={handleGenerateRandomUsername} />
       </div>
       <div className="mt-4 flex flex-col items-center justify-end">
-        <Button className="w-full h-9 py-1 px-2 border uppercase" onClick={handleJoinRoom} variant="default">
+        <Button
+          className="w-full h-9 py-1 px-2 border uppercase"
+          onClick={handleJoinRoom}
+          variant="default"
+        >
           Join Room
         </Button>
-        <Button className="w-full h-9 py-1 px-2 border uppercase mt-2" onClick={toggleShowCreate} variant="secondary">
+        <Button
+          className="w-full h-9 py-1 px-2 border uppercase mt-2"
+          onClick={toggleShowCreate}
+          variant="secondary"
+        >
           Create Room
         </Button>
         <div className="flex items-center justify-center my-4 max-w-[10rem] w-full">
@@ -99,6 +118,7 @@ export const JoinRoomBox: React.FC<JoinRoomBoxProps> = ({ toggle: toggleShowCrea
           Check out the Room Browser!
         </Link>
       </div>
+      <CraftedWithLove />
     </div>
   );
 };
