@@ -20,7 +20,7 @@ import { BUTTON_PRESS_AUDIO } from "@/constants/constants";
 const UserModal = lazy(() =>
   import("../Modals/UserModal").then((module) => {
     return { default: module.UserModal };
-  })
+  }),
 );
 
 interface SettingsProps {}
@@ -31,8 +31,12 @@ const Settings: React.FC<SettingsProps> = () => {
 
   const [isUserModalOpen, setIsUserModalOpen] = useState<string | null>(null);
   const [privateRoom, setPrivateRoom] = useState<boolean>(!!room?.private);
-  const [maxRoomSize, setMaxRoomSize] = useState<number>(room?.maxRoomSize ?? 10);
-  const [roomPasscode, setRoomPasscode] = useState<string>(room?.passcode ?? "");
+  const [maxRoomSize, setMaxRoomSize] = useState<number>(
+    room?.maxRoomSize ?? 10,
+  );
+  const [roomPasscode, setRoomPasscode] = useState<string>(
+    room?.passcode ?? "",
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [_value, copy] = useCopyToClipboard();
@@ -42,7 +46,8 @@ const Settings: React.FC<SettingsProps> = () => {
     src: BUTTON_PRESS_AUDIO,
   });
 
-  const isAuthorized = socket?.data.isAdmin || room?.host === socket?.data.userId;
+  const isAuthorized =
+    socket?.data.isAdmin || room?.host === socket?.data.userId;
 
   const handleChangePrivateRoom = (checked: boolean) => {
     playButtonClickSound();
@@ -70,7 +75,6 @@ const Settings: React.FC<SettingsProps> = () => {
   };
 
   const handleSaveSettings = () => {
-    console.log(socket?.data, room);
     if (socket?.data.isAdmin && room) {
       runIfAuthorized(
         room.host,
@@ -78,7 +82,8 @@ const Settings: React.FC<SettingsProps> = () => {
         () => {
           errorMessage && setErrorMessage(null);
 
-          const newMaxRoomSize = room?.maxRoomSize === maxRoomSize ? undefined : maxRoomSize;
+          const newMaxRoomSize =
+            room?.maxRoomSize === maxRoomSize ? undefined : maxRoomSize;
 
           const currentSettings = {
             private: room.private,
@@ -97,7 +102,9 @@ const Settings: React.FC<SettingsProps> = () => {
           if (!hasSettingsChanged) return;
 
           if (newMaxRoomSize && newMaxRoomSize > 20) {
-            setErrorMessage("Max room size cannot be larger than 20 characters");
+            setErrorMessage(
+              "Max room size cannot be larger than 20 characters",
+            );
             return;
           }
 
@@ -109,7 +116,7 @@ const Settings: React.FC<SettingsProps> = () => {
             description: "Room settings have successfully been saved!",
           });
         },
-        socket.data.isAdmin
+        socket.data.isAdmin,
       );
     }
   };
@@ -137,16 +144,27 @@ const Settings: React.FC<SettingsProps> = () => {
                     userId={member.id}
                     buttonText={
                       <div>
-                        <span className="mr-1">{generateUserIcon(member.id, room.host, member?.isAdmin)}</span>
+                        <span className="mr-1">
+                          {generateUserIcon(
+                            member.id,
+                            room.host,
+                            member?.isAdmin,
+                          )}
+                        </span>
                         {member.username}
                       </div>
                     }
                     headerText={
                       <div>
-                        User: <span className="text-primary">{member.username}</span>
+                        User:{" "}
+                        <span className="text-primary">{member.username}</span>
                       </div>
                     }
-                    disabled={member.isAdmin || !isAuthorized || member.id === socket?.data?.userId}
+                    disabled={
+                      member.isAdmin ||
+                      !isAuthorized ||
+                      member.id === socket?.data?.userId
+                    }
                     open={isUserModalOpen === member.id}
                     handleToggle={handleCloseUserModal}
                   />
@@ -156,7 +174,11 @@ const Settings: React.FC<SettingsProps> = () => {
         </div>
       </div>
       <div className="flex items-center gap-x-2 text-sm text-secondary-foreground">
-        <Switch id="public-mode" checked={!privateRoom} onCheckedChange={handleChangePrivateRoom} />
+        <Switch
+          id="public-mode"
+          checked={!privateRoom}
+          onCheckedChange={handleChangePrivateRoom}
+        />
         <Label htmlFor="public-mode">Public</Label>
       </div>
       <div className="text-sm text-secondary-foreground">
@@ -170,7 +192,9 @@ const Settings: React.FC<SettingsProps> = () => {
           value={maxRoomSize}
           onChange={handleChangeMaxRoomSize}
         />
-        {!!maxRoomSize && room?.maxRoomSize !== maxRoomSize && <span className="mt-0.5 block text-red-300">Unsaved</span>}
+        {!!maxRoomSize && room?.maxRoomSize !== maxRoomSize && (
+          <span className="mt-0.5 block text-red-300">Unsaved</span>
+        )}
       </div>
       <div className="text-sm text-secondary-foreground">
         <Label htmlFor="room-passcode">Room Passcode</Label>
@@ -183,16 +207,27 @@ const Settings: React.FC<SettingsProps> = () => {
             value={roomPasscode}
             onChange={handleChangeRoomPasscode}
           />
-          <Button aria-label="Copy to clipboard" disabled={!roomPasscode.trim()} onClick={handleCopyPasscode} className="w-12 rounded-r rounded-l-none">
+          <Button
+            aria-label="Copy to clipboard"
+            disabled={!roomPasscode.trim()}
+            onClick={handleCopyPasscode}
+            className="w-12 rounded-r rounded-l-none"
+          >
             <span>
               <ClipboardCopyIcon color="#FFFFFF" size="1.25rem" />
             </span>
           </Button>
         </div>
-        {!!roomPasscode && room?.passcode !== roomPasscode && <span className="mt-0.5 block text-red-300">Unsaved</span>}
+        {!!roomPasscode && room?.passcode !== roomPasscode && (
+          <span className="mt-0.5 block text-red-300">Unsaved</span>
+        )}
       </div>
 
-      <Button disabled={!isAuthorized} onClick={handleSaveSettings} className="w-full rounded">
+      <Button
+        disabled={!isAuthorized}
+        onClick={handleSaveSettings}
+        className="w-full rounded"
+      >
         Save
       </Button>
       {errorMessage && <span className="text-red-600">{errorMessage}</span>}
