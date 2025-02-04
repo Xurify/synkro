@@ -10,6 +10,8 @@ interface PageProps {
   sessionToken: string | null;
 }
 
+const postHogKey: string = process.env.NEXT_PUBLIC_POSTHOG_KEY || "";
+
 export const Page: React.FC<React.PropsWithChildren<PageProps>> = ({
   children,
   navigationHeaderProps = {},
@@ -17,8 +19,9 @@ export const Page: React.FC<React.PropsWithChildren<PageProps>> = ({
 }) => {
   React.useEffect(() => {
     if (["www.synkro.live", "synkro.vercel.app"].includes(location.host)) {
-      posthog.init("phc_71zr5IIT4JprMrihRHlVvN6RfYYmVvWcK3HCWooPGsi", {
-        api_host: "https://app.posthog.com",
+      posthog.init(postHogKey, {
+        api_host: "https://www.synkro.live/ingest",
+        ui_host: "https://us.posthog.com",
         loaded: function (posthog) {
           sessionToken && posthog.identify(sessionToken);
         },
