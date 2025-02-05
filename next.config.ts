@@ -1,7 +1,8 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
   reactStrictMode: true,
-  headers: async () => {
+  async headers() {
     return [
       {
         source:
@@ -16,6 +17,18 @@ const nextConfig = {
             value: "nosniff",
           },
         ],
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/ingest/static/:path*",
+        destination: "https://us-assets.i.posthog.com/static/:path*",
+      },
+      {
+        source: "/ingest/:path*",
+        destination: "https://us.i.posthog.com/:path*",
       },
     ];
   },
@@ -56,9 +69,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
-
-// const withBundleAnalyzer = require("@next/bundle-analyzer")({
-//   enabled: process.env.ANALYZE === "true",
-// });
-// module.exports = withBundleAnalyzer({});
+export default nextConfig;
