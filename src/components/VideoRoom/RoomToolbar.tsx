@@ -110,6 +110,7 @@ export const RoomToolbar: React.FC<RoomToolbarProps> = ({
   };
 
   const handleChangeVideo = () => {
+    if (newVideoUrl.trim() === "") return;
     if (!ReactPlayer.canPlay(newVideoUrl)) {
       toast({
         variant: "destructive",
