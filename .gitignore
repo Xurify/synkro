@@ -44,3 +44,4 @@ next-env.d.ts
 # Million Lint
 .million
 server/src/utils/mockRoom.ts
+.vscode/settings.json
