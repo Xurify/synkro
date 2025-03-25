@@ -15,8 +15,8 @@ dependencies:
     specifier: 1.0.13
     version: 1.0.13
   '@next/bundle-analyzer':
-    specifier: ^15.0.4
-    version: 15.0.4
+    specifier: ^15.2.4
+    version: 15.2.4
   '@radix-ui/react-aspect-ratio':
     specifier: ^1.1.0
     version: 1.1.0(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)
@@ -96,8 +96,8 @@ dependencies:
     specifier: 9.16.0
     version: 9.16.0
   eslint-config-next:
-    specifier: 15.0.4
-    version: 15.0.4(eslint@9.16.0)(typescript@5.7.2)
+    specifier: 15.2.4
+    version: 15.2.4(eslint@9.16.0)(typescript@5.7.2)
   lucide-react:
     specifier: 0.468.0
     version: 0.468.0(react@19.0.0)
@@ -1354,8 +1354,8 @@ packages:
     dev: false
     optional: true
 
-  /@next/bundle-analyzer@15.0.4:
-    resolution: {integrity: sha512-0If3/mxqUWYC0lAdV5cChGA1Xs1BENjaLyJkdqpI2df86HqprcDZagiB2IU1xc5ph7xZHRdi5mT2cY7VkyibTQ==}
+  /@next/bundle-analyzer@15.2.4:
+    resolution: {integrity: sha512-72OXS/+r3Q6PW9oCBlkxogsEJ9DIoD64dGe8OZc2nKcHu3HbKKaXoDkutC8u7cxmBFd+ERt3D0/MoP7eZkhhog==}
     dependencies:
       webpack-bundle-analyzer: 4.10.1
     transitivePeerDependencies:
@@ -1367,8 +1367,8 @@ packages:
     resolution: {integrity: sha512-+SFtMgoiYP3WoSswuNmxJOCwi06TdWE733D+WPjpXIe4LXGULwEaofiiAy6kbS0+XjM5xF5n3lKuBwN2SnqD9g==}
     dev: false
 
-  /@next/eslint-plugin-next@15.0.4:
-    resolution: {integrity: sha512-rbsF17XGzHtR7SDWzWpavSfum3/UdnF8bAaisnKwP//si3KWPTedVUsflAdjyK1zW3rweBjbALfKcavFneLGvg==}
+  /@next/eslint-plugin-next@15.2.4:
+    resolution: {integrity: sha512-O8ScvKtnxkp8kL9TpJTTKnMqlkZnS+QxwoQnJwPGBxjBbzd6OVVPEJ5/pMNrktSyXQD/chEfzfFzYLM6JANOOQ==}
     dependencies:
       fast-glob: 3.3.1
     dev: false
@@ -3623,8 +3623,8 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /eslint-config-next@15.0.4(eslint@9.16.0)(typescript@5.7.2):
-    resolution: {integrity: sha512-97mLaAhbJKVQYXUBBrenRtEUAA6bNDPxWfaFEd6mEhKfpajP4wJrW4l7BUlHuYWxR8oQa9W014qBJpumpJQwWA==}
+  /eslint-config-next@15.2.4(eslint@9.16.0)(typescript@5.7.2):
+    resolution: {integrity: sha512-v4gYjd4eYIme8qzaJItpR5MMBXJ0/YV07u7eb50kEnlEmX7yhOjdUdzz70v4fiINYRjLf8X8TbogF0k7wlz6sA==}
     peerDependencies:
       eslint: ^7.23.0 || ^8.0.0 || ^9.0.0
       typescript: '>=3.3.1'
@@ -3632,7 +3632,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@next/eslint-plugin-next': 15.0.4
+      '@next/eslint-plugin-next': 15.2.4
       '@rushstack/eslint-patch': 1.10.4
       '@typescript-eslint/eslint-plugin': 8.17.0(@typescript-eslint/parser@8.17.0)(eslint@9.16.0)(typescript@5.7.2)
       '@typescript-eslint/parser': 8.17.0(eslint@9.16.0)(typescript@5.7.2)
