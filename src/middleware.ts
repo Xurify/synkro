@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse, userAgent } from "next/server";
 import { v4 as uuidv4 } from "uuid";
-import arcjet, { createMiddleware, shield } from "@arcjet/next";
+//import arcjet, { createMiddleware, shield } from "@arcjet/next";
 
 export const config = {
   // matcher tells Next.js which routes to run the middleware on.
@@ -13,15 +13,15 @@ export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|next-assets).*)"],
 };
 
-const aj = arcjet({
-  key: process.env.ARCJET_KEY!,
-  rules: [
-    // Protect against common attacks with Arcjet Shield
-    shield({
-      mode: "LIVE", // will block requests. Use "DRY_RUN" to log only
-    }),
-  ],
-});
+// const aj = arcjet({
+//   key: process.env.ARCJET_KEY!,
+//   rules: [
+//     // Protect against common attacks with Arcjet Shield
+//     shield({
+//       mode: "LIVE", // will block requests. Use "DRY_RUN" to log only
+//     }),
+//   ],
+// });
 
 const middleware = async (req: NextRequest): Promise<NextResponse> => {
   const { device } = userAgent(req);
@@ -54,5 +54,8 @@ const middleware = async (req: NextRequest): Promise<NextResponse> => {
   return res;
 };
 
-// Pass any existing middleware with the optional existingMiddleware prop
-export default createMiddleware(aj, middleware);
+// export default process.env.NODE_ENV === "production"
+//   ? createMiddleware(aj, middleware)
+//   : middleware;
+
+export default middleware;
